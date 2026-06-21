@@ -1,0 +1,181 @@
+<!--
+  Vowel-space explorer for rhyme-schemer (Unit 2).
+  The vowel coordinates and the distance function are ported VERBATIM from
+  rhyme_schemer/features.py, so the number this widget shows for any pair is the
+  exact value vowel_distance()/vowel_similarity() computes in Python. Clicking
+  two vowels makes the feature metric visible.
+
+  Faithfulness note: features.py uses plain Euclidean distance on the
+  (backness x height) plane, so this widget draws a SQUARE plane, not the
+  slanted IPA trapezoid. The trapezoid is the traditional chart; the square is
+  the space the code actually measures in. That gap is itself worth noticing.
+
+  Self-contained. No external services, no localStorage.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vowel-Space Explorer</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--line:#2a2f3a;
+        --mono:#6ea8fe;--diph:#f0a868;--sel:#2ecc71;--rhotic:#c678dd;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 18px 56px;}
+  h1{font-size:1.3rem;margin:0 0 2px;}
+  .sub{color:var(--muted);margin:0 0 18px;font-size:.92rem;}
+  .stage{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+  svg{background:var(--card);border:1px solid var(--line);border-radius:14px;touch-action:manipulation;}
+  .panel{flex:1;min-width:220px;}
+  .readout{background:var(--card);border:1px solid var(--line);border-radius:14px;
+           padding:16px 18px;min-height:140px;}
+  .readout h2{font-size:1rem;margin:0 0 10px;}
+  .pair{font-size:1.5rem;font-weight:700;letter-spacing:.5px;}
+  .pair small{font-size:.8rem;color:var(--muted);font-weight:400;}
+  .metric{margin:10px 0 0;}
+  .bar{height:10px;border-radius:6px;background:#222833;overflow:hidden;margin:4px 0 2px;}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,#2ecc71,#6ea8fe);}
+  .metric span{font-variant-numeric:tabular-nums;}
+  .hint{color:var(--muted);font-size:.85rem;margin-top:12px;}
+  .legend{display:flex;gap:14px;font-size:.8rem;color:var(--muted);margin-top:10px;flex-wrap:wrap;}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin-right:4px;}
+  .vlabel{font-size:13px;font-weight:600;fill:var(--ink);cursor:pointer;}
+  .vex{font-size:9px;fill:var(--muted);cursor:pointer;}
+  .axis{font-size:10px;fill:var(--muted);letter-spacing:1px;}
+  circle.node{cursor:pointer;transition:r .1s;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Vowel-Space Explorer</h1>
+  <p class="sub">Click two vowels. The distance shown is exactly what <code>vowel_distance()</code> returns in <code>features.py</code>.</p>
+  <div class="stage">
+    <svg id="chart" width="420" height="380" viewBox="0 0 420 380" aria-label="Vowel chart"></svg>
+    <div class="panel">
+      <div class="readout">
+        <h2>Selected pair</h2>
+        <div class="pair" id="pair">— · —</div>
+        <div class="metric">distance <span id="dist">—</span>
+          <div class="bar"><i id="distbar" style="width:0%"></i></div>
+        </div>
+        <div class="metric">similarity <span id="sim">—</span>
+          <div class="bar"><i id="simbar" style="width:0%"></i></div>
+        </div>
+        <div class="hint" id="hint">Pick a first vowel…</div>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--mono)"></span>monophthong</span>
+        <span><span class="dot" style="background:var(--diph)"></span>diphthong (glide →)</span>
+        <span><span class="dot" style="background:var(--rhotic)"></span>rhotic (ER)</span>
+      </div>
+      <p class="hint">Axes match the code: <b>backness</b> left→right (front→back), <b>height</b> bottom→top (open→close). A real IPA chart slants these into a trapezoid; the code measures on this square.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- ported verbatim from features.py -------------------------------------
+const V = { // [backness, height, rounded]
+  IY:{s:[0.00,1.00,0.0],e:[0.00,1.00,0.0],rho:false,ex:"beat"},
+  IH:{s:[0.20,0.85,0.0],e:[0.20,0.85,0.0],rho:false,ex:"bit"},
+  EH:{s:[0.10,0.50,0.0],e:[0.10,0.50,0.0],rho:false,ex:"bet"},
+  AE:{s:[0.10,0.20,0.0],e:[0.10,0.20,0.0],rho:false,ex:"bat"},
+  AH:{s:[0.50,0.50,0.0],e:[0.50,0.50,0.0],rho:false,ex:"but"},
+  ER:{s:[0.50,0.55,0.0],e:[0.50,0.55,0.0],rho:true ,ex:"bird"},
+  AA:{s:[0.90,0.00,0.0],e:[0.90,0.00,0.0],rho:false,ex:"father"},
+  AO:{s:[0.90,0.35,1.0],e:[0.90,0.35,1.0],rho:false,ex:"thought"},
+  UH:{s:[0.75,0.85,1.0],e:[0.75,0.85,1.0],rho:false,ex:"book"},
+  UW:{s:[1.00,1.00,1.0],e:[1.00,1.00,1.0],rho:false,ex:"boot"},
+  EY:{s:[0.10,0.65,0.0],e:[0.20,0.85,0.0],rho:false,ex:"bait"},
+  AY:{s:[0.50,0.05,0.0],e:[0.20,0.85,0.0],rho:false,ex:"bite"},
+  OY:{s:[0.90,0.35,1.0],e:[0.20,0.85,0.0],rho:false,ex:"boy"},
+  AW:{s:[0.50,0.05,0.0],e:[0.75,0.85,1.0],rho:false,ex:"bout"},
+  OW:{s:[0.90,0.60,1.0],e:[0.80,0.85,1.0],rho:false,ex:"boat"},
+};
+const W_ROUND=0.3, W_RHOTIC=0.5, MAX_RAW=Math.SQRT2+W_ROUND+W_RHOTIC;
+const plane=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1]);
+function vowelDistance(a,b){
+  const fa=V[a],fb=V[b];
+  const position=(plane(fa.s,fb.s)+plane(fa.e,fb.e))/2;
+  const rounding=(Math.abs(fa.s[2]-fb.s[2])+Math.abs(fa.e[2]-fb.e[2]))/2;
+  const rhotic=fa.rho!==fb.rho?1.0:0.0;
+  return (position+W_ROUND*rounding+W_RHOTIC*rhotic)/MAX_RAW;
+}
+const vowelSimilarity=(a,b)=>1-vowelDistance(a,b);
+// ---------------------------------------------------------------------------
+
+const svg=document.getElementById('chart');
+const NS="http://www.w3.org/2000/svg";
+const PAD=46, W=420, H=380, PW=W-2*PAD, PH=H-2*PAD;
+const X=back=>PAD+back*PW;
+const Y=height=>PAD+(1-height)*PH;   // height 1 (close) at top
+function el(n,a){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;}
+
+// frame + axis labels
+svg.appendChild(el('rect',{x:PAD,y:PAD,width:PW,height:PH,fill:'none',stroke:'#2a2f3a',rx:8}));
+svg.appendChild(el('text',{x:PAD,y:PAD-16,class:'axis'})).textContent='FRONT';
+const tr=el('text',{x:W-PAD,y:PAD-16,class:'axis','text-anchor':'end'});tr.textContent='BACK';svg.appendChild(tr);
+const cl=el('text',{x:PAD-30,y:PAD+4,class:'axis'});cl.textContent='CLOSE';svg.appendChild(cl);
+const op=el('text',{x:PAD-30,y:H-PAD+4,class:'axis'});op.textContent='OPEN';svg.appendChild(op);
+
+const selLine=el('line',{stroke:'var(--sel)','stroke-width':2,'stroke-dasharray':'4 3',opacity:0});
+svg.appendChild(selLine);
+
+let selection=[];
+const nodes={};
+
+for(const [name,d] of Object.entries(V)){
+  const color=d.rho?'var(--rhotic)':(d.s[0]!==d.e[0]||d.s[1]!==d.e[1]?'var(--diph)':'var(--mono)');
+  // diphthong glide arrow
+  if(d.s[0]!==d.e[0]||d.s[1]!==d.e[1]){
+    svg.appendChild(el('line',{x1:X(d.s[0]),y1:Y(d.s[1]),x2:X(d.e[0]),y2:Y(d.e[1]),
+      stroke:'var(--diph)','stroke-width':1.5,opacity:0.55}));
+    svg.appendChild(el('circle',{cx:X(d.e[0]),cy:Y(d.e[1]),r:2.5,fill:'var(--diph)',opacity:0.7}));
+  }
+  const cx=X(d.s[0]), cy=Y(d.s[1]);
+  const node=el('circle',{cx,cy,r:6,fill:color,class:'node','data-v':name});
+  svg.appendChild(node); nodes[name]=node;
+  const lbl=el('text',{x:cx+9,y:cy-2,class:'vlabel','data-v':name});lbl.textContent=name;svg.appendChild(lbl);
+  const ex=el('text',{x:cx+9,y:cy+9,class:'vex','data-v':name});ex.textContent=d.ex;svg.appendChild(ex);
+}
+
+function clearHighlights(){for(const n of Object.values(nodes)){n.setAttribute('r',6);n.setAttribute('stroke','none');}}
+function pick(name){
+  if(selection.length===2) selection=[];
+  selection.push(name);
+  clearHighlights();
+  selection.forEach(s=>{nodes[s].setAttribute('r',8);nodes[s].setAttribute('stroke','var(--sel)');nodes[s].setAttribute('stroke-width',2);});
+  if(selection.length===1){
+    document.getElementById('pair').innerHTML=`${selection[0]} <small>(${V[selection[0]].ex})</small> · —`;
+    document.getElementById('hint').textContent='…now pick a second vowel.';
+    selLine.setAttribute('opacity',0);
+    setBars(null);
+  }else{
+    const [a,b]=selection;
+    const dist=vowelDistance(a,b), sim=vowelSimilarity(a,b);
+    document.getElementById('pair').innerHTML=`${a} <small>(${V[a].ex})</small> · ${b} <small>(${V[b].ex})</small>`;
+    setBars({dist,sim});
+    document.getElementById('hint').textContent = sim>0.85
+      ? 'Near-identical — these would read as a full or very close rhyme.'
+      : sim>0.6 ? 'Moderately close — plausible slant-rhyme territory.'
+      : 'Far apart — your ear would not hear these as a rhyme.';
+    const pa=V[a].s, pb=V[b].s;
+    selLine.setAttribute('x1',X(pa[0]));selLine.setAttribute('y1',Y(pa[1]));
+    selLine.setAttribute('x2',X(pb[0]));selLine.setAttribute('y2',Y(pb[1]));
+    selLine.setAttribute('opacity',1);
+  }
+}
+function setBars(m){
+  const dEl=document.getElementById('dist'),sEl=document.getElementById('sim');
+  const dB=document.getElementById('distbar'),sB=document.getElementById('simbar');
+  if(!m){dEl.textContent='—';sEl.textContent='—';dB.style.width='0%';sB.style.width='0%';return;}
+  dEl.textContent=m.dist.toFixed(3);sEl.textContent=m.sim.toFixed(3);
+  dB.style.width=(m.dist*100).toFixed(1)+'%';sB.style.width=(m.sim*100).toFixed(1)+'%';
+}
+svg.addEventListener('click',e=>{const v=e.target.getAttribute&&e.target.getAttribute('data-v');if(v)pick(v);});
+</script>
+</body>
+</html>

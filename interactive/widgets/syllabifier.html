@@ -1,0 +1,147 @@
+<!--
+  Syllabifier sandbox for rhyme-schemer (Unit 4).
+  Ports is_legal_onset (phonetics.py) and _split_consonants/syllabify
+  (syllabify.py) verbatim, so the onset/nucleus/coda split shown here is exactly
+  what the Python produces. Type ARPAbet, or click a built-in example.
+  Self-contained. No external services, no localStorage. (Real CMUdict lookup
+  needs the `pronouncing` library; the examples below are the repo's test words.)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syllabifier Sandbox</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--line:#2a2f3a;
+        --onset:#6ea8fe;--nucleus:#2ecc71;--coda:#f0a868;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  .wrap{max-width:720px;margin:0 auto;padding:24px 18px 56px;}
+  h1{font-size:1.3rem;margin:0 0 2px;}
+  .sub{color:var(--muted);margin:0 0 16px;font-size:.92rem;}
+  .examples{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .ex{background:var(--card);border:1px solid var(--line);color:var(--ink);
+      padding:6px 11px;border-radius:999px;cursor:pointer;font:inherit;font-size:.85rem;}
+  .ex:hover{border-color:var(--onset);}
+  .inrow{display:flex;gap:8px;margin-bottom:14px;}
+  input{flex:1;background:var(--card);border:1px solid var(--line);color:var(--ink);
+        border-radius:10px;padding:10px 12px;font:inherit;font-family:ui-monospace,monospace;}
+  button.go{background:var(--onset);border:none;color:#0b1020;font-weight:700;
+            border-radius:10px;padding:10px 16px;cursor:pointer;font:inherit;}
+  .out{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;min-height:90px;}
+  .syls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-family:ui-monospace,monospace;font-size:1.1rem;}
+  .syl{display:flex;align-items:baseline;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#11151c;}
+  .seg{padding:0 3px;}
+  .onset{color:var(--onset);} .nucleus{color:var(--nucleus);font-weight:700;} .coda{color:var(--coda);}
+  .dot{color:var(--muted);}
+  .legend{display:flex;gap:16px;font-size:.8rem;color:var(--muted);margin-top:12px;}
+  .legend b{font-weight:600;}
+  .err{color:#e74c3c;font-size:.9rem;}
+  .note{color:var(--muted);font-size:.85rem;margin-top:10px;}
+  .skel{margin-top:10px;font-family:ui-monospace,monospace;color:var(--muted);font-size:.9rem;}
+  .skel b{color:var(--nucleus);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Syllabifier Sandbox</h1>
+  <p class="sub">See the Maximal Onset Principle split a pronunciation into <span class="onset">onset</span> · <span class="nucleus">nucleus</span> · <span class="coda">coda</span>.</p>
+  <div class="examples" id="examples"></div>
+  <div class="inrow">
+    <input id="in" value="L IH1 NG K AH0 N" spellcheck="false" aria-label="ARPAbet phonemes">
+    <button class="go" id="go">Syllabify</button>
+  </div>
+  <div class="out">
+    <div class="syls" id="syls"></div>
+    <div class="skel" id="skel"></div>
+  </div>
+  <div class="legend">
+    <span><b class="onset">onset</b> consonants before the vowel</span>
+    <span><b class="nucleus">nucleus</b> the vowel</span>
+    <span><b class="coda">coda</b> consonants after</span>
+  </div>
+  <p class="note">Try forcing a bad split: <code>L EH1 K S AH0 S</code> ("lexus") keeps K in the coda because <code>K S</code> isn't a legal English onset, but <code>K Y UW1 T IY0</code> ("cutie") hands K&nbsp;Y to the next onset because <code>K Y</code> is legal.</p>
+</div>
+
+<script>
+// ---- ported verbatim from phonetics.py ------------------------------------
+const VOWELS=new Set(["AA","AE","AH","AO","AW","AY","EH","ER","EY","IH","IY","OW","OY","UH","UW"]);
+const ILLEGAL_SINGLE=new Set(["NG"]);
+const TWO=new Set(["S,P","S,T","S,K","S,M","S,N","S,L","S,W","S,F",
+ "P,L","P,R","P,Y","T,R","T,W","T,Y","K,L","K,R","K,W","K,Y",
+ "B,L","B,R","B,Y","D,R","D,W","D,Y","G,L","G,R","G,W",
+ "F,L","F,R","F,Y","TH,R","TH,W","SH,R","HH,Y","HH,W","V,Y","M,Y","N,Y"]);
+const THREE=new Set(["S,P,L","S,P,R","S,P,Y","S,T,R","S,T,Y","S,K,R","S,K,W","S,K,Y","S,K,L"]);
+function stripStress(p){const last=p.slice(-1);if(/[0-9]/.test(last))return[p.slice(0,-1),+last];return[p,null];}
+function isVowel(p){return VOWELS.has(stripStress(p)[0]);}
+function isLegalOnset(cluster){
+  const n=cluster.length;
+  if(n===0)return true;
+  if(n===1)return !ILLEGAL_SINGLE.has(cluster[0]);
+  if(n===2)return TWO.has(cluster.join(","));
+  if(n===3)return THREE.has(cluster.join(","));
+  return false;
+}
+// ---- ported verbatim from syllabify.py ------------------------------------
+function splitConsonants(cluster){
+  const n=cluster.length;
+  for(let onsetLen=n;onsetLen>=0;onsetLen--){
+    const onset=cluster.slice(n-onsetLen);
+    if(isLegalOnset(onset))return[cluster.slice(0,n-onsetLen),onset];
+  }
+  return[cluster,[]];
+}
+function syllabify(phones){
+  const vpos=[];phones.forEach((p,i)=>{if(isVowel(p))vpos.push(i);});
+  if(vpos.length===0)return[];
+  const syls=[];let pending=[];
+  vpos.forEach((vi,n)=>{
+    const [base,stress]=stripStress(phones[vi]);
+    const onset = n===0 ? phones.slice(0,vi) : pending;
+    let coda;
+    if(n+1<vpos.length){
+      const gap=phones.slice(vi+1,vpos[n+1]);
+      const [c,nextOnset]=splitConsonants(gap);coda=c;pending=nextOnset;
+    }else{ coda=phones.slice(vi+1); }
+    syls.push({onset,nucleus:base,stress:stress??0,coda});
+  });
+  return syls;
+}
+// ---------------------------------------------------------------------------
+
+const EXAMPLES={
+  "lincoln":"L IH1 NG K AH0 N","reason":"R IY1 Z AH0 N","lexus":"L EH1 K S AH0 S",
+  "cutie":"K Y UW1 T IY0","hypnotize":"HH IH1 P N AH0 T AY2 Z","six":"S IH1 K S",
+};
+const exDiv=document.getElementById('examples');
+for(const [w,ph] of Object.entries(EXAMPLES)){
+  const b=document.createElement('button');b.className='ex';b.textContent=w;
+  b.onclick=()=>{document.getElementById('in').value=ph;run();};exDiv.appendChild(b);
+}
+function seg(cls,arr){return arr.map(p=>`<span class="seg ${cls}">${p}</span>`).join('');}
+function run(){
+  const raw=document.getElementById('in').value.trim().toUpperCase();
+  const syls=document.getElementById('syls'),skel=document.getElementById('skel');
+  if(!raw){syls.innerHTML='<span class="err">Enter ARPAbet, e.g. R IY1 Z AH0 N</span>';skel.textContent='';return;}
+  const phones=raw.split(/\s+/);
+  const bad=phones.filter(p=>!isVowel(p)&&!/^[A-Z]{1,2}[0-9]?$/.test(p));
+  let result;
+  try{result=syllabify(phones);}catch(e){result=[];}
+  if(result.length===0){
+    syls.innerHTML='<span class="err">No vowel nucleus found — nothing to syllabify.</span>';skel.textContent='';return;
+  }
+  syls.innerHTML=result.map((s,i)=>{
+    const inner=`${seg('onset',s.onset)}<span class="seg nucleus">${s.nucleus}${s.stress}</span>${seg('coda',s.coda)}`;
+    return `<span class="syl">${inner}</span>`+(i<result.length-1?'<span class="dot">·</span>':'');
+  }).join('');
+  const nuclei=result.map(s=>s.nucleus);
+  skel.innerHTML=`vowel skeleton: [ ${nuclei.map(n=>`<b>${n}</b>`).join(', ')} ] — the spine the rhyme kernel will score`;
+}
+document.getElementById('go').onclick=run;
+document.getElementById('in').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+run();
+</script>
+</body>
+</html>
