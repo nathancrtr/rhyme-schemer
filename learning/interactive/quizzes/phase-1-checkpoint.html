@@ -1,0 +1,96 @@
+<!--
+  Phase 1 checkpoint quiz for rhyme-schemer (Units 1-4).
+  Cloned from course-builder/assets/quiz-template.html. Immediate explanatory
+  feedback on every option; distractors target specific misconceptions.
+  No localStorage; in-memory only.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 1 Checkpoint — Phonetic Foundation</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--ok:#2ecc71;--no:#e74c3c;--accent:#6ea8fe;--line:#2a2f3a;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  .wrap{max-width:720px;margin:0 auto;padding:32px 20px 64px;}
+  h1{font-size:1.35rem;margin:0 0 4px;}
+  .sub{color:var(--muted);margin:0 0 24px;}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:0 0 16px;}
+  .q h2{font-size:1.05rem;margin:0 0 14px;font-weight:600;}
+  .opt{display:block;width:100%;text-align:left;padding:12px 14px;margin:8px 0;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:10px;cursor:pointer;font:inherit;transition:.12s;}
+  .opt:hover:not(:disabled){border-color:var(--accent);}
+  .opt:disabled{cursor:default;}
+  .opt.correct{border-color:var(--ok);background:rgba(46,204,113,.10);}
+  .opt.wrong{border-color:var(--no);background:rgba(231,76,60,.10);}
+  .why{font-size:.92rem;color:var(--muted);margin:6px 2px 0;padding-left:14px;border-left:2px solid var(--line);display:none;}
+  .why.show{display:block;}
+  code{font-family:ui-monospace,monospace;}
+  .score{position:sticky;bottom:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-top:8px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Phase 1 Checkpoint — Phonetic Foundation</h1>
+  <p class="sub">Units 1–4. Click an answer to see why every option is right or wrong.</p>
+  <div id="quiz"></div>
+  <div class="score" id="score"></div>
+</div>
+<script>
+const QUIZ_DATA=[
+ {q:"Why does rhyme-schemer look words up in CMUdict instead of comparing their spelling?",
+  options:[
+   {text:"CMUdict lookups are faster than string comparison",correct:false,why:"Speed isn't the issue. The point is correctness: spelling can't express the sounds rhyme depends on."},
+   {text:"Rhyme is a relation between sounds, and English spelling encodes sound irregularly",correct:true,why:"Exactly. 'Lincoln'/'reason' rhyme by sound with no shared spelling — only a pronunciation can reveal that."},
+   {text:"CMUdict contains every English word, so lookups never fail",correct:false,why:"The opposite — CMUdict has gaps (the OOV problem), which becomes its own unit (13)."}]},
+ {q:"In the ARPAbet token <code>IH1</code>, what does the digit encode?",
+  options:[
+   {text:"The vowel's stress (1 = primary)",correct:true,why:"Right — vowels carry a stress digit 0/1/2; consonants never do. strip_stress() peels it off."},
+   {text:"The position of the phoneme in the word",correct:false,why:"No — position isn't encoded in the token. Only vowels carry a digit, and it's stress."},
+   {text:"How many times the vowel repeats",correct:false,why:"No. The digit is lexical stress: 0 unstressed, 1 primary, 2 secondary."}]},
+ {q:"Why is <code>IH</code> ('bit') placed lower and more central than <code>IY</code> ('beat') in the vowel table, with no separate 'lax' feature?",
+  options:[
+   {text:"It's an arbitrary choice with no phonetic meaning",correct:false,why:"It's deliberate: lax vowels are articulated lower and more central, so the contrast is real."},
+   {text:"The tense/lax contrast falls out of position, so no extra feature is needed",correct:true,why:"Right — encoding the centralization in the coordinates makes a separate tense/lax flag redundant."},
+   {text:"Because IH is a diphthong and IY is not",correct:false,why:"Both are monophthongs (start == end). The difference is position, not glide."}]},
+ {q:"Manner of articulation is ordered stop → affricate → fricative → nasal → liquid → glide. What is that ordering?",
+  options:[
+   {text:"Alphabetical by ARPAbet symbol",correct:false,why:"No — it's phonetic, not alphabetical."},
+   {text:"The sonority hierarchy (least to most sonorous)",correct:true,why:"Right. Ordering manner by sonority makes consonant distance reflect a real perceptual dimension and underlies legal onsets."},
+   {text:"Frequency of the consonant in English",correct:false,why:"Frequency plays no role here; the axis is sonority."}]},
+ {q:"In 'lexus' (<code>L EH1 K S AH0 S</code>), why does the K stay in the first syllable's coda rather than joining the next onset?",
+  options:[
+   {text:"Because <code>K S</code> is not a legal English onset, so MOP can't push K forward",correct:true,why:"Exactly — the Maximal Onset Principle hands consonants forward only as far as phonotactics allow; KS can't begin a syllable."},
+   {text:"Because the first syllable is stressed and stressed syllables take more codas",correct:false,why:"Stress doesn't drive the split here; onset legality does."},
+   {text:"Because K is always a coda in English",correct:false,why:"K is a fine onset (as in 'cutie', K Y ...). It stays coda here only because KS is an illegal onset."}]},
+ {q:"What does <code>Pronunciation.vowel_skeleton</code> give you, and why will it matter downstream?",
+  options:[
+   {text:"Every phoneme in order — the full pronunciation",correct:false,why:"No — it's only the nuclei (one vowel per syllable), not every phoneme."},
+   {text:"The ordered nuclei of the syllables — the spine the rhyme kernel will score",correct:true,why:"Right. Rhyme is vowel-led, so the sequence of nuclei is what the rhyme kernel ultimately compares."},
+   {text:"The stressed syllable only",correct:false,why:"It's all nuclei in order; isolating the stressed-tail comes later, in Unit 5 (rhyme_tail)."}]},
+];
+const quizEl=document.getElementById('quiz'),scoreEl=document.getElementById('score');
+let answered=0,correct=0;
+QUIZ_DATA.forEach((item,qi)=>{
+ const card=document.createElement('div');card.className='q';
+ const h=document.createElement('h2');h.innerHTML=(qi+1)+'. '+item.q;card.appendChild(h);
+ let locked=false;
+ item.options.forEach((opt)=>{
+  const btn=document.createElement('button');btn.className='opt';btn.innerHTML=opt.text;
+  const why=document.createElement('div');why.className='why';why.textContent=opt.why;
+  btn.addEventListener('click',()=>{
+   if(locked)return;locked=true;answered++;if(opt.correct)correct++;
+   Array.from(card.querySelectorAll('.opt')).forEach((b,i)=>{b.disabled=true;if(item.options[i].correct)b.classList.add('correct');});
+   if(!opt.correct)btn.classList.add('wrong');
+   card.querySelectorAll('.why').forEach(w=>w.classList.add('show'));
+   scoreEl.textContent='Answered '+answered+' / '+QUIZ_DATA.length+'  ·  '+correct+' correct';
+  });
+  card.appendChild(btn);card.appendChild(why);
+ });
+ quizEl.appendChild(card);
+});
+scoreEl.textContent='Answered 0 / '+QUIZ_DATA.length;
+</script>
+</body>
+</html>
