@@ -9,6 +9,7 @@ to care which it started as.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Iterable
 
 from .phonetics import Stress
 
@@ -58,6 +59,30 @@ class Pronunciation:
     @property
     def stresses(self) -> tuple[Stress, ...]:
         return tuple(s.stress for s in self.syllables)
+
+    @classmethod
+    def concat(
+        cls, prons: Iterable[Pronunciation], *, text: str | None = None
+    ) -> Pronunciation:
+        """Glue several pronunciations end to end into one.
+
+        This is how a multi-word *span* ("get up") is built: it is simply the
+        first word's syllables followed by the second's, with no boundary marker
+        -- because downstream nothing cares where one word ended and the next
+        began. The result is an ordinary ``Pronunciation``, so it flows through
+        ``rhyme_tail`` and the whole kernel unchanged; a span carrying two
+        primary stresses just anchors on the *last* one, exactly as a
+        long single word would.
+
+        ``text`` defaults to the source texts joined by spaces (skipping any
+        that are ``None``), so a span prints as "get up".
+        """
+        prons = list(prons)
+        syllables = tuple(s for p in prons for s in p.syllables)
+        if text is None:
+            texts = [p.text for p in prons if p.text]
+            text = " ".join(texts) if texts else None
+        return cls(syllables=syllables, text=text)
 
     def __str__(self) -> str:
         body = " . ".join(str(s) for s in self.syllables)

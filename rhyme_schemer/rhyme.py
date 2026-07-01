@@ -8,6 +8,8 @@ of the word, and everything the kernel scores operates on that tail.
 
 from __future__ import annotations
 
+from typing import Sequence
+
 from .features import consonant_similarity, vowel_distance, vowel_similarity
 from .models import Pronunciation, Syllable
 from .phonetics import Stress
@@ -243,6 +245,65 @@ def is_rhyme(
     return rhyme_score(
         a,
         b,
+        nucleus_weight=nucleus_weight,
+        coda_weight=coda_weight,
+        gap_penalty=gap_penalty,
+    ) >= threshold
+
+
+def best_rhyme_score(
+    a_variants: Sequence[Pronunciation],
+    b_variants: Sequence[Pronunciation],
+    *,
+    nucleus_weight: float = DEFAULT_NUCLEUS_WEIGHT,
+    coda_weight: float = DEFAULT_CODA_WEIGHT,
+    gap_penalty: float = DEFAULT_GAP_PENALTY,
+) -> float:
+    """The best ``rhyme_score`` over all pronunciation-variant combinations.
+
+    A word (or span) rarely has one pronunciation; a rapper picks whichever
+    *variant* lands the rhyme (coercion). So the honest score for two candidates
+    is the maximum over every pairing of their variants -- not a guess at variant
+    zero. "route" (R UW1 T | R AW1 T) rhymes with "shout" only under its second
+    reading, and this ``max`` is what finds it.
+
+    Crucially the kernel is untouched: this is a thin ``max`` *around*
+    ``rhyme_score``. Empty input (an out-of-vocabulary word or span, whose
+    variant list is empty) yields ``0.0``, matching ``rhyme_score``'s treatment
+    of empty tails. Pair with ``pronunciations_for`` / ``pronunciations_for_span``
+    to get the variant lists.
+    """
+    scores = [
+        rhyme_score(
+            a,
+            b,
+            nucleus_weight=nucleus_weight,
+            coda_weight=coda_weight,
+            gap_penalty=gap_penalty,
+        )
+        for a in a_variants
+        for b in b_variants
+    ]
+    return max(scores) if scores else 0.0
+
+
+def best_is_rhyme(
+    a_variants: Sequence[Pronunciation],
+    b_variants: Sequence[Pronunciation],
+    *,
+    threshold: float = DEFAULT_RHYME_THRESHOLD,
+    nucleus_weight: float = DEFAULT_NUCLEUS_WEIGHT,
+    coda_weight: float = DEFAULT_CODA_WEIGHT,
+    gap_penalty: float = DEFAULT_GAP_PENALTY,
+) -> bool:
+    """Yes/no rhyme decision over variants: does the *best* variant clear it?
+
+    The variant-aware sibling of ``is_rhyme``: two words rhyme if *some* pair of
+    their pronunciations does. Thresholds ``best_rhyme_score``.
+    """
+    return best_rhyme_score(
+        a_variants,
+        b_variants,
         nucleus_weight=nucleus_weight,
         coda_weight=coda_weight,
         gap_penalty=gap_penalty,

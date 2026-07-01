@@ -41,12 +41,17 @@ matches its knowledge level rather than reaching across:
    dataclasses. **Key design invariant:** a single word and a multi-word span are
    *both* just `Pronunciation`s, so nothing downstream cares which it started as.
    `Pronunciation.vowel_skeleton` (the nuclei in order) is the spine of rhyme.
-3. **`syllabify.py`** — CMUdict lookup (`pronunciation_for`) + the Maximal Onset
-   Principle syllabifier (`syllabify`). Splits a flat phoneme list into syllables:
-   one nucleus per vowel; intervocalic consonant runs are pushed into the
-   *following* onset as far as `phonetics.is_legal_onset` allows, the rest is coda.
-   OOV words return `None` (the agreed "skip-and-flag" behavior); only the first
-   CMUdict variant is used for now.
+3. **`syllabify.py`** — CMUdict lookup + the Maximal Onset Principle syllabifier
+   (`syllabify`). Splits a flat phoneme list into syllables: one nucleus per
+   vowel; intervocalic consonant runs are pushed into the *following* onset as
+   far as `phonetics.is_legal_onset` allows, the rest is coda. Lookup comes in
+   four flavors on two axes — single word vs. multi-word **span** (`_for_span`,
+   which concatenates via `Pronunciation.concat`), and first-variant vs. **all
+   CMUdict variants** (`pronunciations_*`, plural): `pronunciation_for`,
+   `pronunciation_for_span`, `pronunciations_for`, `pronunciations_for_span`.
+   OOV is "skip-and-flag": the singular forms return `None`, the plural forms
+   return `[]` (and one OOV word empties a whole span). Span variants are the
+   cartesian product of the words' variants.
 4. **`features.py`** — articulatory feature spaces giving *graded* phoneme
    similarity (this is what enables slant rhyme). Vowels live on the IPA
    quadrilateral (backness × height) plus roundedness + a rhotic flag, with
@@ -65,10 +70,16 @@ matches its knowledge level rather than reaching across:
    *here* (`DEFAULT_NUCLEUS_WEIGHT`/`DEFAULT_CODA_WEIGHT`), **not** in `features.py`;
    perfect rhyme is the threshold-1.0 special case, and equal-length tails stay on
    the alignment's no-gap diagonal, reproducing simple position-by-position scoring.
+   `best_rhyme_score`/`best_is_rhyme` are variant-aware wrappers: given two
+   *lists* of pronunciations they take the `max` over all pairings (a rapper
+   picks whichever reading rhymes) — a thin layer *around* the kernel, which
+   itself still only ever sees one `Pronunciation` vs. one `Pronunciation`.
 
-**Next milestone** (see top-level `README.md`): from pairwise scores to a whole
-verse — multi-word spans + pronunciation-variant-aware scoring, then grouping
-rhymes into a scheme (graph components).
+**Next milestone** (see top-level `README.md`): multi-word spans and
+variant-aware scoring are now in place (Unit 9). Next is **grouping** rhymes
+into a scheme (Unit 10) — build a graph where an edge means "score ≥ threshold"
+and return connected components as rhyme classes, reckoning with the
+non-transitivity of slant rhyme.
 
 The public API is re-exported from `rhyme_schemer/__init__.py`; update `__all__`
 when you add user-facing surface.

@@ -60,8 +60,18 @@ Rhyme kernel built:
   (Needleman–Wunsch over vowel skeletons), `rhyme_score` (graded perfect/slant
   scoring), and `is_rhyme` (thresholded yes/no)
 
-Next up: from pairwise scores to a whole verse — multi-word spans and
-pronunciation variants, then grouping rhymes into a scheme.
+Spans and pronunciation variants built:
+
+- `rhyme_schemer/syllabify.py` — multi-word **spans** (`pronunciation_for_span`)
+  and **all** CMUdict variants (`pronunciations_for`, `pronunciations_for_span`),
+  a span being just a concatenated `Pronunciation`
+- `rhyme_schemer/rhyme.py` — `best_rhyme_score` / `best_is_rhyme`, variant-aware
+  scoring that takes the `max` over pronunciation variants around the unchanged
+  kernel
+
+Next up: **grouping** rhymes into a scheme — a similarity graph over line-end
+words (edge = score ≥ threshold) whose connected components are the rhyme
+classes, reckoning with the non-transitivity of slant rhyme.
 
 ## Development
 

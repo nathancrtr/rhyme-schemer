@@ -21,7 +21,8 @@ entirely the last coda (there is no neighbor to compete for them).
 
 from __future__ import annotations
 
-from typing import Optional
+import itertools
+from typing import Optional, Sequence
 
 import pronouncing
 
@@ -79,15 +80,76 @@ def syllabify(phones: list[str]) -> tuple[Syllable, ...]:
     return tuple(syllables)
 
 
-def pronunciation_for(word: str) -> Optional[Pronunciation]:
-    """Look up ``word`` in CMUdict and syllabify it.
+def pronunciations_for(word: str) -> list[Pronunciation]:
+    """Look up *all* of ``word``'s CMUdict pronunciations and syllabify each.
 
-    Returns ``None`` for out-of-vocabulary words (our agreed "skip-and-flag"
-    behavior). For now we take the *first* pronunciation variant; handling
-    multiple variants is deferred.
+    CMUdict often lists several pronunciations for one spelling -- "read" is
+    ``R EH1 D`` or ``R IY1 D``, "either" is ``IY1 DH ER0`` or ``AY1 DH ER0`` --
+    and a rapper picks whichever *variant* makes the line rhyme (pronunciation
+    coercion). Returning the whole list is what lets scoring later take the best
+    variant instead of guessing one.
+
+    Returns an empty list for out-of-vocabulary words (the "skip-and-flag"
+    contract: callers test truthiness). Order follows CMUdict, so the first
+    entry is the one ``pronunciation_for`` returns.
     """
     variants = pronouncing.phones_for_word(word.lower())
-    if not variants:
-        return None
-    phones = variants[0].split()
-    return Pronunciation(syllables=syllabify(phones), text=word)
+    return [
+        Pronunciation(syllables=syllabify(v.split()), text=word)
+        for v in variants
+    ]
+
+
+def pronunciation_for(word: str) -> Optional[Pronunciation]:
+    """Look up ``word`` and return its *first* CMUdict pronunciation.
+
+    A convenience over ``pronunciations_for`` for the common case where one
+    pronunciation is enough; returns ``None`` for out-of-vocabulary words. When
+    a rhyme might hinge on a less-common pronunciation, reach for
+    ``pronunciations_for`` (and variant-aware scoring) instead.
+    """
+    variants = pronunciations_for(word)
+    return variants[0] if variants else None
+
+
+def pronunciation_for_span(words: Sequence[str]) -> Optional[Pronunciation]:
+    """Look up a multi-word span and return it as a single ``Pronunciation``.
+
+    A span like ``["get", "up"]`` is just the two words' syllables laid end to
+    end (see ``Pronunciation.concat``) -- the payoff of the model's core
+    invariant that a word and a span are the same downstream object. This lets
+    a multi-word phrase be scored against a single word ("get up" vs "setup")
+    with the unchanged rhyme kernel.
+
+    If *any* word is out of vocabulary, the whole span is OOV and we return
+    ``None`` -- the same "skip-and-flag" contract as ``pronunciation_for``. Like
+    it, this uses only the first CMUdict variant of each word; scoring over all
+    variant combinations arrives in Unit 9's later phases.
+    """
+    prons = []
+    for word in words:
+        pron = pronunciation_for(word)
+        if pron is None:
+            return None
+        prons.append(pron)
+    return Pronunciation.concat(prons)
+
+
+def pronunciations_for_span(words: Sequence[str]) -> list[Pronunciation]:
+    """Enumerate *every* pronunciation of a multi-word span.
+
+    A span's variants are the cartesian product of its words' variants: if
+    "read"(2) precedes "it"(1) then "read it" has 2x1 = 2 spans, and each is one
+    combination concatenated end to end (Phase 1). This is what lets scoring
+    later pick the best-rhyming reading of a whole phrase, not just word by word.
+
+    Returns an empty list if *any* word is out of vocabulary (its variant list
+    is empty, so the product is empty) -- the span-level "skip-and-flag".
+    """
+    per_word = [pronunciations_for(word) for word in words]
+    if any(not variants for variants in per_word):
+        return []
+    return [
+        Pronunciation.concat(combo)
+        for combo in itertools.product(*per_word)
+    ]
