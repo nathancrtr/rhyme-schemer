@@ -1,0 +1,272 @@
+<!--
+  Needleman-Wunsch alignment explorer for rhyme-schemer (Unit 8).
+
+  Aligns the VOWEL SKELETONS of two rhyme tails, exactly as rhyme_score will:
+  substitution cost = vowel_distance (ported VERBATIM from features.py, so the
+  numbers match Python), gaps cost a tunable penalty. The widget shows the two
+  things the lesson separates:
+
+    SCORING   = the number in the bottom-right cell (best total cost).
+    BACKTRACE = the PATH to that cell -- which nuclei actually paired, and where
+                a gap was chosen. Click any cell to see its recurrence; the gold
+                path is the backtrace.
+
+  Drag the gap-penalty slider to watch the alignment change: near 0 everything
+  collapses into gaps; too high and a genuine extra syllable can't be skipped.
+
+  Faithfulness note: this widget aligns on VOWELS only (the rhyme spine). The
+  Python scorer folds codas back into each aligned pair afterwards; that step is
+  deliberately not shown here so the alignment idea stays isolated.
+
+  Self-contained. No external services, no localStorage.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Needleman-Wunsch Alignment Explorer</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--line:#2a2f3a;
+        --path:#f0a868;--sub:#6ea8fe;--gap:#c678dd;--sel:#2ecc71;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 18px 56px;}
+  h1{font-size:1.3rem;margin:0 0 2px;}
+  .sub{color:var(--muted);margin:0 0 18px;font-size:.92rem;}
+  code{background:#222833;padding:1px 5px;border-radius:4px;font-size:.85em;}
+  .controls{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;
+            background:var(--card);border:1px solid var(--line);border-radius:14px;
+            padding:14px 16px;margin-bottom:18px;}
+  .controls label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:4px;letter-spacing:.3px;}
+  .controls input[type=text]{width:150px;background:#12151b;color:var(--ink);
+            border:1px solid var(--line);border-radius:8px;padding:7px 9px;font:inherit;
+            font-variant-numeric:tabular-nums;letter-spacing:1px;}
+  .controls select{background:#12151b;color:var(--ink);border:1px solid var(--line);
+            border-radius:8px;padding:7px 9px;font:inherit;}
+  .controls input[type=range]{width:170px;vertical-align:middle;}
+  .gapval{font-variant-numeric:tabular-nums;color:var(--path);font-weight:700;}
+  .stage{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;}
+  table{border-collapse:collapse;font-variant-numeric:tabular-nums;}
+  td,th{width:52px;height:44px;text-align:center;border:1px solid var(--line);
+        font-size:.86rem;padding:0;cursor:default;}
+  th{color:var(--muted);font-weight:600;background:#161a21;}
+  td.cell{cursor:pointer;background:var(--card);transition:background .08s;}
+  td.cell:hover{background:#242a35;}
+  td.path{background:rgba(240,168,104,.20);color:var(--path);font-weight:700;
+          box-shadow:inset 0 0 0 2px var(--path);}
+  td.active{box-shadow:inset 0 0 0 2px var(--sel);}
+  .corner{background:#12151b;}
+  .panel{flex:1;min-width:250px;}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:14px;
+       padding:14px 16px;margin-bottom:14px;}
+  .box h2{font-size:.95rem;margin:0 0 10px;}
+  .align-row{font-size:1.25rem;font-weight:700;letter-spacing:2px;font-variant-numeric:tabular-nums;}
+  .align-row .g{color:var(--gap);}
+  .col-note{font-size:.82rem;color:var(--muted);margin-top:8px;line-height:1.7;}
+  .col-note b.sub{color:var(--sub);} .col-note b.gap{color:var(--gap);}
+  .recur{font-size:.85rem;line-height:1.9;}
+  .recur .win{color:var(--sel);font-weight:700;}
+  .recur .dim{color:var(--muted);}
+  .tot{font-size:1.05rem;} .tot b{color:var(--path);font-variant-numeric:tabular-nums;}
+  .legend{display:flex;gap:16px;font-size:.8rem;color:var(--muted);margin-top:6px;flex-wrap:wrap;}
+  .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:middle;margin-right:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Needleman&ndash;Wunsch Alignment Explorer</h1>
+  <p class="sub">Aligning two vowel skeletons. Substitution cost is the real <code>vowel_distance()</code>; gaps cost the penalty below. The <span style="color:var(--path);font-weight:700">gold path</span> is the backtrace &mdash; click any cell to see how it chose.</p>
+
+  <div class="controls">
+    <div>
+      <label>Preset pair</label>
+      <select id="preset">
+        <option value="IH AH|IY AH">lincoln &middot; reason (2&times;2)</option>
+        <option value="AE AH AH|AE AH AH">national &middot; rational (3&times;3)</option>
+        <option value="IH AH AY|AH AY">hypnotize &middot; -ptize (3&times;2)</option>
+        <option value="AE|AE AH AH">cat &middot; national (1&times;3)</option>
+        <option value="custom">(custom &mdash; edit below)</option>
+      </select>
+    </div>
+    <div>
+      <label>Skeleton X (rows)</label>
+      <input type="text" id="xin" value="IH AH">
+    </div>
+    <div>
+      <label>Skeleton Y (columns)</label>
+      <input type="text" id="yin" value="IY AH">
+    </div>
+    <div>
+      <label>Gap penalty <span class="gapval" id="gaplbl">0.60</span></label>
+      <input type="range" id="gap" min="0" max="1" step="0.05" value="0.6">
+    </div>
+  </div>
+
+  <div class="stage">
+    <div><table id="dp"></table>
+      <div class="legend">
+        <span><span class="sw" style="background:rgba(240,168,104,.35);box-shadow:inset 0 0 0 2px var(--path)"></span>backtrace path</span>
+        <span><span class="sw" style="background:var(--sub)"></span>substitute (diagonal)</span>
+        <span><span class="sw" style="background:var(--gap)"></span>gap (up / left)</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="box">
+        <h2>Alignment (the backtrace)</h2>
+        <div class="align-row" id="alignX">&mdash;</div>
+        <div class="align-row" id="alignY">&mdash;</div>
+        <div class="col-note" id="colnote"></div>
+      </div>
+      <div class="box tot">Best total cost <b id="total">&mdash;</b>
+        <div class="col-note">= the bottom-right cell. That single number is the <i>score</i>. The path that produced it is the <i>backtrace</i>.</div>
+      </div>
+      <div class="box">
+        <h2 id="recur-h">Cell recurrence</h2>
+        <div class="recur" id="recur"><span class="dim">Click a cell in the table&hellip;</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- vowel_distance, ported VERBATIM from features.py ---------------------
+const V = { // [backness, height, rounded]
+  IY:{s:[0.00,1.00,0.0],e:[0.00,1.00,0.0],rho:false}, IH:{s:[0.20,0.85,0.0],e:[0.20,0.85,0.0],rho:false},
+  EH:{s:[0.10,0.50,0.0],e:[0.10,0.50,0.0],rho:false}, AE:{s:[0.10,0.20,0.0],e:[0.10,0.20,0.0],rho:false},
+  AH:{s:[0.50,0.50,0.0],e:[0.50,0.50,0.0],rho:false}, ER:{s:[0.50,0.55,0.0],e:[0.50,0.55,0.0],rho:true},
+  AA:{s:[0.90,0.00,0.0],e:[0.90,0.00,0.0],rho:false}, AO:{s:[0.90,0.35,1.0],e:[0.90,0.35,1.0],rho:false},
+  UH:{s:[0.75,0.85,1.0],e:[0.75,0.85,1.0],rho:false}, UW:{s:[1.00,1.00,1.0],e:[1.00,1.00,1.0],rho:false},
+  EY:{s:[0.10,0.65,0.0],e:[0.20,0.85,0.0],rho:false}, AY:{s:[0.50,0.05,0.0],e:[0.20,0.85,0.0],rho:false},
+  OY:{s:[0.90,0.35,1.0],e:[0.20,0.85,0.0],rho:false}, AW:{s:[0.50,0.05,0.0],e:[0.75,0.85,1.0],rho:false},
+  OW:{s:[0.90,0.60,1.0],e:[0.80,0.85,1.0],rho:false},
+};
+const W_ROUND=0.3, W_RHOTIC=0.5, MAX_RAW=Math.SQRT2+W_ROUND+W_RHOTIC;
+const plane=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1]);
+function vowelDistance(a,b){
+  const fa=V[a],fb=V[b]; if(!fa||!fb) return NaN;
+  const position=(plane(fa.s,fb.s)+plane(fa.e,fb.e))/2;
+  const rounding=(Math.abs(fa.s[2]-fb.s[2])+Math.abs(fa.e[2]-fb.e[2]))/2;
+  const rhotic=fa.rho!==fb.rho?1.0:0.0;
+  return (position+W_ROUND*rounding+W_RHOTIC*rhotic)/MAX_RAW;
+}
+// ---------------------------------------------------------------------------
+
+let X=[], Y=[], GAP=0.6, D=[], FROM=[], activeCell=null;
+
+function parseSkel(s){return s.trim().toUpperCase().split(/\s+/).filter(t=>t&&V[t]);}
+
+function compute(){
+  const m=X.length, n=Y.length;
+  D=Array.from({length:m+1},()=>Array(n+1).fill(0));
+  FROM=Array.from({length:m+1},()=>Array(n+1).fill(null)); // 'diag'|'up'|'left'
+  for(let i=1;i<=m;i++){D[i][0]=i*GAP; FROM[i][0]='up';}    // align X-prefix to nothing
+  for(let j=1;j<=n;j++){D[0][j]=j*GAP; FROM[0][j]='left';}  // align nothing to Y-prefix
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++){
+    const sub=D[i-1][j-1]+vowelDistance(X[i-1],Y[j-1]); // pair X[i-1] with Y[j-1]
+    const del=D[i-1][j]+GAP;                            // skip X[i-1] (gap in Y)
+    const ins=D[i][j-1]+GAP;                            // skip Y[j-1] (gap in X)
+    let best=sub, from='diag';
+    if(del<best-1e-12){best=del;from='up';}
+    if(ins<best-1e-12){best=ins;from='left';}
+    D[i][j]=best; FROM[i][j]=from;
+  }
+}
+
+function backtrace(){
+  // Walk from the bottom-right corner to the origin, collecting columns.
+  let i=X.length, j=Y.length; const cols=[];
+  while(i>0||j>0){
+    const f=FROM[i][j];
+    if(f==='diag'){cols.push({x:X[i-1],y:Y[j-1],kind:'sub'}); i--; j--;}
+    else if(f==='up'){cols.push({x:X[i-1],y:null,kind:'gap'}); i--;}
+    else {cols.push({x:null,y:Y[j-1],kind:'gap'}); j--;}
+  }
+  cols.reverse();
+  return cols;
+}
+
+function onPath(i,j){ // is cell (i,j) on the backtrace path?
+  let ci=X.length, cj=Y.length;
+  while(true){ if(ci===i&&cj===j) return true; if(ci===0&&cj===0) return false;
+    const f=FROM[ci][cj]; if(f==='diag'){ci--;cj--;} else if(f==='up'){ci--;} else {cj--;} }
+}
+
+function render(){
+  compute();
+  const m=X.length, n=Y.length, t=document.getElementById('dp'); t.innerHTML='';
+  // header row: corner, gap-axis label(*), then Y vowels
+  const h=t.insertRow();
+  h.insertCell().outerHTML='<th class="corner"></th>';
+  h.insertCell().outerHTML='<th>&empty;</th>';
+  Y.forEach(v=>h.insertCell().outerHTML=`<th>${v}</th>`);
+  for(let i=0;i<=m;i++){
+    const r=t.insertRow();
+    r.insertCell().outerHTML = i===0 ? '<th>&empty;</th>' : `<th>${X[i-1]}</th>`;
+    for(let j=0;j<=n;j++){
+      const c=r.insertCell();
+      c.textContent=D[i][j].toFixed(2);
+      if(i>0&&j>0){c.className='cell'; c.onclick=()=>showRecur(i,j);}
+      else c.className='cell corner', c.onclick=()=>showRecur(i,j);
+      if(onPath(i,j)) c.classList.add('path');
+      if(activeCell&&activeCell[0]===i&&activeCell[1]===j) c.classList.add('active');
+      c.dataset.ij=i+','+j;
+    }
+  }
+  renderAlignment();
+  document.getElementById('total').textContent=D[m][n].toFixed(3);
+}
+
+function renderAlignment(){
+  const cols=backtrace();
+  const gx=cols.map(c=>c.x?`<span>${c.x}</span>`:'<span class="g">&ndash;&ndash;</span>').join(' ');
+  const gy=cols.map(c=>c.y?`<span>${c.y}</span>`:'<span class="g">&ndash;&ndash;</span>').join(' ');
+  document.getElementById('alignX').innerHTML=gx;
+  document.getElementById('alignY').innerHTML=gy;
+  const notes=cols.map(c=>{
+    if(c.kind==='sub'){const d=vowelDistance(c.x,c.y);
+      return `<b class="sub">${c.x}~${c.y}</b> substitute, cost ${d.toFixed(3)}`;}
+    return `<b class="gap">${c.x||c.y}</b> gap, cost ${GAP.toFixed(2)}`;
+  }).join('<br>');
+  document.getElementById('colnote').innerHTML=notes;
+}
+
+function showRecur(i,j){
+  activeCell=[i,j];
+  const h=document.getElementById('recur-h'), box=document.getElementById('recur');
+  if(i===0&&j===0){h.textContent='Cell (0,0)';
+    box.innerHTML='<span class="dim">The origin: aligning nothing with nothing costs 0.</span>'; render(); return;}
+  if(i===0||j===0){h.textContent=`Cell (${i},${j}) &mdash; edge`;
+    box.innerHTML=`<span class="dim">Along the edge you can only take gaps: ${Math.max(i,j)} &times; ${GAP.toFixed(2)} = <b>${(Math.max(i,j)*GAP).toFixed(2)}</b>.</span>`;
+    render(); return;}
+  const sub=D[i-1][j-1]+vowelDistance(X[i-1],Y[j-1]);
+  const del=D[i-1][j]+GAP, ins=D[i][j-1]+GAP;
+  const f=FROM[i][j];
+  const row=(label,val,tag,win)=>`<div class="${win?'win':'dim'}">${win?'&#9656; ':'&nbsp;&nbsp;'}${label} = ${val.toFixed(3)} <span class="dim">(${tag})</span></div>`;
+  h.innerHTML=`Cell (${i},${j}): min of three moves`;
+  box.innerHTML =
+    row(`D[${i-1}][${j-1}] + dist(${X[i-1]},${Y[j-1]})`, sub, 'substitute &#8598;', f==='diag')+
+    row(`D[${i-1}][${j}] + gap`, del, 'skip '+X[i-1]+' &#8593;', f==='up')+
+    row(`D[${i}][${j-1}] + gap`, ins, 'skip '+Y[j-1]+' &#8592;', f==='left')+
+    `<div style="margin-top:6px">&rarr; D[${i}][${j}] = <b style="color:var(--sel)">${D[i][j].toFixed(3)}</b></div>`;
+  render();
+}
+
+// --- wiring ---
+const xin=document.getElementById('xin'), yin=document.getElementById('yin');
+function reloadFromInputs(){X=parseSkel(xin.value); Y=parseSkel(yin.value); activeCell=null; render();}
+xin.oninput=()=>{document.getElementById('preset').value='custom'; reloadFromInputs();};
+yin.oninput=()=>{document.getElementById('preset').value='custom'; reloadFromInputs();};
+document.getElementById('preset').onchange=e=>{
+  if(e.target.value==='custom') return;
+  const [x,y]=e.target.value.split('|'); xin.value=x; yin.value=y; reloadFromInputs();
+};
+document.getElementById('gap').oninput=e=>{
+  GAP=parseFloat(e.target.value); document.getElementById('gaplbl').textContent=GAP.toFixed(2);
+  activeCell=null; render();
+};
+reloadFromInputs();
+</script>
+</body>
+</html>

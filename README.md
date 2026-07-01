@@ -26,7 +26,7 @@ library.
    `Syllable(onset, nucleus, coda, stress)`. A single word and a multi-word span
    (e.g. *"ménage à trois"*) are both just pronunciations, so nothing downstream
    cares which it started as.
-3. **Score similarity (in progress).** Rhyme is graded, not binary, so vowels and
+3. **Score similarity.** Rhyme is graded, not binary, so vowels and
    consonants live in small **articulatory feature spaces** and similarity is
    distance in those spaces:
    - **Vowels** are placed on the IPA vowel quadrilateral (tongue height ×
@@ -34,12 +34,13 @@ library.
      glide between two points.
    - **Consonants** get a parallel treatment: place × manner (manner ordered by
      sonority), plus voicing.
-4. **Rhyme kernel (planned).** `rhyme_score(a, b) -> float` over the **vowel
-   skeleton** — the sequence of nuclei from the last stressed syllable to the end
-   — using feature distance for graded vowel similarity, with codas weighted lower
-   and onsets ignored. Perfect rhyme is just the special case at threshold `1.0`;
+4. **Rhyme kernel.** `rhyme_score(a, b) -> float` scores the **rhyme tail** —
+   the syllables from the last stressed syllable to the end — blending graded
+   vowel similarity on nuclei with lower-weighted consonant similarity on codas,
+   onsets ignored. Perfect rhyme is just the special case at threshold `1.0`;
    loosening toward slant rhyme is turning the threshold and weights, not
-   rewriting the engine.
+   rewriting the engine. Tails of unequal length (multisyllabic rhyme) are
+   aligned with Needleman–Wunsch over their vowel skeletons before scoring.
 
 Out-of-vocabulary words (not in CMUdict, e.g. *"Coogi"*) are skipped and flagged
 for now; grapheme-to-phoneme handling comes later.
@@ -53,8 +54,14 @@ Foundation built:
 - `rhyme_schemer/syllabify.py` — CMUdict lookup + Maximal Onset Principle syllabifier
 - `rhyme_schemer/features.py` — vowel and consonant feature spaces with distance metrics
 
-Next up: the `rhyme_score` kernel that ties the feature spaces to the vowel
-skeleton.
+Rhyme kernel built:
+
+- `rhyme_schemer/rhyme.py` — `rhyme_tail` (the rhyme-bearing tail), `align_tails`
+  (Needleman–Wunsch over vowel skeletons), `rhyme_score` (graded perfect/slant
+  scoring), and `is_rhyme` (thresholded yes/no)
+
+Next up: from pairwise scores to a whole verse — multi-word spans and
+pronunciation variants, then grouping rhymes into a scheme.
 
 ## Development
 
