@@ -69,9 +69,16 @@ Spans and pronunciation variants built:
   scoring that takes the `max` over pronunciation variants around the unchanged
   kernel
 
-Next up: **grouping** rhymes into a scheme — a similarity graph over line-end
-words (edge = score ≥ threshold) whose connected components are the rhyme
-classes, reckoning with the non-transitivity of slant rhyme.
+Grouping into a scheme built:
+
+- `rhyme_schemer/rhyme.py` — `group_rhymes`, which makes `best_is_rhyme` the edge
+  test of a similarity graph and returns its **connected components** (union-find)
+  as rhyme classes. Because slant rhyme isn't transitive (A–B and B–C can rhyme
+  while A–C doesn't), components are a deliberate, debatable modeling choice.
+
+Next up: **internal & multisyllabic rhyme** — a scanner over the whole syllable
+stream (not just line ends) that surfaces rhymes within and across lines and
+feeds them to the same grouping.
 
 ## Development
 

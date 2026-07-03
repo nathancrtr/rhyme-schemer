@@ -18,6 +18,7 @@ them current when you change behavior.
 ## Commands
 
 ```bash
+source .venv/bin/activate                # dev environment lives in .venv/
 pip install -r requirements.txt          # only runtime dep is `pronouncing` (CMUdict)
 python -m unittest discover tests        # run all tests
 python -m unittest tests.test_syllabify  # run one test module
@@ -74,12 +75,17 @@ matches its knowledge level rather than reaching across:
    *lists* of pronunciations they take the `max` over all pairings (a rapper
    picks whichever reading rhymes) — a thin layer *around* the kernel, which
    itself still only ever sees one `Pronunciation` vs. one `Pronunciation`.
+   `group_rhymes` (Unit 10) sits one level up again: given *many* items (each a
+   variant list), it makes `best_is_rhyme` the edge test of a graph and returns
+   its **connected components** (via a small private `_UnionFind`) as rhyme
+   classes — lists of item indices. Components impose transitivity on a slant-
+   rhyme relation that lacks it (A–B and B–C rhyme, A–C need not); that is the
+   deliberate modeling choice the unit is about, not an accident.
 
-**Next milestone** (see top-level `README.md`): multi-word spans and
-variant-aware scoring are now in place (Unit 9). Next is **grouping** rhymes
-into a scheme (Unit 10) — build a graph where an edge means "score ≥ threshold"
-and return connected components as rhyme classes, reckoning with the
-non-transitivity of slant rhyme.
+**Next milestone** (see top-level `README.md`): grouping into a scheme is now in
+place (Unit 10). Next is **internal & multisyllabic rhyme** (Unit 11) — a scanner
+that slides over the whole syllable stream (not just line ends) to surface
+rhymes within and across lines, feeding the *same* `group_rhymes` unchanged.
 
 The public API is re-exported from `rhyme_schemer/__init__.py`; update `__all__`
 when you add user-facing surface.

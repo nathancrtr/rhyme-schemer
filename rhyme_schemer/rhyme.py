@@ -308,3 +308,88 @@ def best_is_rhyme(
         coda_weight=coda_weight,
         gap_penalty=gap_penalty,
     ) >= threshold
+
+
+class _UnionFind:
+    """Minimal union-find (disjoint-set forest) over integer nodes 0..n-1.
+
+    Just enough machinery to gather connected components: ``union`` merges two
+    nodes' sets, ``find`` returns a set's representative (with path compression),
+    and ``components`` reads out the final grouping. This is the entire graph
+    engine behind ``group_rhymes`` -- every rhyming pair is one ``union`` call,
+    and each resulting set is one rhyme class.
+    """
+
+    def __init__(self, n: int) -> None:
+        # Each node starts as its own singleton set (its own representative).
+        self._parent = list(range(n))
+
+    def find(self, x: int) -> int:
+        root = x
+        while self._parent[root] != root:
+            root = self._parent[root]
+        # Path compression: re-point every node on the way up straight at the
+        # root, so future finds on this chain are flat (near-O(1) amortized).
+        while self._parent[x] != root:
+            self._parent[x], x = root, self._parent[x]
+        return root
+
+    def union(self, a: int, b: int) -> None:
+        self._parent[self.find(a)] = self.find(b)
+
+    def components(self) -> list[list[int]]:
+        """Return the sets as index lists: members ascending, sets by first
+        member. This determinism is what makes grouping easy to test and to map
+        back onto the original verse order."""
+        groups: dict[int, list[int]] = {}
+        for x in range(len(self._parent)):
+            groups.setdefault(self.find(x), []).append(x)
+        return sorted(groups.values(), key=lambda group: group[0])
+
+
+def group_rhymes(
+    variant_lists: Sequence[Sequence[Pronunciation]],
+    *,
+    threshold: float = DEFAULT_RHYME_THRESHOLD,
+    nucleus_weight: float = DEFAULT_NUCLEUS_WEIGHT,
+    coda_weight: float = DEFAULT_CODA_WEIGHT,
+    gap_penalty: float = DEFAULT_GAP_PENALTY,
+) -> list[list[int]]:
+    """Group items into rhyme classes: the connected components of a rhyme graph.
+
+    Each item is a *variant list* -- the pronunciations of one word or span, as
+    ``pronunciations_for`` / ``pronunciations_for_span`` return them. We build a
+    graph whose nodes are the items and whose edges join any two that rhyme
+    (``best_is_rhyme`` at ``threshold``), then return its **connected
+    components**: each a list of item indices (into ``variant_lists``), members
+    ascending, components ordered by first member. Indices, not the items
+    themselves, are the identity -- so duplicate words stay distinct nodes and
+    the caller maps components straight back onto verse order.
+
+    Why components, and why that is a *choice*, not a law: slant-rhyme similarity
+    is reflexive and symmetric but **not transitive** -- A can rhyme with B and B
+    with C while A and C do not (e.g. "feel"-"fill"-"fell" around threshold
+    0.85). Connected components glue A and C into one class *through* B anyway,
+    imposing a transitivity the relation lacks. That is a deliberate, debatable
+    modeling decision: stricter schemes (demand every pair in a class rhyme --
+    cliques -- or simply raise the threshold) trade this recall for precision. We
+    take components as the simple, legible default; naming the tradeoff is the
+    real work here. See interactive/lessons/unit-10-non-transitivity.md.
+
+    An out-of-vocabulary item (empty variant list) scores 0 against everything,
+    so it forms its own singleton component -- surfaced, never silently dropped.
+    """
+    n = len(variant_lists)
+    union_find = _UnionFind(n)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if best_is_rhyme(
+                variant_lists[i],
+                variant_lists[j],
+                threshold=threshold,
+                nucleus_weight=nucleus_weight,
+                coda_weight=coda_weight,
+                gap_penalty=gap_penalty,
+            ):
+                union_find.union(i, j)
+    return union_find.components()

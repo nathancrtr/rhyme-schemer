@@ -6,6 +6,7 @@ from .rhyme import (
     align_tails,
     best_is_rhyme,
     best_rhyme_score,
+    group_rhymes,
     is_rhyme,
     rhyme_score,
     rhyme_tail,
@@ -33,4 +34,5 @@ __all__ = [
     "is_rhyme",
     "best_rhyme_score",
     "best_is_rhyme",
+    "group_rhymes",
 ]

@@ -1,0 +1,102 @@
+<!--
+  Phase 3 checkpoint quiz for rhyme-schemer (Units 9-10 — spans, variants,
+  grouping). Same harness as phase-1-checkpoint.html: immediate explanatory
+  feedback on every option; distractors target specific misconceptions.
+  No localStorage; in-memory only. (Unit 11, internal rhyme, is not built yet,
+  so it's out of scope here.)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 3 Checkpoint — Spans, Variants & Grouping</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--ok:#2ecc71;--no:#e74c3c;--accent:#6ea8fe;--line:#2a2f3a;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  .wrap{max-width:720px;margin:0 auto;padding:32px 20px 64px;}
+  h1{font-size:1.35rem;margin:0 0 4px;}
+  .sub{color:var(--muted);margin:0 0 24px;}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:0 0 16px;}
+  .q h2{font-size:1.05rem;margin:0 0 14px;font-weight:600;}
+  .opt{display:block;width:100%;text-align:left;padding:12px 14px;margin:8px 0;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:10px;cursor:pointer;font:inherit;transition:.12s;}
+  .opt:hover:not(:disabled){border-color:var(--accent);}
+  .opt:disabled{cursor:default;}
+  .opt.correct{border-color:var(--ok);background:rgba(46,204,113,.10);}
+  .opt.wrong{border-color:var(--no);background:rgba(231,76,60,.10);}
+  .why{font-size:.92rem;color:var(--muted);margin:6px 2px 0;padding-left:14px;border-left:2px solid var(--line);display:none;}
+  .why.show{display:block;}
+  code{font-family:ui-monospace,monospace;}
+  .score{position:sticky;bottom:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-top:8px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Phase 3 Checkpoint — Spans, Variants &amp; Grouping</h1>
+  <p class="sub">Units 9–10. Click an answer to see why every option is right or wrong.</p>
+  <div id="quiz"></div>
+  <div class="score" id="score"></div>
+</div>
+<script>
+const QUIZ_DATA=[
+ {q:"A multi-word span like <code>for real</code> and a single word like <code>surreal</code> are both just a <code>Pronunciation</code>. Why is that unification worth the trouble?",
+  options:[
+   {text:"So that everything downstream — scoring, grouping — treats them identically and never branches on which it started as",correct:true,why:"Exactly. A span is a concatenated Pronunciation, so rhyme_score, best_is_rhyme, and group_rhymes all eat it unchanged. One code path, not two."},
+   {text:"Because spans always rhyme better than single words",correct:false,why:"They don't — a span is just more syllables. The point is the shared type, not any scoring advantage."},
+   {text:"Because CMUdict stores common phrases as single entries",correct:false,why:"It doesn't; the span is assembled by concatenating each word's syllables via Pronunciation.concat. CMUdict is looked up word by word."}]},
+ {q:"<code>route</code> has two CMUdict readings (<code>R UW1 T</code> | <code>R AW1 T</code>). Against <code>shout</code>, only the second rhymes. What does <code>best_rhyme_score</code> return?",
+  options:[
+   {text:"The score of the first variant, since that's the canonical pronunciation",correct:false,why:"That's the old first-variant-only behavior Unit 9 replaces — it would miss the rhyme entirely."},
+   {text:"The <em>max</em> over every variant pairing — so it finds the rhyme under the second reading",correct:true,why:"Right. A rapper picks whichever reading lands the rhyme (coercion), so the honest score is the best over all pairings, not variant zero."},
+   {text:"The average of the two variants' scores",correct:false,why:"Averaging would drown a real rhyme in a bad pairing. The model is 'some reading works,' which is a max, not a mean."}]},
+ {q:"<code>group_rhymes</code> turns pairwise scores into groups. What is an <em>edge</em> in its graph?",
+  options:[
+   {text:"Two items whose <code>best_rhyme_score</code> clears the threshold (i.e. <code>best_is_rhyme</code> is true)",correct:true,why:"Right — the edge test is exactly the Unit 9 yes/no decision. Grouping adds no new phonetics; it only assembles edges into components."},
+   {text:"Two items that share at least one identical syllable",correct:false,why:"No — sharing a syllable isn't the test. The edge is a thresholded rhyme score over the rhyme tails."},
+   {text:"Two items that appear on adjacent lines of the verse",correct:false,why:"Position in the verse plays no role; group_rhymes doesn't even know the items are line ends. The edge is purely the score."}]},
+ {q:"With threshold <code>0.85</code>: <code>feel</code>–<code>fill</code> = 0.916 and <code>fill</code>–<code>fell</code> = 0.878 (both rhyme), but <code>feel</code>–<code>fell</code> = 0.829 (does not). Using connected components, how are the three grouped?",
+  options:[
+   {text:"Two groups: {feel, fill} and {fell}, since fell rhymes with neither end well enough",correct:false,why:"No — fill rhymes with fell (0.878 ≥ 0.85), so there's an edge there. That edge pulls fell in."},
+   {text:"One group: {feel, fill, fell}, because fill connects both ends",correct:true,why:"Right. Connected components merge feel and fell <em>through</em> fill even though feel–fell don't rhyme. That's the non-transitivity trap, on purpose."},
+   {text:"Three singletons, since not all three pairs rhyme",correct:false,why:"That would be the <em>clique</em> rule (all pairs must rhyme). Components only need a connecting path, so two edges suffice to merge all three."}]},
+ {q:"Slant-rhyme similarity is reflexive and symmetric but not transitive. Why does that make connected components a <em>modeling choice</em> rather than the obvious right answer?",
+  options:[
+   {text:"Because components impose transitivity the relation lacks — gluing A and C together through B even when A and C don't rhyme",correct:true,why:"Exactly. A similarity relation that isn't transitive isn't an equivalence relation, so 'the groups' aren't uniquely defined. Components are one defensible choice; cliques or a higher threshold are others."},
+   {text:"Because union-find can return different components on different runs",correct:false,why:"No — components() is deterministic. The looseness is in the modeling decision, not the algorithm's output."},
+   {text:"Because the threshold is measured in vowel_distance units, which are approximate",correct:false,why:"The coordinate approximations are a separate issue. Even with perfect distances, a non-transitive relation still has no canonical grouping."}]},
+ {q:"An out-of-vocabulary item (e.g. <code>Coogi</code>, not in CMUdict) has an empty variant list. How does <code>group_rhymes</code> handle it?",
+  options:[
+   {text:"It scores 0 against everything and forms its own singleton component — present in the output, not dropped",correct:true,why:"Right. best_rhyme_score of an empty list is 0.0, so no edges form, and the OOV item surfaces as a singleton the caller can flag."},
+   {text:"It is silently removed so it can't distort the groups",correct:false,why:"It isn't removed — that would lose track of a word in the verse. It stays as a singleton (the project's 'skip-and-flag' stance)."},
+   {text:"It raises an error, halting the grouping",correct:false,why:"No error — empty variant lists are handled gracefully, matching how the kernel treats empty tails as 0.0."}]},
+ {q:"Inside <code>group_rhymes</code>, what is <code>_UnionFind</code> actually doing?",
+  options:[
+   {text:"Deciding whether two items rhyme, using the feature spaces",correct:false,why:"No — that's best_is_rhyme's job. Union-find knows nothing about phonetics; it only receives 'these two are linked.'"},
+   {text:"Merging linked items into disjoint sets so their connected components can be read off as rhyme classes",correct:true,why:"Right. Each rhyming pair is one union() call; each resulting set is one rhyme class. It's the generic graph engine, cleanly separated from the rhyme decision."},
+   {text:"Sorting the items by their rhyme score before output",correct:false,why:"It doesn't sort by score. It groups by set membership; components() only sorts indices for deterministic, testable output."}]},
+];
+const quizEl=document.getElementById('quiz'),scoreEl=document.getElementById('score');
+let answered=0,correct=0;
+QUIZ_DATA.forEach((item,qi)=>{
+ const card=document.createElement('div');card.className='q';
+ const h=document.createElement('h2');h.innerHTML=(qi+1)+'. '+item.q;card.appendChild(h);
+ let locked=false;
+ item.options.forEach((opt)=>{
+  const btn=document.createElement('button');btn.className='opt';btn.innerHTML=opt.text;
+  const why=document.createElement('div');why.className='why';why.innerHTML=opt.why;
+  btn.addEventListener('click',()=>{
+   if(locked)return;locked=true;answered++;if(opt.correct)correct++;
+   Array.from(card.querySelectorAll('.opt')).forEach((b,i)=>{b.disabled=true;if(item.options[i].correct)b.classList.add('correct');});
+   if(!opt.correct)btn.classList.add('wrong');
+   card.querySelectorAll('.why').forEach(w=>w.classList.add('show'));
+   scoreEl.textContent='Answered '+answered+' / '+QUIZ_DATA.length+'  ·  '+correct+' correct';
+  });
+  card.appendChild(btn);card.appendChild(why);
+ });
+ quizEl.appendChild(card);
+});
+scoreEl.textContent='Answered 0 / '+QUIZ_DATA.length;
+</script>
+</body>
+</html>
