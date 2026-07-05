@@ -32,6 +32,16 @@ VOWELS = frozenset({
     "EY", "IH", "IY", "OW", "OY", "UH", "UW",
 })
 
+# Nuclei that are *reduced* when they carry no stress. Unstressed AH is
+# CMUdict's schwa [ə] (the "a" of "sofa", the whole of "the"), and English
+# stressed syllables categorically require a full vowel -- so a reduced
+# nucleus can never receive stress, no matter how a performer bends the line.
+# Stressed AH is different: that's the full STRUT vowel of "up"/"cut", which
+# takes stress happily. Like the onset inventory below, this is deliberately
+# minimal -- ER0 (the "-er" of "butter") is arguably reduced too; extend as
+# real lyrics expose gaps.
+REDUCED_NUCLEI = frozenset({"AH"})
+
 
 def strip_stress(phoneme: str) -> tuple[str, Stress | None]:
     """Split a CMUdict token into (base phoneme, stress).

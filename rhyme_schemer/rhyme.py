@@ -8,7 +8,7 @@ of the word, and everything the kernel scores operates on that tail.
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Iterable, Sequence
 
 from .features import consonant_similarity, vowel_distance, vowel_similarity
 from .models import Pronunciation, Syllable
@@ -347,6 +347,28 @@ class _UnionFind:
         return sorted(groups.values(), key=lambda group: group[0])
 
 
+def connected_components(
+    count: int, edges: Iterable[tuple[int, int]]
+) -> list[list[int]]:
+    """Connected components of an undirected graph over nodes ``0..count-1``.
+
+    The graph engine behind rhyme grouping, exposed on its own because two
+    callers now build rhyme graphs with *different* edge tests:
+    ``group_rhymes`` joins items wherever ``best_is_rhyme`` clears a
+    threshold, while the Unit 11 scanner (``scan.scan_verse``) supplies its
+    *selected matches* as edges -- pairs that additionally survived the seed
+    gate, coercion pricing, and same-event selection, judgments the plain
+    kernel score cannot express. Both callers inherit the same deliberate
+    modeling choice: components impose transitivity on a relation that lacks
+    it. Returned as ``_UnionFind.components`` orders them: members ascending,
+    components by first member.
+    """
+    union_find = _UnionFind(count)
+    for a, b in edges:
+        union_find.union(a, b)
+    return union_find.components()
+
+
 def group_rhymes(
     variant_lists: Sequence[Sequence[Pronunciation]],
     *,
@@ -380,16 +402,17 @@ def group_rhymes(
     so it forms its own singleton component -- surfaced, never silently dropped.
     """
     n = len(variant_lists)
-    union_find = _UnionFind(n)
-    for i in range(n):
-        for j in range(i + 1, n):
-            if best_is_rhyme(
-                variant_lists[i],
-                variant_lists[j],
-                threshold=threshold,
-                nucleus_weight=nucleus_weight,
-                coda_weight=coda_weight,
-                gap_penalty=gap_penalty,
-            ):
-                union_find.union(i, j)
-    return union_find.components()
+    edges = [
+        (i, j)
+        for i in range(n)
+        for j in range(i + 1, n)
+        if best_is_rhyme(
+            variant_lists[i],
+            variant_lists[j],
+            threshold=threshold,
+            nucleus_weight=nucleus_weight,
+            coda_weight=coda_weight,
+            gap_penalty=gap_penalty,
+        )
+    ]
+    return connected_components(n, edges)

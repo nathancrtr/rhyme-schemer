@@ -11,10 +11,26 @@ grouping returns component indices back into the input.
 import unittest
 
 from rhyme_schemer import (
+    connected_components,
     group_rhymes,
     pronunciations_for,
     pronunciations_for_span,
 )
+
+
+class TestConnectedComponentsEngine(unittest.TestCase):
+    """The bare graph engine, extracted in Unit 11 so the scanner can feed it
+    edges from its own (gated, priced) judgment. group_rhymes' behavior is
+    unchanged -- every other test in this file is the proof."""
+
+    def test_chains_merge_and_isolates_stand_alone(self):
+        self.assertEqual(
+            connected_components(5, [(0, 2), (2, 4)]),
+            [[0, 2, 4], [1], [3]],
+        )
+
+    def test_no_edges_means_all_singletons(self):
+        self.assertEqual(connected_components(3, []), [[0], [1], [2]])
 
 
 def _variants(*words):

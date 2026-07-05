@@ -77,15 +77,37 @@ matches its knowledge level rather than reaching across:
    itself still only ever sees one `Pronunciation` vs. one `Pronunciation`.
    `group_rhymes` (Unit 10) sits one level up again: given *many* items (each a
    variant list), it makes `best_is_rhyme` the edge test of a graph and returns
-   its **connected components** (via a small private `_UnionFind`) as rhyme
-   classes — lists of item indices. Components impose transitivity on a slant-
-   rhyme relation that lacks it (A–B and B–C rhyme, A–C need not); that is the
-   deliberate modeling choice the unit is about, not an accident.
+   its **connected components** (via a small private `_UnionFind`, exposed as
+   `connected_components(count, edges)` for reuse) as rhyme classes — lists of
+   item indices. Components impose transitivity on a slant-rhyme relation that
+   lacks it (A–B and B–C rhyme, A–C need not); that is the deliberate modeling
+   choice the unit is about, not an accident.
 
-**Next milestone** (see top-level `README.md`): grouping into a scheme is now in
-place (Unit 10). Next is **internal & multisyllabic rhyme** (Unit 11) — a scanner
-that slides over the whole syllable stream (not just line ends) to surface
-rhymes within and across lines, feeding the *same* `group_rhymes` unchanged.
+6. **`scan.py`** — the internal-rhyme scanner (Unit 11): `scan_verse(text)`
+   turns a raw verse into a `VerseScan` (selected matches, rhyme classes, OOV
+   words). Candidates are **(word span, anchor)** pairs; the anchor is a claim
+   about *performed* stress, minted as data by `coerce_performed_stress`
+   (promote the anchor, demote everything after it) — the scanner is a second
+   `Pronunciation` factory, so the kernel needed no changes. Precision comes
+   from layers, each with a documented rationale: a nucleus-only **seed gate**
+   (anchor syllables must rhyme on their own, and identical anchors are
+   rime riche, not rhyme), a **coercion cost** on unlikely stress promotions
+   (function words pay; articles/conjunctions in `NEVER_ANCHOR` never anchor),
+   and score-first **selection** (with averaged scores an extension must raise
+   the average to earn its seat — this also auto-splits glued rhyme chains into
+   one-beat matches; Hirjee & Brown's longest/nearest survive as tiebreakers).
+   Grouping feeds the *selected matches themselves* as edges to
+   `connected_components` — not recomputed `best_is_rhyme` calls, which would
+   readmit the gated rejections. The full design dialogue, stage-by-stage
+   walkthrough, and **open tuning ledger** live in
+   `learning/interactive/lessons/unit-11-scanner-walkthrough.md`; consult the
+   ledger before tuning any of this.
+
+**Next milestone** (see top-level `README.md`): scanning is in place (Unit 11).
+Next is **visualization** (Unit 12) — render `scan_verse` output as highlighted
+HTML (one color per rhyme class), handling overlapping class membership (the
+same text can sit in a monosyllabic class and a multisyllabic one) and
+reassembling per-beat matches into the compound units the ear hears.
 
 The public API is re-exported from `rhyme_schemer/__init__.py`; update `__all__`
 when you add user-facing surface.

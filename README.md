@@ -72,13 +72,31 @@ Spans and pronunciation variants built:
 Grouping into a scheme built:
 
 - `rhyme_schemer/rhyme.py` — `group_rhymes`, which makes `best_is_rhyme` the edge
-  test of a similarity graph and returns its **connected components** (union-find)
-  as rhyme classes. Because slant rhyme isn't transitive (A–B and B–C can rhyme
-  while A–C doesn't), components are a deliberate, debatable modeling choice.
+  test of a similarity graph and returns its **connected components** (union-find,
+  exposed as `connected_components`) as rhyme classes. Because slant rhyme isn't
+  transitive (A–B and B–C can rhyme while A–C doesn't), components are a
+  deliberate, debatable modeling choice.
 
-Next up: **internal & multisyllabic rhyme** — a scanner over the whole syllable
-stream (not just line ends) that surfaces rhymes within and across lines and
-feeds them to the same grouping.
+Internal & multisyllabic rhyme scanning built:
+
+- `rhyme_schemer/scan.py` — `scan_verse(text)`: verse in, rhyme scheme out.
+  Enumerates **(word span, anchor)** candidates — the anchor is a claim about
+  *performed* stress, minted as data by `coerce_performed_stress` so the kernel
+  needs no changes — then pairs candidates within a proximity window behind a
+  **seed gate** (anchor nuclei must rhyme on their own; identical anchors are
+  repetition, not rhyme), prices unlikely stress claims (**coercion cost**),
+  selects one description per rhyme event (score-first: with averaged scores,
+  an extension must *raise* the average to earn its seat, which also auto-splits
+  glued rhyme chains), and reads the scheme off the match graph as connected
+  components. Run on the *Lose Yourself* opening, it finds the full -etty chain
+  (including "forgetting"), *nervous ~ surface*, *palms are ~ arms are*, and the
+  `AW` family unprompted. See
+  `learning/interactive/lessons/unit-11-scanner-walkthrough.md` for the full
+  design walkthrough and open tuning ledger.
+
+Next up: **visualization** — a renderer that turns `scan_verse` output into
+Pudding/Vox-style highlighted HTML (colors per rhyme class, overlapping
+class membership handled), with a terminal fallback.
 
 ## Development
 
