@@ -562,6 +562,116 @@ def select_matches(matches: Sequence[Match]) -> list[Match]:
     return accepted
 
 
+# --- Chaining: fuse per-beat matches into the compounds the ear hears --------
+
+
+@dataclass(frozen=True)
+class Compound:
+    """A multi-beat rhyme read as one unit: a chain of abutting matches.
+
+    The scanner reports one match per *beat* -- "PALMS-are-SWEATY ~
+    ARMS-are-HEAVY" arrives as two matches (``palms are ~ arms are`` and
+    ``sweaty ~ heavy``) because ``select_matches`` scores each beat on its own
+    and the internal hits outbid the glued span. But the ear hears one
+    4-syllable rhyme, so chaining fuses beats whose text extents abut on both
+    sides back into a single object.
+
+    A compound still describes *one pairwise rhyme*: its member matches all
+    share the same two sides. ``a_span`` is the left run of candidates (in
+    verse order), ``b_span`` the right run; a lone match that never chained is
+    a one-member compound, so the renderer sees a uniform stream whether a
+    compound survived selection whole or in pieces.
+    """
+
+    matches: tuple[Match, ...]
+
+    @property
+    def a_span(self) -> tuple[Candidate, ...]:
+        return tuple(m.a for m in self.matches)
+
+    @property
+    def b_span(self) -> tuple[Candidate, ...]:
+        return tuple(m.b for m in self.matches)
+
+    def __str__(self) -> str:
+        left = " ".join(w for m in self.matches for w in m.a.words)
+        right = " ".join(w for m in self.matches for w in m.b.words)
+        return f"[{left}] ~ [{right}] ({len(self.matches)} beat)"
+
+
+def _abuts(x: Match, y: Match) -> bool:
+    """True if match ``y`` continues match ``x`` -- the immediately next beat
+    on *both* sides, contiguously and in the same order.
+
+    The chaining relation, and the precise form of the learner's "sandwich"
+    intuition: ``x``'s left extent ends exactly where ``y``'s begins, and the
+    same holds on the right. Both sides stepping forward together is what
+    "later in both sequences" (co-linear chaining) looks like in the word
+    stream; requiring *immediate* succession (``end + 1 == start``) rather than
+    mere order is the rhyme-specific tightening -- the ear fuses contiguous
+    beats, not ones with a word between them. Same-line on each side falls out
+    of comparing ``line`` before position; a pair going forward on one side and
+    back on the other fails outright (that is chiasmus, not a compound).
+
+    We deliberately do *not* tolerate a gap between beats. A bounded gap was
+    tried and rejected: on the Lose Yourself verse it fused unrelated beats
+    ("palms sweaty ~ calm ready", from two different rhyme classes) five times
+    for every real compound, because a blind gap cannot tell a throwaway
+    ("so") from a word claimed by another beat ("palms [are] sweaty", where
+    "are" belongs to the palms-are~arms-are beat). The one pattern it would
+    have recovered -- *differing* filler on the two sides -- is not clearly a
+    real perceived rhyme. Contiguous filler that is parallel (identical on both
+    sides) needs no help here: span enumeration already absorbs it into a beat
+    (it scores as an identity column) before chaining runs.
+    """
+    return (
+        x.a.line == y.a.line
+        and x.a.end + 1 == y.a.start
+        and x.b.line == y.b.line
+        and x.b.end + 1 == y.b.start
+    )
+
+
+def chain_matches(matches: Sequence[Match]) -> list[Compound]:
+    """Fuse abutting matches into ``Compound``s (co-linear chaining post-pass).
+
+    Every match becomes a node; an ``_abuts`` relation between two matches is
+    an edge; each **connected component** (the same ``rhyme.connected_components``
+    engine behind grouping) is one compound, its members ordered by left
+    position. A match that abuts nothing is its own singleton compound, so the
+    output partitions *all* the input matches -- nothing is dropped, and the
+    renderer can walk compounds instead of raw matches uniformly.
+
+    This is a pure post-pass over already-selected matches: no scanner, kernel,
+    or grouping change, and each beat keeps whatever rhyme class it landed in
+    (a compound deliberately *spans* classes -- that is the whole point of
+    representing it separately from the grouping). Chaining assumes selection
+    has already deduplicated per-beat, so the abut relation is effectively a
+    linked list and components are simple chains; if competing overlapping
+    chains ever arise, the principled upgrade is a maximum-weight-chain DP,
+    the same shape as everything else in the alignment family.
+    """
+    ordered = sorted(matches, key=lambda m: (m.a.line, m.a.start))
+    edges = [
+        (i, j)
+        for i in range(len(ordered))
+        for j in range(len(ordered))
+        if i != j and _abuts(ordered[i], ordered[j])
+    ]
+    components = connected_components(len(ordered), edges)
+    return [
+        Compound(
+            matches=tuple(
+                sorted(
+                    (ordered[i] for i in component),
+                    key=lambda m: (m.a.line, m.a.start),
+                )
+            )
+        )
+        for component in components
+    ]
+
+
 # --- The verse-level entry point ---------------------------------------------
 
 

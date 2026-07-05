@@ -14,9 +14,11 @@ from .rhyme import (
 )
 from .scan import (
     Candidate,
+    Compound,
     Match,
     Reading,
     VerseScan,
+    chain_matches,
     coerce_performed_stress,
     enumerate_candidates,
     find_matches,
@@ -54,9 +56,11 @@ __all__ = [
     "Reading",
     "Candidate",
     "Match",
+    "Compound",
     "VerseScan",
     "enumerate_candidates",
     "find_matches",
     "select_matches",
+    "chain_matches",
     "scan_verse",
 ]

@@ -27,6 +27,7 @@ from rhyme_schemer import (
 from rhyme_schemer.scan import (
     DEFAULT_COERCION_COST,
     Candidate,
+    chain_matches,
     coerce_performed_stress,
     enumerate_candidates,
     find_matches,
@@ -360,6 +361,83 @@ class TestScanVerse(unittest.TestCase):
         scan = scan_verse("blorptastic flow\nglow")
         self.assertEqual(scan.oov, ("blorptastic",))
         self.assertIn({"flow", "glow"}, self._group_texts(scan))
+
+
+class TestChainMatches(unittest.TestCase):
+    """Co-linear chaining: fuse per-beat matches whose extents abut on both
+    sides into the multisyllabic compound the ear hears."""
+
+    @staticmethod
+    def _compound_texts(verse: str) -> set[tuple[str, str]]:
+        selected = select_matches(find_matches(enumerate_candidates(verse)))
+        out = set()
+        for compound in chain_matches(selected):
+            left = " ".join(w for m in compound.matches for w in m.a.words)
+            right = " ".join(w for m in compound.matches for w in m.b.words)
+            out.add((left, right))
+        return out
+
+    def test_fuses_the_palms_sweaty_compound(self):
+        # "palms are ~ arms are" (beat 1) abuts "sweaty ~ heavy" (beat 2) on
+        # both sides -> one 4-syllable compound.
+        compounds = self._compound_texts(
+            "His palms are sweaty, knees weak, arms are heavy"
+        )
+        self.assertIn(("palms are sweaty", "arms are heavy"), compounds)
+        # and its two beats no longer appear as standalone compounds
+        self.assertNotIn(("palms are", "arms are"), compounds)
+        self.assertNotIn(("sweaty", "heavy"), compounds)
+
+    def test_unchained_matches_survive_as_singleton_compounds(self):
+        # Every selected match lands in exactly one compound; a match that
+        # abuts nothing is a one-beat compound (uniform stream for rendering).
+        verse = "His palms are sweaty, knees weak, arms are heavy"
+        selected = select_matches(find_matches(enumerate_candidates(verse)))
+        compounds = chain_matches(selected)
+        self.assertEqual(
+            sum(len(c.matches) for c in compounds), len(selected)
+        )
+        self.assertIn(("knees", "weak"), self._compound_texts(verse))
+
+    def test_shared_trailing_material_stays_one_span_not_a_chain(self):
+        # "wake it up ~ cake it up" is a single span-match, NOT a chained pair
+        # of beats: wake/cake anchors it and "it"/"up" are identity extension
+        # columns (welcome after the anchor). It surfaces as a one-beat
+        # compound because the scanner never split it in the first place.
+        verse = "wake it up\ncake it up"
+        selected = select_matches(find_matches(enumerate_candidates(verse)))
+        [match] = [
+            m for m in selected if m.a.words == ("wake", "it", "up")
+        ]
+        self.assertEqual(match.b.words, ("cake", "it", "up"))
+        self.assertIn(("wake it up", "cake it up"), self._compound_texts(verse))
+
+    def test_beats_a_word_apart_do_not_chain(self):
+        # Strict adjacency (no gap tolerance): when a differing filler leaves
+        # two beats one word apart ("palms are [so] sweaty" vs "arms are
+        # [really] heavy"), they are NOT fused -- a blind gap would also glue
+        # unrelated beats from different classes. The beats remain separate.
+        compounds = self._compound_texts(
+            "my palms are so sweaty\nmy arms are really heavy"
+        )
+        self.assertNotIn(("palms are sweaty", "arms are heavy"), compounds)
+        self.assertIn(("palms are", "arms are"), compounds)
+
+    def test_ordering_within_a_compound_is_left_to_right(self):
+        verse = "His palms are sweaty, knees weak, arms are heavy"
+        selected = select_matches(find_matches(enumerate_candidates(verse)))
+        [big] = [c for c in chain_matches(selected) if len(c.matches) == 2]
+        starts = [m.a.start for m in big.matches]
+        self.assertEqual(starts, sorted(starts))
+        # a_span / b_span expose the two sides as ordered candidate runs
+        self.assertEqual(
+            [w for c in big.a_span for w in c.words],
+            ["palms", "are", "sweaty"],
+        )
+        self.assertEqual(
+            [w for c in big.b_span for w in c.words],
+            ["arms", "are", "heavy"],
+        )
 
 
 if __name__ == "__main__":
