@@ -94,9 +94,23 @@ Internal & multisyllabic rhyme scanning built:
   `learning/interactive/lessons/unit-11-scanner-walkthrough.md` for the full
   design walkthrough and open tuning ledger.
 
-Next up: **visualization** — a renderer that turns `scan_verse` output into
-Pudding/Vox-style highlighted HTML (colors per rhyme class, overlapping
-class membership handled), with a terminal fallback.
+Visualization built:
+
+- `rhyme_schemer/scan.py` — `chain_matches`, fusing abutting per-beat matches
+  into the multisyllabic `Compound`s the ear hears ("palms are steady" ~
+  "arms are ready" as one four-beat rhyme), a pure post-pass over selected
+  matches.
+- `rhyme_schemer/render.py` — `render_html` / `render_terminal` over a
+  medium-agnostic `plan_verse` policy layer. Color marks the **rhyme class**
+  (Pudding/Vox school — the picture shows what the scanner decided); a word
+  in several classes gets its background from the best-scoring match, thin
+  **tick** bars for the others, and full receipts in its tooltip; multi-beat
+  compounds get a neutral spanning rule; OOV words are dotted-underlined so
+  "unknown" never reads as "doesn't rhyme". Fills are CVD-validated tints in
+  both light and dark mode.
+
+Next up: **grapheme-to-phoneme fallback** for out-of-vocabulary words
+(*"Coogi"*), then evaluation against annotated ground truth.
 
 ## Development
 

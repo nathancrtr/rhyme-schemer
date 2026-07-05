@@ -260,6 +260,24 @@ data.
    first column's onset must stay ignored — that's what makes cat/hat
    rhyme).
 
+8. **Chaining has no quality gate, so it amplifies threshold-huggers**
+   (flagged by the learner, with ground truth attached). On Poe's *Raven*
+   stanza 1, `chain_matches` fused there~one (0.826) and "came a"~gently
+   (0.825) onto tapping~rapping (1.000) into a three-beat compound — a
+   five-syllable rhyme whose only real beat is the third. The learner's
+   ear is unequivocal: *there/one and "came a"/gently do not rhyme at all*,
+   not even as slant — those scores are vowel-space generosity (EH~AH,
+   EY~EH), items 2–3's diagnosis resurfacing one layer up. Structurally:
+   `_abuts` is purely positional, and selection's
+   extension-must-raise-the-average discipline has no chaining analogue,
+   so any two abutting *selected* matches fuse, and a perfect beat lends
+   its credibility to its passengers. Candidate knobs: (a) a per-beat
+   score floor for joining a chain, above the bare match threshold;
+   (b) an average-score condition on the fused chain, mirroring
+   selection's; (c) fix the underlying vowel generosity (item 2) and
+   remeasure — the passengers may simply die at selection. Decide against
+   Unit 14's eval, not by intuition.
+
 Items 5 and 6 share a diagnosis: **performance context (line position, beat
 grid) carries information a segment-only scanner cannot see** — the
 performed-stress problem, one level up.

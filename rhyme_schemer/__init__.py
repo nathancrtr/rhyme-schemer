@@ -12,6 +12,15 @@ from .rhyme import (
     rhyme_score,
     rhyme_tail,
 )
+from .render import (
+    Cell,
+    ClassEntry,
+    RenderPlan,
+    WordPaint,
+    plan_verse,
+    render_html,
+    render_terminal,
+)
 from .scan import (
     Candidate,
     Compound,
@@ -63,4 +72,11 @@ __all__ = [
     "select_matches",
     "chain_matches",
     "scan_verse",
+    "WordPaint",
+    "Cell",
+    "ClassEntry",
+    "RenderPlan",
+    "plan_verse",
+    "render_html",
+    "render_terminal",
 ]

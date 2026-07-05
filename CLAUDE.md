@@ -103,11 +103,28 @@ matches its knowledge level rather than reaching across:
    `learning/interactive/lessons/unit-11-scanner-walkthrough.md`; consult the
    ledger before tuning any of this.
 
-**Next milestone** (see top-level `README.md`): scanning is in place (Unit 11).
-Next is **visualization** (Unit 12) — render `scan_verse` output as highlighted
-HTML (one color per rhyme class), handling overlapping class membership (the
-same text can sit in a monosyllabic class and a multisyllabic one) and
-reassembling per-beat matches into the compound units the ear hears.
+7. **`render.py`** — the Unit 12 renderer: `plan_verse` resolves a verse +
+   `VerseScan` into a medium-agnostic `RenderPlan` (every policy decision as
+   data), and `render_html` / `render_terminal` are deliberately dumb emitters
+   over it. Color = **rhyme class** (Pudding/Vox school, chosen over Brath's
+   color-by-vowel and Hirjee & Brown's five stacked channels — render the
+   scanner's judgments, not the input phonetics). Multi-class words (common:
+   up to 5 classes/word in real data, extents both nest *and* cross) get
+   fill-by-best-score + tick bars + tooltip receipts; multi-beat `Compound`s
+   (via `chain_matches`) get a neutral spanning rule; OOV words a dotted
+   underline. Palette: 8 fixed-order categorical slots as text-safe tints
+   (CVD-validated per mode), largest classes first, overflow folds to a
+   neutral wash — never cycle hues.
+
+**Test fixtures must be content-safe**: never embed multi-line commercial
+lyrics (content-filter + copyright); use the original engineered verse and
+public-domain poetry (Poe, Gilbert & Sullivan) in `tests/test_render.py`.
+Single iconic mild lines ("His palms are sweaty…") are fine.
+
+**Next milestone** (see top-level `README.md`): rendering is in place (Unit 12).
+Next is **grapheme-to-phoneme** (Unit 13) for OOV words, then **evaluation**
+(Unit 14) against annotated ground truth — several tuning-ledger items
+(including item 8, chaining's missing quality gate) wait on that eval.
 
 The public API is re-exported from `rhyme_schemer/__init__.py`; update `__all__`
 when you add user-facing surface.
