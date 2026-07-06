@@ -128,15 +128,22 @@ class WordPaint:
     - ``compound``: id of the multi-beat compound whose rule spans this word,
       or ``None``. Single-beat compounds get no rule: underlining every
       match would say nothing.
-    - ``oov``: the word has no CMUdict entry (render as "unknown", never as
-      "doesn't rhyme").
-    - ``tooltip``: the receipts -- one line per covering match, best first.
+    - ``oov``: the whole G2P chain failed on this word (render as
+      "unknown", never as "doesn't rhyme").
+    - ``guessed``: the G2P chain link that pronounced this word
+      (``"g-drop"``, ``"letter-to-sound"``, ...), or ``None`` for
+      dictionary words. A guessed word scans and scores normally, but the
+      picture must not present its rhymes as dictionary fact -- Unit 13's
+      flagging half.
+    - ``tooltip``: the receipts -- one line per covering match, best first,
+      plus the provenance line for guessed words.
     """
 
     fill: int | None = None
     ticks: tuple[int, ...] = ()
     compound: int | None = None
     oov: bool = False
+    guessed: str | None = None
     tooltip: str = ""
 
 
@@ -172,11 +179,16 @@ class ClassEntry:
 
 @dataclass(frozen=True)
 class RenderPlan:
-    """A fully-resolved rendering: lines of cells, a legend, and OOV flags."""
+    """A fully-resolved rendering: lines of cells, a legend, and word flags.
+
+    ``oov`` and ``guessed`` mirror ``VerseScan``'s fields: chain-failed
+    words, and (word, source) pairs for G2P-derived pronunciations.
+    """
 
     lines: tuple[tuple[Cell, ...], ...]
     classes: tuple[ClassEntry, ...]
     oov: tuple[str, ...]
+    guessed: tuple[tuple[str, str], ...] = ()
 
 
 def _slot_assignment(scan: VerseScan) -> dict[int, int | None]:
@@ -262,6 +274,7 @@ def plan_verse(verse: str, scan: VerseScan | None = None) -> RenderPlan:
     rules = _compound_rules(scan)
 
     oov_set = {word.lower() for word in scan.oov}
+    guessed_source = {word.lower(): source for word, source in scan.guessed}
 
     lines = []
     for line_index, raw_line in enumerate(verse.splitlines()):
@@ -276,7 +289,7 @@ def plan_verse(verse: str, scan: VerseScan | None = None) -> RenderPlan:
             ticks = tuple(sorted(
                 {class_of[c] for c in cands[1:]} - {fill}
             ))
-            tooltip = "\n".join(
+            receipt_lines = [
                 "'{}' ~ '{}' — class {}, {:.2f}".format(
                     " ".join(c.words),
                     " ".join(best[c][1].words),
@@ -284,16 +297,22 @@ def plan_verse(verse: str, scan: VerseScan | None = None) -> RenderPlan:
                     best[c][0],
                 )
                 for c in cands
-            )
+            ]
             is_oov = m.group().lower() in oov_set
+            guessed = guessed_source.get(m.group().lower())
             if is_oov:
-                tooltip = "no CMUdict entry — not scanned"
+                receipt_lines = ["unknown word — no pronunciation found"]
+            elif guessed is not None:
+                receipt_lines.append(
+                    f"pronunciation guessed ({guessed})"
+                )
             paint = WordPaint(
                 fill=fill,
                 ticks=ticks,
                 compound=rules.get(position),
                 oov=is_oov,
-                tooltip=tooltip,
+                guessed=guessed,
+                tooltip="\n".join(receipt_lines),
             )
             cells.append(Cell(text=m.group(), paint=paint))
             cursor = m.end()
@@ -310,7 +329,12 @@ def plan_verse(verse: str, scan: VerseScan | None = None) -> RenderPlan:
         )
         for k, group in enumerate(scan.groups)
     )
-    return RenderPlan(lines=tuple(lines), classes=classes, oov=scan.oov)
+    return RenderPlan(
+        lines=tuple(lines),
+        classes=classes,
+        oov=scan.oov,
+        guessed=scan.guessed,
+    )
 
 
 # --- HTML emitter -------------------------------------------------------------
@@ -331,6 +355,8 @@ _CSS = """
   padding-bottom: 2px; }}
 .rhyme-scheme .oov {{ text-decoration: underline dotted {ink2_l} 2px;
   text-underline-offset: 3px; }}
+.rhyme-scheme .gsd .t {{ text-decoration: underline dashed {ink2_l} 1.5px;
+  text-underline-offset: 3px; }}
 .rhyme-scheme .legend {{ margin-top: 1.2em; font-size: 0.85em;
   line-height: 1.7; color: {ink2_l}; }}
 .rhyme-scheme .legend .sw {{ display: inline-block; width: 0.9em;
@@ -342,6 +368,7 @@ _CSS = """
   .rhyme-scheme {{ color: {ink_d}; background: {surface_d}; }}
   .rhyme-scheme .cmp {{ border-bottom-color: {ink2_d}; }}
   .rhyme-scheme .oov {{ text-decoration-color: {ink2_d}; }}
+  .rhyme-scheme .gsd .t {{ text-decoration-color: {ink2_d}; }}
   .rhyme-scheme .legend {{ color: {ink2_d}; }}
   {fills_d}
   {accents_d}
@@ -388,18 +415,24 @@ def _html_word(cell: Cell, slots: dict[int, int | None]) -> str:
             f'<span class="w oov" title="{html.escape(paint.tooltip)}">'
             f"{text}</span>"
         )
-    if paint.fill is None:
+    if paint.fill is None and paint.guessed is None:
         return text
+    # A guessed word renders even without a fill: the dashed underline and
+    # provenance tooltip must appear whether or not the guess found a rhyme.
+    wrapper = "w gsd" if paint.guessed is not None else "w"
     title = html.escape(paint.tooltip).replace("\n", "&#10;")
-    fill = _slot_class("f", slots[paint.fill])
+    fill = _slot_class("f", slots[paint.fill]) if paint.fill is not None \
+        else None
+    inner = f'<span class="t {fill}">{text}</span>' if fill \
+        else f'<span class="t">{text}</span>'
     ticks = "".join(
         f'<i class="{_slot_class("a", slots[k])}"></i>'
         for k in paint.ticks
     )
     tick_block = f'<span class="ticks">{ticks}</span>' if ticks else ""
     return (
-        f'<span class="w" title="{title}">'
-        f'<span class="t {fill}">{text}</span>{tick_block}</span>'
+        f'<span class="{wrapper}" title="{title}">'
+        f"{inner}{tick_block}</span>"
     )
 
 
@@ -410,9 +443,11 @@ def render_html(verse: str, scan: VerseScan | None = None) -> str:
     external assets, light and dark mode both styled -- suitable for writing
     to a file, embedding in a page, or publishing as an artifact. Fills mark
     classes, tick bars mark secondary memberships, a neutral rule marks each
-    multi-beat compound, dotted underlines mark OOV words, and every painted
-    word carries its receipts in a plain ``title`` tooltip. A legend maps
-    swatches to class members, so identity never rides on fill alone.
+    multi-beat compound, dotted underlines mark unknown words, dashed
+    underlines mark G2P-guessed pronunciations (provenance in the tooltip),
+    and every painted word carries its receipts in a plain ``title``
+    tooltip. A legend maps swatches to class members, so identity never
+    rides on fill alone.
     """
     plan = plan_verse(verse, scan)
     slots = {entry.index: entry.slot for entry in plan.classes}
@@ -444,10 +479,18 @@ def render_html(verse: str, scan: VerseScan | None = None) -> str:
             f'<div><span class="sw {swatch}"></span>'
             f"class {entry.index}: {members}</div>"
         )
+    if plan.guessed:
+        guesses = html.escape(", ".join(
+            f"{word} ({source})" for word, source in plan.guessed
+        ))
+        legend.append(
+            f"<div>pronunciation guessed, not dictionary fact: "
+            f"{guesses}</div>"
+        )
     if plan.oov:
         oov = html.escape(", ".join(plan.oov))
         legend.append(
-            f"<div>unknown to CMUdict (not scanned): {oov}</div>"
+            f"<div>unknown words (not scanned): {oov}</div>"
         )
     legend.append("</div>")
 
@@ -504,8 +547,9 @@ def render_terminal(verse: str, scan: VerseScan | None = None) -> str:
     Truecolor backgrounds mark class fills (the dark-mode fill set, readable
     under white text on light and dark terminals alike), underlines mark
     compound rules, and the legend lists every class with a swatch. What the
-    terminal cannot carry -- tick bars and hover receipts -- lives only in
-    the HTML view; the legend and OOV note keep the fallback honest.
+    terminal cannot carry -- tick bars, hover receipts, per-word guess
+    markers -- lives only in the HTML view; the legend's guessed-word and
+    unknown-word notes keep the fallback honest.
     """
     plan = plan_verse(verse, scan)
     slots = {entry.index: entry.slot for entry in plan.classes}
@@ -544,8 +588,13 @@ def render_terminal(verse: str, scan: VerseScan | None = None) -> str:
             f"{swatch} class {entry.index}: "
             + " · ".join(_preview(entry.members))
         )
+    if plan.guessed:
+        out.append(
+            "pronunciation guessed, not dictionary fact: "
+            + ", ".join(f"{w} ({s})" for w, s in plan.guessed)
+        )
     if plan.oov:
         out.append(
-            "unknown to CMUdict (not scanned): " + ", ".join(plan.oov)
+            "unknown words (not scanned): " + ", ".join(plan.oov)
         )
     return "\n".join(out)

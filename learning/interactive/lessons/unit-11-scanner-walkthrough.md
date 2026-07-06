@@ -278,6 +278,19 @@ data.
    remeasure — the passengers may simply die at selection. Decide against
    Unit 14's eval, not by intuition.
 
+9. **G2P feeds the mega-class glue** (observed at Unit 13's end-to-end
+   check). The chain's pronunciations are *correct*, but they inherit the
+   existing precision debt: on "I was chokin' … jokin' / Coogi … groovy /
+   flowing … going", everything fused into one class — chokin'~jokin'
+   (right), Coogi~groovy (right), but also -in'~-ing bridge edges
+   (flowing/going against the g-dropped forms) gluing all three pairs into
+   one OW mega-class via connected components. Item 1's diagnosis
+   (non-transitivity + generous edges), new edge supply: every G2P word is
+   also a new *node*, so recall gains arrive married to precision losses.
+   Nothing to fix in `g2p.py` itself; measure at Unit 14 alongside items
+   1–3, and note `DEFAULT_LTS_COST` (0.1) is also untuned — chosen by
+   analogy with the coercion cost, not by data.
+
 Items 5 and 6 share a diagnosis: **performance context (line position, beat
 grid) carries information a segment-only scanner cannot see** — the
 performed-stress problem, one level up.

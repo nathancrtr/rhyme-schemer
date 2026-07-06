@@ -42,8 +42,13 @@ library.
    rewriting the engine. Tails of unequal length (multisyllabic rhyme) are
    aligned with Needleman–Wunsch over their vowel skeletons before scoring.
 
-Out-of-vocabulary words (not in CMUdict, e.g. *"Coogi"*) are skipped and flagged
-for now; grapheme-to-phoneme handling comes later.
+Out-of-vocabulary words go through a **grapheme-to-phoneme fallback chain**
+(`g2p.py`): dialect spellings recovered by rules that keep the spelled surface
+phonology (*"chokin'"* gets choking's syllables but the spelled N coda), a
+small slang lexicon (*"imma"*), and hand-written letter-to-sound rules for
+genuinely unknown strings (*"Coogi"*) — with letter-to-sound guesses priced
+so a marginal rhyme can't be built on a made-up pronunciation. Only words
+even guessing can't voice (*"brrr"*) are still skipped and flagged.
 
 ## Status
 
@@ -109,8 +114,21 @@ Visualization built:
   "unknown" never reads as "doesn't rhyme". Fills are CVD-validated tints in
   both light and dark mode.
 
-Next up: **grapheme-to-phoneme fallback** for out-of-vocabulary words
-(*"Coogi"*), then evaluation against annotated ground truth.
+Grapheme-to-phoneme fallback built:
+
+- `rhyme_schemer/g2p.py` — `pronounce(word) -> Guess`: the fallback chain
+  (dictionary → slang lexicon → normalization rules → letter-to-sound).
+  Dialect spellings are treated as *performance transcriptions*: rules
+  recover the dictionary stem, then keep the spelled surface phonology
+  (g-drop's N-for-NG, *"holla"*'s non-rhotic final AH). Guess confidence is
+  priced like stress coercion — `Guess.cost` folds into `Reading.cost`, so
+  the kernel stays provenance-free — and renderers mark guessed words
+  (dashed underline + provenance tooltip) so a guess never reads as
+  dictionary fact.
+
+Next up: **evaluation** against annotated ground truth — precision/recall
+over hand-labeled verses, then one tuning sweep across every deferred knob
+(thresholds, weights, vowel space, chaining gate).
 
 ## Development
 

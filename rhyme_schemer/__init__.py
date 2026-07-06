@@ -1,5 +1,6 @@
 """rhyme-schemer: detect and group rhymes in hip-hop lyrics."""
 
+from .g2p import Guess, pronounce
 from .models import Pronunciation, Syllable
 from .phonetics import Stress
 from .rhyme import (
@@ -79,4 +80,6 @@ __all__ = [
     "plan_verse",
     "render_html",
     "render_terminal",
+    "Guess",
+    "pronounce",
 ]

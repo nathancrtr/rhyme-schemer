@@ -103,7 +103,22 @@ matches its knowledge level rather than reaching across:
    `learning/interactive/lessons/unit-11-scanner-walkthrough.md`; consult the
    ledger before tuning any of this.
 
-7. **`render.py`** — the Unit 12 renderer: `plan_verse` resolves a verse +
+7. **`g2p.py`** — the Unit 13 grapheme-to-phoneme fallback chain:
+   `pronounce(word) -> Guess`. Chain order is dictionary → slang lexicon →
+   normalization rules (g-drop / stem+-in' / -a-for-er) → letter-to-sound;
+   the lexicon outranks rules because it is curated truth ("shoulda"
+   pattern-matches -a-for-er via "shoulder" but contracts "should have").
+   Design principle: **dialect spellings are performance transcriptions** —
+   rules recover the dictionary stem then keep the *spelled* surface
+   phonology (N-for-NG, non-rhotic final AH), the Unit 11 move one layer
+   down. Confidence is priced, not modeled: `Guess.cost` (0 except
+   letter-to-sound's `DEFAULT_LTS_COST`) folds into `Reading.cost` in
+   `scan.py`, so kernel and `models.py` stay provenance-free. `VerseScan`
+   gains `guessed` ((word, source) pairs); `oov` now means "even guessing
+   failed" (no vowel: "brrr"). Renderers mark guesses — dashed underline,
+   provenance tooltip line, legend note — distinct from OOV's dotted.
+
+8. **`render.py`** — the Unit 12 renderer: `plan_verse` resolves a verse +
    `VerseScan` into a medium-agnostic `RenderPlan` (every policy decision as
    data), and `render_html` / `render_terminal` are deliberately dumb emitters
    over it. Color = **rhyme class** (Pudding/Vox school, chosen over Brath's
@@ -121,10 +136,10 @@ lyrics (content-filter + copyright); use the original engineered verse and
 public-domain poetry (Poe, Gilbert & Sullivan) in `tests/test_render.py`.
 Single iconic mild lines ("His palms are sweaty…") are fine.
 
-**Next milestone** (see top-level `README.md`): rendering is in place (Unit 12).
-Next is **grapheme-to-phoneme** (Unit 13) for OOV words, then **evaluation**
-(Unit 14) against annotated ground truth — several tuning-ledger items
-(including item 8, chaining's missing quality gate) wait on that eval.
+**Next milestone** (see top-level `README.md`): G2P is in place (Unit 13).
+Next is **evaluation** (Unit 14) against annotated ground truth — the one
+tuning sweep every deferred knob is waiting on (thresholds, weights, vowel
+space, chaining's quality gate, `DEFAULT_LTS_COST`; see the tuning ledger).
 
 The public API is re-exported from `rhyme_schemer/__init__.py`; update `__all__`
 when you add user-facing surface.
