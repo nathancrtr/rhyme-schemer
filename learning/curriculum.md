@@ -25,7 +25,7 @@ Learn NLP and computational phonology **by building rhyme-schemer** — from the
 **Goal:** Know what you're building and why, and get the foundation running.
 
 - **Build:** Nothing yet. `pip install -r requirements.txt`; `python -m unittest discover tests` — all green.
-- **Read:** the repo `README.md`; the introduction of Hirjee & Brown (2009); one Pudding piece. Play in a REPL: `pronouncing.phones_for_word("lincoln")`, `pronouncing.rhymes("cheese")`.
+- **Read:** the repo `README.md` (including "Where this sits in the field"); the introduction of Hirjee & Brown (2009); one Pudding piece; skim the external research review in `REVIEW.md` to see how the finished project reads to a researcher. Play in a REPL: `pronouncing.phones_for_word("lincoln")`, `pronouncing.rhymes("cheese")`.
 - **Concepts:** the syllable-first pipeline (look up → syllabify → feature-score → rhyme-kernel → group → visualize); slant rhyme vs perfect rhyme; why "Lincoln/reason" must count.
 - **Milestone:** Tests pass locally, and you can describe the pipeline and the north star in your own words.
 
@@ -52,6 +52,7 @@ Learn NLP and computational phonology **by building rhyme-schemer** — from the
 - **Exercise:** Open `interactive/widgets/vowel-explorer.html`, click pairs, and confirm by hand that the widget's numbers match `vowel_distance`. Then change one vowel's coordinates in `features.py`, predict which ordering tests shift, and check.
 - **Milestone:** You can explain why `IH` sits lower and more central than `IY`, and why a single point can't model `AY`.
 - **Key insight:** This table is a tiny, hand-built **embedding**. "Similarity = distance in a feature space" is the same move word2vec makes — you're meeting it in 15 vowels instead of 50,000 words.
+- **Caveat to carry forward:** articulatory adjacency is not perceptual confusability — the quadrilateral is a tongue-position diagram, not a psychoacoustic space (that would be Bark-scaled formant space). Corpus data on which vowel pairs rappers *actually* treat as rhymable exists (Katz 2015's correspondence counts, Kawahara 2007's half-rhyme statistics — see the resources shelf) and can sanity-check any coordinate you doubt. Unit 14 makes "refit this space from data" a first-class experiment.
 - **Interactive:** widget `vowel-explorer.html`; lesson `unit-02-feature-distance.md`.
 
 ### Unit 3 — Consonants: place, manner, voicing, sonority
@@ -102,7 +103,7 @@ You can read every module in the repo, explain the phonology each encodes, and y
 
 ### Unit 8 — Unequal lengths: sequence alignment
 - **Build:** Generalize `rhyme_score` to tails of **different lengths** (multisyllabic rhyme) via alignment: implement Needleman–Wunsch over vowel skeletons using `vowel_distance` as substitution cost and a tuned gap penalty.
-- **Read:** SLP3 Ch. 2 **Minimum Edit Distance** (the algorithm, the backtrace); panphon's `Distance` source (feature-weighted edit distance in the wild).
+- **Read:** SLP3 Ch. 2 **Minimum Edit Distance** (the algorithm, the backtrace); panphon's `Distance` source (feature-weighted edit distance in the wild); afterward, Kondrak (2000) — what you just built is, almost exactly, **ALINE**, the standard phonetic-alignment algorithm for 25 years, and its salience weights, vowel/consonant split, and diphthong expansions answer questions we handle ad hoc.
 - **Concepts:** edit distance / Needleman–Wunsch / DTW; substitution cost from a feature metric; gap penalties; alignment as the general case of which equal-length scoring was a special case.
 - **Exercise:** `interactive/exercises/unit-08-alignment/` — implement the DP table and backtrace; make multisyllabic tests pass (e.g. "national"/"rational"; a 3-syllable vs 2-syllable near-rhyme). Verify equal-length inputs still match Unit 6's scores.
 - **Milestone:** Multisyllabic slant rhymes scored sensibly; the alignment visualized in the lesson.
@@ -127,8 +128,8 @@ You can read every module in the repo, explain the phonology each encodes, and y
 
 ### Unit 10 — Grouping rhymes: similarity graphs & components
 - **Build:** `group_rhymes(words, threshold)` — build a graph where an edge means "score ≥ threshold," then return connected components as rhyme classes.
-- **Read:** SLP3 on clustering basics; any union-find reference.
-- **Concepts:** pairwise scores → groups; thresholding; the **non-transitivity of slant rhyme** (A rhymes with B, B with C, but not A with C) and why connected components is a deliberate (debatable) choice; union-find.
+- **Read:** SLP3 on clustering basics; any union-find reference; Reddy & Knight (2011) — the standard-cited paper for this task, which makes the *scheme* a latent variable to infer rather than a graph to component-ize.
+- **Concepts:** pairwise scores → groups; thresholding; the **non-transitivity of slant rhyme** (A rhymes with B, B with C, but not A with C) and why connected components is a deliberate (debatable) choice; union-find. Know the debate's names: components over threshold edges is **single-link clustering**, its failure mode is **chaining** (one generous edge glues two good clusters — the oldest known clustering pathology, and it *will* fire in Unit 11's ledger), and the principled alternatives are correlation clustering on signed weights, community detection penalizing sparse cuts, or Reddy & Knight's scheme-as-inference.
 - **Exercise:** Group the line-end words of a real verse. Find a real non-transitive triple and decide how your grouping should treat it; encode the decision as a test.
 - **Milestone:** Line-end words of a verse grouped into colored rhyme classes (data, not yet pixels).
 - **Interactive:** lesson `unit-10-non-transitivity.md`; quiz `interactive/quizzes/phase-3-checkpoint.html` (build here).
@@ -159,18 +160,18 @@ Given a verse, rhyme-schemer finds the rhymes — line-final, internal, and mult
 
 ### Unit 13 — Out-of-vocabulary words & grapheme-to-phoneme
 - **Build:** A G2P fallback for words CMUdict lacks (your Unit-1 list): rule-based first; optionally wire in a neural G2P.
-- **Read:** Epitran; `g2p_en` (seq2seq); SLP3 on G2P if present in your draft.
-- **Concepts:** the OOV problem; **grapheme-to-phoneme** as rule-based vs **sequence-to-sequence neural** (a direct bridge to your transformer knowledge); confidence/flagging of guessed pronunciations.
+- **Read:** Epitran; for the neural side, the current baseline is byte-level transformers (ByT5 G2P, CharsiuG2P) benchmarked in the SIGMORPHON 2020–22 shared tasks — `g2p_en`, once the standard mention, is a 2019 artifact and effectively unmaintained; SLP3 on G2P if present in your draft.
+- **Concepts:** the OOV problem; **grapheme-to-phoneme** as rule-based vs **neural** (a direct bridge to your transformer knowledge); confidence/flagging of guessed pronunciations; dialect respellings as *performance transcriptions*, not noise. The dialect rules (g-drop, -a-for-er) are doing **AAE phonology by intuition** — the features they encode (velar nasal fronting, non-rhoticity) are extensively documented in sociolinguistics, and each rule should eventually carry one citation: it hardens the rule *and* answers the "why does your tool rewrite Black speech?" question with receipts. (The NLP-on-AAE literature is substantially about systems *failing* AAE speakers; a tool that takes performed AAE phonology as ground truth is on the right side of that, and should say so deliberately.)
 - **Exercise:** Replace skip-and-flag with a G2P guess for three of your OOV words; mark guesses as lower-confidence so scoring can discount them.
 - **Milestone:** A previously-skipped word participates in a detected rhyme, flagged as G2P-derived.
 
 ### Unit 14 — Evaluation: is it any good?
-- **Build:** An eval harness: a small hand-annotated verse (gold rhyme groups) and metrics over your detector's output.
-- **Read:** SLP3 Ch. 2 on **precision / recall / F-score**; Hirjee & Brown's evaluation methodology.
-- **Concepts:** gold annotations; precision/recall/F1 for rhyme detection; inter-annotator agreement (rhyme is subjective!); error analysis as the real payoff.
-- **Exercise:** Annotate ~8 lines yourself, run the harness, and do an error analysis: are misses threshold problems, feature-coordinate problems, or OOV problems? Feed three concrete fixes back into earlier units.
-- **Milestone:** A precision/recall number for your tool and a prioritized list of what to fix — measured, not guessed.
-- **Key insight:** You can't improve what you can't measure, and rhyme has no perfect ground truth — agreement is partial. Building the ruler is as much the work as building the tool.
+- **Build:** An eval harness, then point it at ground truth that mostly **already exists** — don't build gold from scratch when the field has it. Three corpora: **MCFlow** (Condit-Schultz 2016 — 124 rap songs transcribed with rhyme annotations *and their metric placement*), **Haider & Kuhn's** hip-hop set (annotated for rhyme *and assonance* — exactly the north star), and **Hirjee & Brown's own annotated lyrics** (thesis — makes results directly comparable to the named prior art). In-house annotation only fills gaps, and then with a **second annotator and a reported agreement figure** — otherwise the tuning sweep optimizes toward one person's ear. Content safety: evaluate locally against downloaded corpora; store song IDs + offsets in the repo, never lyric text.
+- **Read:** SLP3 Ch. 2 on **precision / recall / F-score**; Hirjee & Brown's evaluation methodology; the MCFlow paper; Haider & Kuhn (2018) on their annotation.
+- **Concepts:** annotate *groups*, score *pairs* (groups impose transitivity gold shouldn't); **two metric families answering different questions** — pairwise link P/R/F vs class-level clustering metrics (B-cubed, adjusted Rand) — the mega-class pathologies (ledger items 1, 9) only show up in the latter, so report both; inter-annotator agreement as the *ceiling* any scanner score is read against (annotator disagreement on slant rhyme is Katz's finding, not an annoyance); error analysis as the real payoff.
+- **Exercise:** Run the harness on external gold plus your own double-annotated verses; do the error analysis: are misses threshold problems, feature-coordinate problems, or OOV problems? Route each to its ledger item. Then design the sweep as **conditions, not just dials**: alongside thresholds/weights/chaining-gate values, include (a) *refit the vowel space from rhyme-pair data* — Hirjee & Brown's central BLOSUM-style move, with Katz's and Kawahara's correspondence tables as the quick pre-check — and (b) *one edge-weight-aware clustering condition* (correlation clustering or similar) to measure what the connected-components choice actually costs.
+- **Milestone:** P/R/F *and* clustering numbers against external gold, an agreement ceiling to read them against, and a prioritized list of what to fix — measured, not guessed.
+- **Key insight:** You can't improve what you can't measure, and rhyme has no perfect ground truth — agreement is partial, *and that is a fact about the task*. Building the ruler is as much the work as building the tool; borrowing the field's rulers is how your numbers mean something to anyone else.
 
 ### — Phase 4 Checkpoint —
 rhyme-schemer is end-to-end: text in, highlighted rhyme scheme out, unknown words handled, with a number that says how well it works and a roadmap for improving it.
@@ -186,9 +187,10 @@ rhyme-schemer is end-to-end: text in, highlighted rhyme scheme out, unknown word
 **Frontiers (pick your own path):**
 - **Swap in panphon** for the hand-built feature tables; compare detections and re-run your eval.
 - **Phonetic word embeddings** (Parrish 2017): represent whole lines as vectors for fast candidate retrieval before exact scoring.
-- **Unsupervised rhyme-scheme identification** with HMMs (Addanki & Wu 2013).
-- **Prosody & flow:** bring stress/meter into scoring, not just segments.
+- **Unsupervised rhyme-scheme discovery** (Reddy & Knight 2011; also Addanki & Wu 2013): the scheme as a latent variable inferred by EM, no pronunciation dictionary at all — the principled alternative to Unit 10's components, and a different answer to the mega-class problem.
+- **Prosody & flow:** bring stress/meter into scoring, not just segments. This frontier has a literature — Adams (2009) on the metrical techniques of flow, MCFlow's beat-grid encoding, Ohriner's *Flow* (2019) — and one concrete experiment: validate the scanner's *inferred* performed-stress anchors against MCFlow's *observed* placements.
 - **Variant disambiguation:** pick the pronunciation that maximizes *whole-verse* rhyme, not per-pair.
+- **The workshop paper.** Per the external review (`REVIEW.md` §5), three of the scanner's ideas are genuinely fresh: performed stress as an enumerable, *priced* reading; the average-raising extension rule (with chain auto-splitting as a corollary); and "dialect spellings are performance transcriptions." Alone none is a paper; together — the scanner with priced performed-stress inference, evaluated on MCFlow against Hirjee & Brown and a Haider & Kuhn-style neural baseline — they plausibly clear the bar at the NLP4MusA / Computational Humanities / ML4Audio workshop tier. Unit 14's numbers are the missing ingredient.
 
 ---
 
@@ -248,4 +250,4 @@ Spans & variants (U9)  Grouping = graph components (U10) ◄── non-transitiv
 
 The curriculum is a guide, not a cage. The dependency map shows what's load-bearing and what you can skim if it clicks. If a unit runs long, let it — Unit 8 usually does.
 
-*Curriculum v1.0 — June 2026. Project-driven; revise as the repo and your understanding evolve.*
+*Curriculum v1.1 — July 2026: Units 2, 8, 10, 13, 14 and the frontiers revised to fold in the external research review (`REVIEW.md`) — corpora-first evaluation, the post-2010 detection literature, ALINE, and the workshop-paper path. Project-driven; revise as the repo and your understanding evolve.*

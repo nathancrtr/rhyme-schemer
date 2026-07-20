@@ -51,4 +51,4 @@ Open a fresh chat per unit if you like; these files hold the structure between s
 
 This directory is designed to live **inside the rhyme-schemer repo** as `learning/`, so the exercises can reference and extend the real code (the Unit 5 stub is copied into `rhyme_schemer/rhyme.py`, its tests into `tests/`). Commit it alongside the source and the course grows with the project.
 
-*Course v1.0 — June 2026.*
+*Course v1.0 — June 2026; v1.1 — July 2026, revised against the external research review in the top-level `REVIEW.md` (corpora-first Unit 14, post-2010 detection literature, ALINE credit, workshop-paper frontier).*

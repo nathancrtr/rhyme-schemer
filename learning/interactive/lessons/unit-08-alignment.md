@@ -28,8 +28,9 @@ Lead them to: a gap must cost *more* than a good substitution (or everything ali
 - Substitution cost = `vowel_distance(a, b)`; gap = a constant penalty. The total cost → a similarity by inversion/normalization.
 - The equal-length case from Unit 6 is the special path down the diagonal with no gaps — alignment *generalizes* it; verify your old scores still come out when lengths match.
 - panphon's `Distance` class does exactly this (feature-weighted edit distance) — read its source to see the same idea in a mature library.
+- **This has a name in the literature: ALINE** (Kondrak 2000, https://webdocs.cs.ualberta.ca/~kondrak/papers/chum.pdf) — DP alignment of phone sequences with feature-decomposed similarity, the standard phonetic-alignment algorithm for 25 years. Reimplementing it from first principles was the point of this unit; read it *after* your implementation works, both for credit and because its design (per-feature salience weights, separate vowel/consonant treatment, expansions/compressions for diphthongs) answers questions we currently settle ad hoc.
 
-Connect back: **"This is the workhorse algorithm of sequence comparison — diff, spell-check, bioinformatics. You're applying it to phonology; the structure is identical."**
+Connect back: **"This is the workhorse algorithm of sequence comparison — diff, spell-check, bioinformatics. You're applying it to phonology; the structure is identical — and in phonology specifically, it's been the standard tool since 2000."**
 
 ## 4. Common confusions
 - **Gap penalty too low** → everything aligns to gaps, scores collapse. Too high → real extra syllables can't be skipped.

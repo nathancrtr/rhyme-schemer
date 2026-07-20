@@ -137,9 +137,18 @@ public-domain poetry (Poe, Gilbert & Sullivan) in `tests/test_render.py`.
 Single iconic mild lines ("His palms are sweaty…") are fine.
 
 **Next milestone** (see top-level `README.md`): G2P is in place (Unit 13).
-Next is **evaluation** (Unit 14) against annotated ground truth — the one
-tuning sweep every deferred knob is waiting on (thresholds, weights, vowel
-space, chaining's quality gate, `DEFAULT_LTS_COST`; see the tuning ledger).
+Next is **evaluation** (Unit 14) — the one tuning sweep every deferred knob
+is waiting on (thresholds, weights, vowel space, chaining's quality gate,
+`DEFAULT_LTS_COST`; see the tuning ledger). Ground truth is **corpora-first**
+(MCFlow, Haider & Kuhn's hip-hop rhyme/assonance gold, Hirjee & Brown's
+annotated lyrics), with in-house annotation only for gaps — double-annotated,
+agreement reported; metrics are pairwise link P/R/F *plus* class-level
+clustering scores (B-cubed/ARI); "refit the vowel space from rhyme-pair
+data" and one edge-weight-aware clustering alternative are sweep conditions.
+Never commit corpus lyric text — store song IDs + offsets. The framing comes
+from the external research review in top-level `REVIEW.md`, which also
+grounds the README's "Where this sits in the field" section; consult it
+before repositioning the project or citing prior art.
 
 The public API is re-exported from `rhyme_schemer/__init__.py`; update `__all__`
 when you add user-facing surface.
