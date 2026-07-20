@@ -35,6 +35,7 @@ from dataclasses import dataclass, replace
 from typing import Sequence
 
 from .features import vowel_similarity
+from .g2p import DICTIONARY, OOV, pronounce
 from .models import Pronunciation, Syllable
 from .phonetics import REDUCED_NUCLEI, Stress
 from .rhyme import (
@@ -44,8 +45,6 @@ from .rhyme import (
     rhyme_score,
     rhyme_tail,
 )
-from .syllabify import pronunciations_for
-
 # Longest candidate span, in words. Rhyme units longer than a few words stop
 # being heard as one rhyme event; every extra word also multiplies candidates.
 # "shake the state up" (4 words) is about the ceiling of the running examples.
@@ -249,25 +248,37 @@ def _anchored_readings(
 ) -> list[tuple[int, tuple[Reading, ...]]]:
     """All (anchor, readings) pairs for one word span.
 
-    Variant combinations are the cartesian product of the words' CMUdict
-    variants (the ``pronunciations_for_span`` pattern), and anchors are the
+    Variant combinations are the cartesian product of the words' variants
+    (the ``pronunciations_for_span`` pattern), and anchors are the
     stress-bearing syllables of the *first* word. The two axes interact --
     variants of the first word can differ in syllable count or vowel quality,
     so each anchor index collects readings only from the combinations whose
     first word actually offers an eligible syllable there.
 
-    A span containing any out-of-vocabulary word yields nothing: the standard
-    skip-and-flag contract. (Word-level OOV reporting, so skipped words are
-    surfaced rather than silently absent, belongs to the verse-level wiring.)
+    Pronunciations come from the Unit 13 G2P chain (``g2p.pronounce``), not
+    bare dictionary lookup, so "chokin'" and "Coogi" now yield candidates.
+    Guessing is priced like coercion: each word's ``Guess.cost`` is summed
+    into the span's base cost, so every reading of a span containing a
+    letter-to-sound guess pays for it -- a marginal rhyme cannot be built
+    on a made-up pronunciation, while a strong one survives the discount
+    (the same logic, and the same knob-tuning deferral to Unit 14, as
+    ``DEFAULT_COERCION_COST``).
+
+    A span containing any word the whole chain fails to voice ("brrr")
+    yields nothing: skip-and-flag, with the flag now meaning "even guessing
+    failed". (Word-level reporting belongs to the verse-level wiring.)
     """
     if words[0].lower() in NEVER_ANCHOR:
         return []
-    per_word = [pronunciations_for(word) for word in words]
-    if any(not variants for variants in per_word):
+    guesses = [pronounce(word) for word in words]
+    if any(not guess.pronunciations for guess in guesses):
         return []
+    g2p_cost = sum(guess.cost for guess in guesses)
 
     by_anchor: dict[int, list[Reading]] = {}
-    for combo in itertools.product(*per_word):
+    for combo in itertools.product(
+        *(guess.pronunciations for guess in guesses)
+    ):
         first = combo[0]
         span = Pronunciation.concat(combo)
         for index, syllable in enumerate(first.syllables):
@@ -277,10 +288,11 @@ def _anchored_readings(
                 syllable.stress is Stress.UNSTRESSED
                 or _is_function_word(words[0])
             )
+            coercion = DEFAULT_COERCION_COST if promoted else 0.0
             by_anchor.setdefault(index, []).append(
                 Reading(
                     pronunciation=coerce_performed_stress(span, index),
-                    cost=DEFAULT_COERCION_COST if promoted else 0.0,
+                    cost=coercion + g2p_cost,
                 )
             )
     return sorted(
@@ -686,30 +698,45 @@ class VerseScan:
       graph -- each a tuple of ``Candidate``s in verse order, classes ordered
       by first member. Classes may overlap in *text* while being disjoint in
       candidates ("wake" in the EY class, "wake up" in the "-ake up" pair).
-    - ``oov``: words with no CMUdict entry, in first-appearance order. The
-      "flag" half of skip-and-flag, surfaced at verse level: spans containing
-      these words silently produced no candidates, and a renderer should say
-      "unknown word" rather than let it read as "doesn't rhyme".
+    - ``oov``: words the whole G2P chain failed to voice ("brrr"), in
+      first-appearance order. The "flag" half of skip-and-flag, surfaced at
+      verse level: spans containing these words silently produced no
+      candidates, and a renderer should say "unknown word" rather than let
+      it read as "doesn't rhyme". Since Unit 13 this is much rarer than
+      "not in CMUdict" -- most dictionary misses become guesses instead.
+    - ``guessed``: (word, source) pairs for words whose pronunciation came
+      from the G2P chain rather than the dictionary, first-appearance
+      order. These *did* participate in scanning, and honesty requires
+      saying so: a rhyme built on a letter-to-sound guess is a claim about
+      a pronunciation no dictionary attests, and the renderer should mark
+      it as such rather than let it read as dictionary fact.
     """
 
     matches: tuple[Match, ...]
     groups: tuple[tuple[Candidate, ...], ...]
     oov: tuple[str, ...]
+    guessed: tuple[tuple[str, str], ...] = ()
 
 
-def _oov_words(lines: list[list[str]]) -> tuple[str, ...]:
-    """Unique out-of-vocabulary words, first-appearance order."""
+def _word_provenance(
+    lines: list[list[str]],
+) -> tuple[tuple[str, ...], tuple[tuple[str, str], ...]]:
+    """(chain-failed words, (word, source) guesses), first-appearance order."""
     seen: set[str] = set()
     oov: list[str] = []
+    guessed: list[tuple[str, str]] = []
     for line in lines:
         for word in line:
             key = word.lower()
             if key in seen:
                 continue
             seen.add(key)
-            if not pronunciations_for(word):
+            source = pronounce(word).source
+            if source == OOV:
                 oov.append(word)
-    return tuple(oov)
+            elif source != DICTIONARY:
+                guessed.append((word, source))
+    return tuple(oov), tuple(guessed)
 
 
 def scan_verse(
@@ -739,9 +766,10 @@ def scan_verse(
 
     Only candidates that appear in a selected match become nodes: a
     candidate was never an observation, just an enumerated possibility, so
-    an unmatched one is not a "singleton rhyme class" -- but an unmatched
-    *word* the dictionary doesn't know is real information, surfaced in
-    ``oov``.
+    an unmatched one is not a "singleton rhyme class" -- but a *word* no
+    part of the G2P chain could voice is real information (``oov``), and so
+    is a pronunciation the chain guessed rather than looked up
+    (``guessed``).
     """
     candidates = enumerate_candidates(verse, max_span_words=max_span_words)
     matches = find_matches(
@@ -760,8 +788,10 @@ def scan_verse(
         tuple(nodes[i] for i in component)
         for component in connected_components(len(nodes), edges)
     )
+    oov, guessed = _word_provenance(tokenize_verse(verse))
     return VerseScan(
         matches=tuple(selected),
         groups=groups,
-        oov=_oov_words(tokenize_verse(verse)),
+        oov=oov,
+        guessed=guessed,
     )

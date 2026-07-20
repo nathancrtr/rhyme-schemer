@@ -148,8 +148,12 @@ class TestEnumerateCandidates(unittest.TestCase):
             # No candidate mixes words from both lines.
             self.assertLessEqual(len(candidate.words), 2)
 
-    def test_oov_word_poisons_only_the_spans_containing_it(self):
-        candidates = enumerate_candidates("blorptastic flow")
+    def test_unvoiceable_word_poisons_only_the_spans_containing_it(self):
+        # "brrr" fails the whole G2P chain (no vowel survives letter
+        # collapse), so spans containing it yield nothing -- since Unit 13
+        # this is the only kind of word that still poisons a span; mere
+        # dictionary misses ("blorptastic") get letter-to-sound guesses.
+        candidates = enumerate_candidates("brrr flow")
         self.assertEqual({str(c) for c in candidates}, {"flow @L0:W1+0"})
 
     def test_readings_cover_variant_combinations(self):
@@ -357,9 +361,17 @@ class TestScanVerse(unittest.TestCase):
         scan = scan_verse("ride on a plane man\nnot feeling sane man")
         self.assertIn({"plane man", "sane man"}, self._group_texts(scan))
 
-    def test_oov_words_are_surfaced_not_silently_dropped(self):
+    def test_unvoiceable_words_are_surfaced_not_silently_dropped(self):
+        scan = scan_verse("brrr flow\nglow")
+        self.assertEqual(scan.oov, ("brrr",))
+        self.assertIn({"flow", "glow"}, self._group_texts(scan))
+
+    def test_guessed_words_are_reported_with_their_source(self):
+        # "blorptastic" is no longer OOV: letter-to-sound voices it, it
+        # scans like any word, and the scan reports the provenance.
         scan = scan_verse("blorptastic flow\nglow")
-        self.assertEqual(scan.oov, ("blorptastic",))
+        self.assertEqual(scan.oov, ())
+        self.assertEqual(scan.guessed, (("blorptastic", "letter-to-sound"),))
         self.assertIn({"flow", "glow"}, self._group_texts(scan))
 
 

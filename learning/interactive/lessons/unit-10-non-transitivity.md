@@ -24,9 +24,10 @@ Wait. Let them sit in the discomfort. There's no clean answer — and that's the
 ## 3. Formalize
 - Build a graph: nodes = words/spans, edge if `rhyme_score ≥ threshold`. **Connected components** (union-find) = rhyme classes.
 - Similarity relations are reflexive and symmetric but **not transitive**, so they are *not* equivalence relations — yet components impose transitivity by fiat. That's a choice with consequences.
-- Alternatives that don't force transitivity: stricter clustering (require all-pairs above threshold — cliques), or higher thresholds, or soft/overlapping membership.
+- The choice has names: components over threshold edges is **single-link clustering**, and its failure mode — one generous edge gluing two good clusters into a mega-class — is **chaining** (percolation), the oldest known clustering pathology. It will fire, on schedule, in Unit 11's tuning ledger (items 1 and 9).
+- Alternatives that don't force transitivity: stricter clustering (require all-pairs above threshold — cliques), correlation clustering on signed edge weights, community detection that penalizes sparse cuts, or soft/overlapping membership. The deepest alternative reframes the task: **Reddy & Knight (2011)** (https://aclanthology.org/P11-2014/) treat the rhyme *scheme* as a latent structured object to infer — a prior over schemes regularizes the classes — with no pronunciation dictionary at all. Unit 14 prices our components choice against one such alternative.
 
-Connect back: **"Naming the modeling decision *is* the computational-linguistics work here. The code is a few lines of union-find; the judgment — components vs. cliques vs. overlap — is the substance."**
+Connect back: **"Naming the modeling decision *is* the computational-linguistics work here. The code is a few lines of union-find; the judgment — components vs. cliques vs. scheme-inference — is the substance, and the literature has already held the debate."**
 
 ## 4. Common confusions
 - **Treating the threshold as objective.** It's a dial trading precision for recall; Unit 14 will let you measure the tradeoff instead of guessing.

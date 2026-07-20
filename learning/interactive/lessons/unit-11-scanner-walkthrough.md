@@ -224,11 +224,26 @@ data.
 
 ## Open tuning ledger (for the closing exercise and Unit 14)
 
-1. **Vacuous-column score inflation** → mush-twin classes (above).
+*(The July 2026 external review — top-level `REVIEW.md` — put names and
+literatures on several of these; those pointers are folded in below. Its
+summary judgment stands: several of these problems were "half-diagnosed"
+here already; the review's contribution is that they have names.)*
+
+1. **Vacuous-column score inflation** → mush-twin classes (above). One face
+   of the *chaining* pathology named at item 9.
 2. **wake/give at 0.904** survives: our vowel space rates EY/IH at 0.95 (the
    diphthong's glide passes near [ɪ]). Tightening is endorsed — but measured
    against Unit 14's eval, with lincoln/reason protected by dialect
-   *variants*, not metric generosity.
+   *variants*, not metric generosity. Two review updates: (a) the EY/IH
+   question is answerable *today* — Katz 2015's correspondence counts and
+   Kawahara 2007's half-rhyme statistics are corpus evidence on which vowel
+   pairs rappers treat as rhymable, no sweep required; (b) the promised
+   dialect variants currently have **no identified source** — CMUdict has no
+   dialect coverage, and WikiPron (Wiktionary-scraped lexicons) is the
+   field's candidate answer. This item cannot execute until a source is
+   named. More broadly, "refit the vowel space from rhyme-pair data"
+   (Hirjee & Brown's BLOSUM-style move) should be a Unit 14 *condition*,
+   not just weight-tuning of the hand space.
 3. **EH/EY assonance chains** ("Every ~ shake the" 0.880) selected with mushy
    extents — possibly real percepts, sloppily delimited.
 4. day~wake alone scores 0.741 (missing coda zeroes the coda term) — one hair
@@ -258,7 +273,10 @@ data.
    consistent, but the top of the scale is overcrowded. Candidate fix: a
    small onset-similarity term for *non-initial* tail columns only (the
    first column's onset must stay ignored — that's what makes cat/hat
-   rhyme).
+   rhyme). Phonology footnote from the review: since Kahn 1976, English
+   intervocalic consonants are often analyzed as *ambisyllabic* — "sweaty"
+   arguably shares its /t/ between syllables — and MOP's clean handoff of
+   medial consonants to onsets is precisely what makes them invisible here.
 
 8. **Chaining has no quality gate, so it amplifies threshold-huggers**
    (flagged by the learner, with ground truth attached). On Poe's *Raven*
@@ -278,9 +296,42 @@ data.
    remeasure — the passengers may simply die at selection. Decide against
    Unit 14's eval, not by intuition.
 
+9. **G2P feeds the mega-class glue** (observed at Unit 13's end-to-end
+   check). The chain's pronunciations are *correct*, but they inherit the
+   existing precision debt: on "I was chokin' … jokin' / Coogi … groovy /
+   flowing … going", everything fused into one class — chokin'~jokin'
+   (right), Coogi~groovy (right), but also -in'~-ing bridge edges
+   (flowing/going against the g-dropped forms) gluing all three pairs into
+   one OW mega-class via connected components. Item 1's diagnosis
+   (non-transitivity + generous edges), new edge supply: every G2P word is
+   also a new *node*, so recall gains arrive married to precision losses.
+   Nothing to fix in `g2p.py` itself; measure at Unit 14 alongside items
+   1–3, and note `DEFAULT_LTS_COST` (0.1) is also untuned — chosen by
+   analogy with the coercion cost, not by data. Naming note from the
+   review: items 1 and 9 are the same known pathology — components over
+   noisy similarity edges is **single-link clustering**, and its failure
+   mode, *chaining* (percolation: one generous edge glues two good clusters
+   into a mega-class), is the oldest known problem in clustering. It was
+   predictable a priori; the standard remedies are correlation clustering
+   on signed edge weights, community detection that penalizes sparse cuts,
+   or Reddy & Knight (2011)'s move of making the *scheme* the object of
+   inference so a prior over schemes regularizes class structure. Unit 14
+   should include one edge-weight-aware clustering condition to measure
+   what the components choice actually costs, rather than adding more
+   gates upstream of a percolation-prone grouping step.
+
 Items 5 and 6 share a diagnosis: **performance context (line position, beat
 grid) carries information a segment-only scanner cannot see** — the
-performed-stress problem, one level up.
+performed-stress problem, one level up. That blank spot on the map has a
+literature (the review's §4.2): Adams (2009) on the metrical techniques of
+flow, Condit-Schultz's **MCFlow** corpus (rap transcriptions whose rhyme
+annotations *include metric placement* — it could validate our inferred
+anchors directly), and Ohriner's *Flow* (2019), the book-length
+computational treatment of rap prosody. Their approach is observational
+(transcribe where the beat falls) where ours is inferential (price the
+stress claim and let scoring decide) — complementary, ours working on bare
+text; the review flags the priced-performed-stress move as the repo's most
+publishable idea *if* Unit 14 shows it buys precision/recall.
 
 ## Closing exercise: Lose Yourself (first verse excerpt)
 

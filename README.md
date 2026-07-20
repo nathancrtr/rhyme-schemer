@@ -42,8 +42,61 @@ library.
    rewriting the engine. Tails of unequal length (multisyllabic rhyme) are
    aligned with Needleman–Wunsch over their vowel skeletons before scoring.
 
-Out-of-vocabulary words (not in CMUdict, e.g. *"Coogi"*) are skipped and flagged
-for now; grapheme-to-phoneme handling comes later.
+Out-of-vocabulary words go through a **grapheme-to-phoneme fallback chain**
+(`g2p.py`): dialect spellings recovered by rules that keep the spelled surface
+phonology (*"chokin'"* gets choking's syllables but the spelled N coda), a
+small slang lexicon (*"imma"*), and hand-written letter-to-sound rules for
+genuinely unknown strings (*"Coogi"*) — with letter-to-sound guesses priced
+so a marginal rhyme can't be built on a made-up pronunciation. Only words
+even guessing can't voice (*"brrr"*) are still skipped and flagged.
+
+## Where this sits in the field
+
+The named prior art is **Hirjee & Brown**
+([ISMIR 2009](https://ismir2009.ismir.net/proceedings/OS8-1.pdf),
+[EMR 2010](https://kb.osu.edu/handle/1811/48548)), who scored imperfect
+internal rhyme in rap with a phoneme-similarity matrix learned from real
+lyrics. Sixteen years on, their work is still the reference point for that
+exact task — but it was never really extended as a *detection* method (today
+it is cited mostly for the "rhyme density" metric used to evaluate rap
+*generation*), which makes this project one of the few active successors to
+their actual program. Meanwhile the general rhyme-detection literature moved
+on along three lines this project deliberately does not follow: unsupervised
+rhyme-scheme discovery, where the scheme is a latent variable learned with no
+pronunciation dictionary at all
+([Reddy & Knight 2011](https://aclanthology.org/P11-2014/));
+collocation-driven detection bootstrapped from end-of-line co-occurrence
+([Plecháč 2018](https://github.com/versotym/rhymetagger)); and supervised
+neural detection over raw character sequences
+([Haider & Kuhn 2018](https://aclanthology.org/W18-4509/), evaluated partly
+on hip-hop lyrics annotated for rhyme and assonance). Those systems are
+mostly line-final-only; for internal, multisyllabic, performed rhyme, a
+feature-based symbolic pipeline remains the interpretable, tunable choice —
+and Hirjee & Brown the only true task-peer.
+
+Nor is a symbolic scanner a retro exercise in the LLM era. Benchmarks like
+[PhonologyBench (2024)](https://arxiv.org/html/2404.02456v2) show that LLMs,
+working from orthographic tokens, are weak at precisely the phoneme-level
+skills this pipeline implements symbolically; the emerging pattern is hybrid
+systems — LLM fluency filtered through exactly this kind of phonological
+machinery. An interpretable, feature-grounded rhyme scanner is the component
+the generation side of the field currently imports or badly approximates.
+
+One dependency deserves naming as a **threat to validity**: CMUdict is North
+American citation pronunciation, informally maintained, with no dialect
+coverage and inconsistent variant entries. Two of this project's recorded
+pain points — the lincoln/reason issue (a dialect-*variant* problem, not a
+weighting one) and G2P having to reconstruct AAE surface forms by rule — are
+downstream of that single choice. The field's current answer for coverage and
+variants is Wiktionary-scraped lexicons
+([WikiPron](https://aclanthology.org/2020.lrec-1.521/)); the tuning ledger's
+plan to protect lincoln/reason "with dialect variants, not metric generosity"
+needs a source like that before it can execute.
+
+*(This positioning follows an external research review of the project —
+citation currency, blind spots, novelty — preserved in
+[`REVIEW.md`](REVIEW.md). The curriculum and reading list under `learning/`
+fold in its findings.)*
 
 ## Status
 
@@ -109,8 +162,30 @@ Visualization built:
   "unknown" never reads as "doesn't rhyme". Fills are CVD-validated tints in
   both light and dark mode.
 
-Next up: **grapheme-to-phoneme fallback** for out-of-vocabulary words
-(*"Coogi"*), then evaluation against annotated ground truth.
+Grapheme-to-phoneme fallback built:
+
+- `rhyme_schemer/g2p.py` — `pronounce(word) -> Guess`: the fallback chain
+  (dictionary → slang lexicon → normalization rules → letter-to-sound).
+  Dialect spellings are treated as *performance transcriptions*: rules
+  recover the dictionary stem, then keep the spelled surface phonology
+  (g-drop's N-for-NG, *"holla"*'s non-rhotic final AH). Guess confidence is
+  priced like stress coercion — `Guess.cost` folds into `Reading.cost`, so
+  the kernel stays provenance-free — and renderers mark guessed words
+  (dashed underline + provenance tooltip) so a guess never reads as
+  dictionary fact.
+
+Next up: **evaluation** (Unit 14). Ground truth comes corpora-first —
+[MCFlow](https://emusicology.org/article/id/4737/) (rap transcriptions with
+rhyme annotations), [Haider & Kuhn's](https://aclanthology.org/W18-4509/)
+hip-hop rhyme/assonance gold standard, and Hirjee & Brown's own annotated
+lyrics for direct comparability — with in-house annotation only to fill gaps,
+double-annotated with a reported agreement figure. Metrics at two grains:
+pairwise link precision/recall/F1 *and* class-level clustering scores
+(B-cubed, adjusted Rand), because the mega-class pathologies only show up in
+the latter. Then one tuning sweep across every deferred knob — thresholds,
+weights, chaining gate — where "refit the vowel space from rhyme-pair data"
+(Hirjee & Brown's central move) and an edge-weight-aware clustering
+alternative to connected components are sweep *conditions*, not just dials.
 
 ## Development
 

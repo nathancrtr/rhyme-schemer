@@ -111,13 +111,29 @@ class TestPlanVerse(unittest.TestCase):
             first_line = paint.tooltip.splitlines()[0]
             self.assertIn(f"class {paint.fill},", first_line)
 
-    def test_oov_word_is_flagged_not_classed(self):
+    def test_guessed_word_is_marked_with_provenance(self):
+        # Unit 13's milestone word: "Coogi" was skip-and-flagged until the
+        # G2P chain gave it a letter-to-sound guess. It now scans like any
+        # word but must carry its provenance -- the guess marker and a
+        # tooltip line saying the pronunciation is not dictionary fact.
         text, paint = self.paints[(4, 1)]
         self.assertEqual(text, "Coogi")
+        self.assertFalse(paint.oov)
+        self.assertEqual(paint.guessed, "letter-to-sound")
+        self.assertIn("guessed", paint.tooltip)
+        self.assertIn(("Coogi", "letter-to-sound"), self.plan.guessed)
+        self.assertNotIn("Coogi", self.plan.oov)
+
+    def test_unvoiceable_word_is_flagged_not_classed(self):
+        # "brrr" fails the whole chain: still the old skip-and-flag path.
+        plan = plan_verse("brrr it's cold\nmy story told")
+        paints = _word_paints(plan)
+        text, paint = paints[(0, 0)]
+        self.assertEqual(text, "brrr")
         self.assertTrue(paint.oov)
         self.assertIsNone(paint.fill)
-        self.assertIn("Coogi", self.plan.oov)
-        self.assertIn("CMUdict", paint.tooltip)
+        self.assertIn("brrr", plan.oov)
+        self.assertIn("unknown", paint.tooltip)
 
     def test_slots_go_to_the_largest_classes(self):
         # The eight palette slots belong to the eight largest classes;
@@ -188,9 +204,16 @@ class TestHtmlEmitter(unittest.TestCase):
         self.assertIn('class="ticks"', self.html)  # a secondary membership
         self.assertIn("title=", self.html)         # receipts survive
 
-    def test_oov_marked_and_legend_lists_it(self):
-        self.assertIn('class="w oov"', self.html)
-        self.assertIn("unknown to CMUdict", self.html)
+    def test_guessed_marked_and_legend_lists_it(self):
+        # "Coogi" gets the dashed guess marker and a provenance legend line.
+        self.assertIn('class="w gsd"', self.html)
+        self.assertIn("pronunciation guessed", self.html)
+        self.assertIn("Coogi (letter-to-sound)", self.html)
+
+    def test_unvoiceable_marked_and_legend_lists_it(self):
+        html = render_html("brrr it's cold\nmy story told")
+        self.assertIn('class="w oov"', html)
+        self.assertIn("unknown words", html)
 
     def test_legend_has_one_row_per_class(self):
         plan = plan_verse(ORIGINAL)

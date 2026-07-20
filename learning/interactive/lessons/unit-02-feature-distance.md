@@ -28,6 +28,7 @@ Connect back: **"You've just built a 4-dimensional embedding by hand. word2vec d
 ## 4. Common confusions
 - **Tense/lax as a separate feature.** It isn't here — `IH` sits lower/more central than `IY`, so the contrast falls out of *position*. Show them the coordinates.
 - **Why a square, not the IPA trapezoid.** The code uses Euclidean distance on raw coordinates, so the honest picture is a square; the trapezoid is a presentation choice. The widget notes this.
+- **Articulatory adjacency ≠ perceptual confusability.** The quadrilateral is a tongue-position diagram, not a psychoacoustic space (that would be Bark-scaled formant space), and corpus data exists on which vowel pairs rappers *actually* treat as rhymable (Katz 2015, Kawahara 2007 — see the resources shelf). The hand-placed space is the pedagogical stand-in; the tuning ledger's "EY/IH too generous" complaints are its predictable symptom, and Unit 14 makes refitting it from data a first-class experiment.
 
 ## 5. Exit check
 Ask: **"Pick two vowels you'd expect to be middling-close, predict the similarity to one decimal, then check in the widget. If you're off, is it the height axis or the backness axis fooling you?"**
