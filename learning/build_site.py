@@ -56,7 +56,8 @@ UNITS = [
          lesson="unit-02-feature-distance.md",
          widgets=[("Vowel-Space Explorer", "interactive/widgets/vowel-explorer.html")]),
     dict(num=3, phase=1, title="Consonants: place, manner, voicing, sonority",
-         lesson="unit-03-consonants.md"),
+         lesson="unit-03-consonants.md",
+         widgets=[("Consonant-Space Explorer", "interactive/widgets/consonant-explorer.html")]),
     dict(num=4, phase=1, title="Syllables & phonotactics: the Maximal Onset Principle",
          lesson="unit-04-syllables-and-phonotactics.md",
          widgets=[("Syllabifier", "interactive/widgets/syllabifier.html")],
@@ -79,6 +80,7 @@ UNITS = [
          widgets=[("Rhyme-Score Sandbox", "interactive/widgets/rhyme-score-sandbox.html")]),
     dict(num=10, phase=3, title="Grouping rhymes: similarity graphs & components",
          lesson="unit-10-non-transitivity.md",
+         widgets=[("Grouping Explorer", "interactive/widgets/grouping-explorer.html")],
          quiz=("Phase 3 checkpoint", "interactive/quizzes/phase-3-checkpoint.html"),
          companion=("Graphs, components, and union-find from zero", "graphs-and-union-find.md")),
     dict(num=11, phase=3, title="Internal & multisyllabic rhyme: scanning a verse",
@@ -93,7 +95,8 @@ UNITS = [
          lesson="unit-12-rendering.md"),
     dict(num=13, phase=4, title="Out-of-vocabulary words & grapheme-to-phoneme",
          lesson="unit-13-g2p.md"),
-    dict(num=14, phase=4, title="Evaluation: is it any good?"),
+    dict(num=14, phase=4, title="Evaluation: is it any good?",
+         widgets=[("Gold Annotator", "interactive/widgets/gold-annotator.html")]),
     dict(num=15, phase=5, title="Capstone: the finished tool + the written understanding"),
 ]
 

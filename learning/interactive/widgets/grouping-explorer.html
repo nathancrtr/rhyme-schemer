@@ -1,0 +1,160 @@
+<!--
+  Grouping / percolation explorer for rhyme-schemer (Unit 10).
+  Every unique dictionary word of the course's demo verse is a node; edges
+  appear wherever best_rhyme_score >= the threshold (all 190 pairwise scores
+  precomputed by the repo's own pipeline and embedded below); components are
+  computed live by union-find and colored. Drag the slider and watch
+  single-link clustering percolate -- the preset buttons mark the true story
+  at three thresholds, verified against the Python implementation.
+
+  Palette note: eight fixed class colors, overflow folds to neutral gray --
+  the same discipline as render.py (never cycle hues).
+
+  Self-contained. No external services, no localStorage.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grouping Explorer: watch percolation happen</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--line:#2a2f3a;--accent:#6ea8fe;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  .wrap{max-width:940px;margin:0 auto;padding:24px 18px 56px;}
+  h1{font-size:1.3rem;margin:0 0 2px;}
+  .sub{color:var(--muted);margin:0 0 14px;font-size:.92rem;}
+  .stage{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+  svg{background:var(--card);border:1px solid var(--line);border-radius:14px;}
+  .panel{flex:1;min-width:280px;}
+  .controls{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;}
+  .controls label{font-size:.85rem;color:var(--muted);}
+  .tval{font-size:1.4rem;font-weight:700;font-variant-numeric:tabular-nums;}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .presets button{background:#222833;border:1px solid var(--line);border-radius:999px;
+    color:var(--ink);font:inherit;font-size:.83rem;padding:5px 12px;cursor:pointer;}
+  .presets button:hover{border-color:var(--accent);}
+  .story{margin-top:10px;font-size:.88rem;color:var(--muted);min-height:3.2em;}
+  .classes{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px 18px;margin-top:14px;}
+  .classes h2{font-size:1rem;margin:0 0 8px;}
+  .cls{margin:6px 0;line-height:2;}
+  .chip{display:inline-block;border-radius:999px;padding:2px 10px;margin:1px 3px 1px 0;
+    font-size:.85rem;color:#0f1115;font-weight:600;}
+  .stat{font-variant-numeric:tabular-nums;}
+  .hint{color:var(--muted);font-size:.85rem;margin-top:12px;}
+  .nlabel{font-size:12px;font-weight:600;fill:var(--ink);pointer-events:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Grouping Explorer</h1>
+  <p class="sub">Nodes: the demo verse's words. Edges: <code>best_is_rhyme</code> at your threshold.
+     Colors: connected components — Unit 10's rhyme classes, live.</p>
+  <div class="stage">
+    <svg id="graph" width="480" height="470" viewBox="0 0 480 470" aria-label="Rhyme graph"></svg>
+    <div class="panel">
+      <div class="controls">
+        <label for="th">threshold</label> <span class="tval" id="tval">0.75</span>
+        <input type="range" id="th" min="0.60" max="1.00" step="0.005" value="0.75">
+        <div class="presets">
+          <button data-t="0.70">0.70 — percolation</button>
+          <button data-t="0.80">0.80 — clean families</button>
+          <button data-t="0.95">0.95 — over-split</button>
+        </div>
+        <div class="story" id="story"></div>
+      </div>
+      <div class="classes">
+        <h2>Classes <span class="stat" id="stats"></span></h2>
+        <div id="clist"></div>
+      </div>
+    </div>
+  </div>
+  <p class="hint">These are <em>raw kernel verdicts</em> — no scanner gates, no anchor rules, no coercion
+    costs. That's the point: the function-word classes you see at 0.75–0.80 ("day · i · a · the" rhyme via
+    CMUdict's letter-name and emphatic variants!) are exactly the junk Unit 11's gates exist to kill, and the
+    single edge that fuses everything below ~0.72 is single-link chaining doing what it always does. The
+    palette folds classes beyond eight into gray rather than cycling hues — <code>render.py</code>'s rule.</p>
+</div>
+
+<script>
+const DATA = {"words":["every","day","i","wake","up","take","a","cake","and","shake","the","state","feeling","great","no","debate","am","one","who","ate"],"scores":{"0|1":0.3274,"0|2":0.2896,"0|3":0.3798,"0|4":0.3901,"0|5":0.3798,"0|6":0.3274,"0|7":0.3798,"0|8":0.3708,"0|9":0.3798,"0|10":0.5,"0|11":0.4096,"0|12":0.6136,"0|13":0.4096,"0|14":0.2113,"0|15":0.4096,"0|16":0.4766,"0|17":0.4047,"0|18":0.2825,"0|19":0.4096,"1|2":0.8794,"1|3":0.7407,"1|4":0.5922,"1|5":0.7407,"1|6":1.0,"1|7":0.7407,"1|8":0.5922,"1|9":0.7407,"1|10":0.8973,"1|11":0.7407,"1|12":0.3517,"1|13":0.7407,"1|14":0.6652,"1|15":0.7407,"1|16":0.6548,"1|17":0.5922,"1|18":0.602,"1|19":0.7407,"2|3":0.6201,"2|4":0.5884,"2|5":0.6201,"2|6":0.8794,"2|7":0.6201,"2|8":0.5884,"2|9":0.6201,"2|10":0.8476,"2|11":0.6201,"2|12":0.2989,"2|13":0.6201,"2|14":0.6855,"2|15":0.6201,"2|16":0.5791,"2|17":0.5884,"2|18":0.5839,"2|19":0.6201,"3|4":0.7149,"3|5":1.0,"3|6":0.7407,"3|7":1.0,"3|8":0.6487,"3|9":1.0,"3|10":0.638,"3|11":0.9277,"3|12":0.4211,"3|13":0.9277,"3|14":0.4059,"3|15":0.9277,"3|16":0.7193,"3|17":0.7052,"3|18":0.3427,"3|19":0.9277,"4|5":0.7149,"4|6":0.7407,"4|7":0.7149,"4|8":0.7997,"4|9":0.7149,"4|10":0.7407,"4|11":0.7872,"4|12":0.3255,"4|13":0.7872,"4|14":0.4943,"4|15":0.7872,"4|16":0.7457,"4|17":0.8587,"4|18":0.4038,"4|19":0.7872,"5|6":0.7407,"5|7":1.0,"5|8":0.6487,"5|9":1.0,"5|10":0.638,"5|11":0.9277,"5|12":0.4211,"5|13":0.9277,"5|14":0.4059,"5|15":0.9277,"5|16":0.7193,"5|17":0.7052,"5|18":0.3427,"5|19":0.9277,"6|7":0.7407,"6|8":0.7407,"6|9":0.7407,"6|10":1.0,"6|11":0.7407,"6|12":0.3517,"6|13":0.7407,"6|14":0.7536,"6|15":0.7407,"6|16":0.6548,"6|17":0.7407,"6|18":0.6631,"6|19":0.7407,"7|8":0.6487,"7|9":1.0,"7|10":0.638,"7|11":0.9277,"7|12":0.4211,"7|13":0.9277,"7|14":0.4059,"7|15":0.9277,"7|16":0.7193,"7|17":0.7052,"7|18":0.3427,"7|19":0.9277,"8|9":0.6487,"8|10":0.7407,"8|11":0.6616,"8|12":0.34,"8|13":0.6616,"8|14":0.4943,"8|15":0.6616,"8|16":0.8382,"8|17":0.8704,"8|18":0.4038,"8|19":0.6616,"9|10":0.638,"9|11":0.9277,"9|12":0.4211,"9|13":0.9277,"9|14":0.4059,"9|15":0.9277,"9|16":0.7193,"9|17":0.7052,"9|18":0.3427,"9|19":0.9277,"10|11":0.638,"10|12":0.5,"10|13":0.638,"10|14":0.7536,"10|15":0.638,"10|16":0.6069,"10|17":0.7407,"10|18":0.6631,"10|19":0.638,"11|12":0.4082,"11|13":1.0,"11|14":0.4059,"11|15":1.0,"11|16":0.7727,"11|17":0.731,"11|18":0.3427,"11|19":1.0,"12|13":0.4082,"12|14":0.2078,"12|15":0.4082,"12|16":0.3709,"12|17":0.3868,"12|18":0.184,"12|19":0.4082,"13|14":0.4059,"13|15":1.0,"13|16":0.7727,"13|17":0.731,"13|18":0.3427,"13|19":1.0,"14|15":0.4059,"14|16":0.3746,"14|17":0.4943,"14|18":0.8892,"14|19":0.4059,"15|16":0.7727,"15|17":0.731,"15|18":0.3427,"15|19":1.0,"16|17":0.8019,"16|18":0.296,"16|19":0.7727,"17|18":0.4038,"17|19":0.731,"18|19":0.3427}};
+
+// Eight fixed class colors (largest classes first), overflow -> neutral.
+const PALETTE=['#6ea8fe','#2ecc71','#f0a868','#c678dd','#e06c75','#56b6c2','#d19a66','#98c379'];
+const NEUTRAL='#9aa3af';
+
+function components(count,edges){           // union-find, as in rhyme.py
+  const parent=Array.from({length:count},(_,i)=>i);
+  const find=x=>{while(parent[x]!==x){parent[x]=parent[parent[x]];x=parent[x];}return x;};
+  for(const [a,b] of edges){const ra=find(a),rb=find(b);if(ra!==rb)parent[ra]=rb;}
+  const groups={};
+  for(let i=0;i<count;i++){const r=find(i);(groups[r]??=[]).push(i);}
+  return Object.values(groups);
+}
+
+const WORDS=DATA.words, N=WORDS.length;
+const PAIRS=Object.entries(DATA.scores).map(([k,v])=>{
+  const [i,j]=k.split('|').map(Number); return [i,j,v];
+});
+
+const svg=document.getElementById('graph');
+const NS="http://www.w3.org/2000/svg";
+const CX=240,CY=235,R=170;
+const px=i=>CX+R*Math.cos(2*Math.PI*i/N-Math.PI/2);
+const py=i=>CY+R*Math.sin(2*Math.PI*i/N-Math.PI/2);
+function el(n,a){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;}
+
+const edgeLayer=el('g',{}); svg.appendChild(edgeLayer);
+const nodeEls=[],labelEls=[];
+for(let i=0;i<N;i++){
+  const c=el('circle',{cx:px(i),cy:py(i),r:7,fill:NEUTRAL});
+  svg.appendChild(c); nodeEls.push(c);
+  const anchorLeft=px(i)<CX;
+  const t=el('text',{x:px(i)+(anchorLeft?-11:11),y:py(i)+4,class:'nlabel',
+                     'text-anchor':anchorLeft?'end':'start'});
+  t.textContent=WORDS[i]; svg.appendChild(t); labelEls.push(t);
+}
+
+function render(threshold){
+  document.getElementById('tval').textContent=threshold.toFixed(3).replace(/0+$/,'').replace(/\.$/,'.0');
+  const edges=PAIRS.filter(([,,s])=>s>=threshold);
+  edgeLayer.innerHTML='';
+  for(const [i,j,s] of edges){
+    edgeLayer.appendChild(el('line',{x1:px(i),y1:py(i),x2:px(j),y2:py(j),
+      stroke:'#3a4150','stroke-width':s>=0.99?2.2:1.2,opacity:s>=0.99?0.9:0.55}));
+  }
+  const comps=components(N,edges.map(([i,j])=>[i,j]))
+    .sort((a,b)=>b.length-a.length);
+  const multi=comps.filter(c=>c.length>1);
+  const colorOf={};
+  multi.forEach((c,k)=>{const col=k<PALETTE.length?PALETTE[k]:NEUTRAL;c.forEach(i=>colorOf[i]=col);});
+  nodeEls.forEach((n,i)=>{n.setAttribute('fill',colorOf[i]??'#2a2f3a');
+                          n.setAttribute('r',colorOf[i]?8:5);});
+  document.getElementById('stats').textContent=
+    `— ${multi.length} multi-word, ${comps.length-multi.length} solo, largest ${multi[0]?multi[0].length:0}`;
+  const clist=document.getElementById('clist');
+  clist.innerHTML=multi.map((c,k)=>{
+    const col=k<PALETTE.length?PALETTE[k]:NEUTRAL;
+    return `<div class="cls">${c.map(i=>`<span class="chip" style="background:${col}">${WORDS[i]}</span>`).join('')}</div>`;
+  }).join('')||'<span class="hint">No class has two members at this threshold.</span>';
+  const story=document.getElementById('story');
+  if(threshold<=0.72) story.textContent='One mega-class swallows nearly the whole verse: single-link percolation. Every word is reachable from every other through some chain of borderline edges.';
+  else if(threshold<0.79) story.textContent='The default threshold (0.75). Two big classes — but look inside them: function words ("a", "the", "one") ride along via CMUdict’s emphatic and letter-name variants. Recall is high; precision is paying for it.';
+  else if(threshold<0.9) story.textContent='The -ake family stands clean (wake take cake shake state great debate ate) — and the function words now form their own little "classes." No threshold fixes a variant problem.';
+  else if(threshold<0.97) story.textContent='Higher still: classes thin out. The glue is gone, and so is some truth.';
+  else story.textContent='Near-perfect only: even the true -ake family splits into K-codas (wake take cake shake) and T-codas (state great debate ate). Over-splitting is a failure mode too.';
+}
+
+const slider=document.getElementById('th');
+slider.addEventListener('input',()=>render(parseFloat(slider.value)));
+document.querySelectorAll('.presets button').forEach(b=>b.addEventListener('click',()=>{
+  slider.value=b.dataset.t; render(parseFloat(b.dataset.t));
+}));
+render(0.75);
+</script>
+</body>
+</html>

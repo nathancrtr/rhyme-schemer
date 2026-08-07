@@ -32,6 +32,9 @@ learning/
     │   ├── syllabifier.html       watch the Maximal Onset Principle split a word
     │   ├── nw-alignment.html      feel the gap penalty in the DP table
     │   ├── rhyme-score-sandbox.html   two words → tails, alignment, score receipts
+    │   ├── consonant-explorer.html    place×manner plane + H&B corpus overlay
+    │   ├── grouping-explorer.html     threshold slider → watch percolation live
+    │   ├── gold-annotator.html        click words into groups → tests/gold format
     │   └── generate_sandbox_lexicon.py  regenerates the sandbox's embedded words
     ├── quizzes/
     │   ├── phase-1-checkpoint.html  self-checking, explanatory feedback

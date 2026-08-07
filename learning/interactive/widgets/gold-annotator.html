@@ -1,0 +1,207 @@
+<!--
+  Gold annotator for rhyme-schemer (Unit 14).
+  Hand-annotate a verse's rhyme groups by clicking words, and export the
+  result in the tests/gold/ format (group:/not: lines with word@L.W refs,
+  spans as word@L.W1-W2). The point of the exercise: you become an
+  annotator, your file becomes gold, and the harness's inter-annotator
+  agreement is computed between files like the one this widget writes.
+
+  Veto (not:) support covers single-word refs; span-sided vetoes are rare
+  enough to write by hand.
+
+  Self-contained. No external services, no localStorage.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gold Annotator</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--line:#2a2f3a;--accent:#6ea8fe;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.6 ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  .wrap{max-width:900px;margin:0 auto;padding:24px 18px 56px;}
+  h1{font-size:1.3rem;margin:0 0 2px;}
+  .sub{color:var(--muted);margin:0 0 14px;font-size:.92rem;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+        padding:14px 18px;margin-bottom:14px;}
+  .verse{font-size:1.05rem;line-height:2.15;}
+  .w{padding:2px 5px;border-radius:7px;cursor:pointer;border:1.5px solid transparent;}
+  .w:hover{border-color:var(--accent);}
+  .w.multi{box-shadow:0 2px 0 0 var(--ink);}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+  button,select{background:#222833;border:1px solid var(--line);border-radius:9px;
+    color:var(--ink);font:inherit;font-size:.88rem;padding:6px 12px;cursor:pointer;}
+  button:hover{border-color:var(--accent);}
+  button.active{border-color:var(--accent);color:var(--accent);}
+  .gdot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .glist{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .gbtn{display:flex;align-items:center;}
+  textarea{width:100%;min-height:230px;background:#0c0e12;border:1px solid var(--line);
+    border-radius:10px;color:var(--ink);font:12.5px/1.5 ui-monospace,Menlo,monospace;padding:12px;}
+  .hint{color:var(--muted);font-size:.85rem;margin-top:8px;}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  input[type=text]{background:#222833;border:1px solid var(--line);border-radius:9px;
+    color:var(--ink);font:inherit;font-size:.88rem;padding:6px 10px;}
+  details textarea{min-height:110px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gold Annotator</h1>
+  <p class="sub">Click words into rhyme groups; the <code>tests/gold/</code>-format annotation writes
+     itself below. Shift-click extends the previous click into a multi-word <em>span</em> (same line).</p>
+
+  <div class="card">
+    <div class="toolbar">
+      <button id="newg">+ new group</button>
+      <div class="glist" id="glist"></div>
+      <button id="veto">veto mode (not:)</button>
+      <button id="clear">start over</button>
+    </div>
+    <div class="verse" id="verse"></div>
+    <p class="hint">Annotate <b>groups, not pairs</b> ("steady / ready / confetti — one family") — the harness
+      explodes groups into the pairs they imply. A group of A B C endorses A~C; if your ear rejects exactly
+      that induced pair, veto it: enter veto mode and click the two words. Same-word repetition is not rhyme
+      (rime riche) — don't annotate door~door.</p>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label for="annot">annotator:</label>
+      <input type="text" id="annot" value="me" size="12">
+      <button id="copy">copy annotation</button>
+      <span class="hint" id="copied"></span>
+    </div>
+    <textarea id="out" readonly spellcheck="false"></textarea>
+  </div>
+
+  <details class="card">
+    <summary>Annotate a different verse</summary>
+    <p class="hint">Paste plain text (one line per lyric line), then Load. Content-safety rule: don't paste
+      multi-line commercial lyrics — use your own verses or public-domain poetry.</p>
+    <textarea id="custom" spellcheck="false"></textarea>
+    <p><button id="load">Load verse</button></p>
+  </details>
+</div>
+
+<script>
+const DEMO=`My palms are steady, my arms are ready
+I wake up, shake the whole state up
+I face the day and make my way
+I'm nervous, but my verses stay steady
+My Coogi sweater keeps me warm and clever
+The plan spins round like fresh confetti
+Whatever the weather, I hold it together
+Already ready, sharp as a machete`;
+
+const PALETTE=['#6ea8fe','#2ecc71','#f0a868','#c678dd','#e06c75','#56b6c2','#d19a66','#98c379'];
+const $=id=>document.getElementById(id);
+
+let lines=[];          // [[{text,L,W}, ...], ...]
+let groups=[];         // [{refs:[{L,W1,W2,text}]}], color = PALETTE[i % 8]
+let vetoes=[];         // [[refA, refB]] single-word refs
+let active=-1, vetoMode=false, vetoFirst=null, lastClick=null;
+
+function tokenize(text){
+  return text.split('\n').map((line,L)=>{
+    const words=line.match(/[A-Za-z']+/g)||[];
+    return words.map((w,W)=>({text:w,L,W}));
+  });
+}
+function refStr(r){
+  return r.W2>r.W1 ? `${r.text}@${r.L}.${r.W1}-${r.W2}` : `${r.text}@${r.L}.${r.W1}`;
+}
+function refCovers(r,L,W){ return r.L===L && W>=r.W1 && W<=r.W2; }
+
+function groupColor(i){ return PALETTE[i%PALETTE.length]; }
+
+function renderVerse(){
+  const v=$('verse'); v.innerHTML='';
+  lines.forEach(line=>{
+    const div=document.createElement('div');
+    line.forEach(tok=>{
+      const span=document.createElement('span');
+      span.className='w'; span.textContent=tok.text;
+      span.dataset.l=tok.L; span.dataset.w=tok.W;
+      const members=[];
+      groups.forEach((g,gi)=>{ if(g.refs.some(r=>refCovers(r,tok.L,tok.W))) members.push(gi); });
+      if(members.length){
+        span.style.background=groupColor(members[members.length-1])+'44';
+        span.style.borderColor=groupColor(members[members.length-1]);
+        if(members.length>1) span.classList.add('multi');
+        span.title=members.map(gi=>`group ${gi+1}`).join(', ');
+      }
+      div.appendChild(span); div.appendChild(document.createTextNode(' '));
+    });
+    v.appendChild(div);
+  });
+}
+function renderGroups(){
+  const gl=$('glist'); gl.innerHTML='';
+  groups.forEach((g,gi)=>{
+    const b=document.createElement('button');
+    b.className='gbtn'+(gi===active&&!vetoMode?' active':'');
+    b.innerHTML=`<span class="gdot" style="background:${groupColor(gi)}"></span>group ${gi+1} (${g.refs.length})`;
+    b.onclick=()=>{active=gi;vetoMode=false;refresh();};
+    gl.appendChild(b);
+  });
+  $('veto').className=vetoMode?'active':'';
+}
+function emit(){
+  const head=`# Gold rhyme annotation — widget export.\n# Annotator: ${$('annot').value||'unknown'}\n\nverse:\n`+
+    lines.map(l=>'  '+l.map(t=>t.text).join(' ')).join('\n')+'\n\n';
+  const gs=groups.filter(g=>g.refs.length>=2)
+    .map(g=>'group: '+g.refs.map(refStr).join(' ')).join('\n');
+  const ns=vetoes.map(([a,b])=>'not: '+refStr(a)+' '+refStr(b)).join('\n');
+  $('out').value=head+(gs?gs+'\n':'')+(ns?'\n'+ns+'\n':'');
+}
+function refresh(){ renderVerse(); renderGroups(); emit(); }
+
+function wordAt(L,W){ return lines[L][W]; }
+
+$('verse').addEventListener('click',e=>{
+  const el=e.target.closest('.w'); if(!el) return;
+  const L=+el.dataset.l, W=+el.dataset.w, tok=wordAt(L,W);
+
+  if(vetoMode){
+    const ref={L,W1:W,W2:W,text:tok.text};
+    if(!vetoFirst){ vetoFirst=ref; el.style.outline='2px dashed var(--ink)'; return; }
+    if(!(vetoFirst.L===L&&vetoFirst.W1===W)) vetoes.push([vetoFirst,ref]);
+    vetoFirst=null; refresh(); return;
+  }
+  if(active<0){ $('newg').click(); }
+  const g=groups[active];
+
+  // shift-click: extend the immediately previous single-word click into a span
+  if(e.shiftKey && lastClick && lastClick.L===L && lastClick.W1<W){
+    const prev=g.refs.findIndex(r=>r.L===L&&r.W1===lastClick.W1&&r.W2===lastClick.W2);
+    if(prev>=0){ g.refs[prev]={L,W1:lastClick.W1,W2:W,text:wordAt(L,lastClick.W1).text};
+                 lastClick=g.refs[prev]; refresh(); return; }
+  }
+  const existing=g.refs.findIndex(r=>refCovers(r,L,W));
+  if(existing>=0){ g.refs.splice(existing,1); lastClick=null; }
+  else{ const ref={L,W1:W,W2:W,text:tok.text}; g.refs.push(ref); lastClick=ref; }
+  refresh();
+});
+
+$('newg').onclick=()=>{ groups.push({refs:[]}); active=groups.length-1; vetoMode=false; refresh(); };
+$('veto').onclick=()=>{ vetoMode=!vetoMode; vetoFirst=null; refresh(); };
+$('clear').onclick=()=>{ groups=[];vetoes=[];active=-1;vetoMode=false;lastClick=null; refresh(); };
+$('annot').addEventListener('input',emit);
+$('copy').onclick=async()=>{
+  await navigator.clipboard.writeText($('out').value).catch(()=>{});
+  $('copied').textContent='copied ✓'; setTimeout(()=>$('copied').textContent='',1500);
+};
+$('load').onclick=()=>{
+  const t=$('custom').value.trim(); if(!t) return;
+  lines=tokenize(t); groups=[];vetoes=[];active=-1;lastClick=null; refresh();
+};
+
+lines=tokenize(DEMO);
+refresh();
+</script>
+</body>
+</html>

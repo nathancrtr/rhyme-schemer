@@ -1,0 +1,204 @@
+<!--
+  Consonant-space explorer for rhyme-schemer (Unit 3).
+  The place x manner plane and distance function are ported verbatim from
+  rhyme_schemer/features.py, so pair numbers match consonant_distance()
+  exactly. The corpus overlay shows Hirjee & Brown (2009)'s rap-rhyme
+  log-odds for the same pair (transcribed in learning/audits/) -- the
+  empirical check behind tuning-ledger item 12: click K and P, or B and G,
+  and watch the hand-placed space and the corpus disagree.
+
+  Voiced/voiceless twins share coordinates in the feature space; they are
+  offset horizontally here for visibility only.
+
+  Self-contained. No external services, no localStorage.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consonant-Space Explorer</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--line:#2a2f3a;
+        --sel:#2ecc71;--accent:#6ea8fe;--warn:#f0a868;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  .wrap{max-width:900px;margin:0 auto;padding:24px 18px 56px;}
+  h1{font-size:1.3rem;margin:0 0 2px;}
+  .sub{color:var(--muted);margin:0 0 18px;font-size:.92rem;}
+  .stage{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+  svg{background:var(--card);border:1px solid var(--line);border-radius:14px;touch-action:manipulation;}
+  .panel{flex:1;min-width:250px;}
+  .readout{background:var(--card);border:1px solid var(--line);border-radius:14px;
+           padding:16px 18px;min-height:200px;}
+  .readout h2{font-size:1rem;margin:0 0 10px;}
+  .pair{font-size:1.5rem;font-weight:700;letter-spacing:.5px;}
+  .pair small{font-size:.8rem;color:var(--muted);font-weight:400;}
+  .metric{margin:10px 0 0;}
+  .bar{height:10px;border-radius:6px;background:#222833;overflow:hidden;margin:4px 0 2px;}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,#2ecc71,#6ea8fe);}
+  .metric span{font-variant-numeric:tabular-nums;}
+  .corpus{margin-top:14px;padding-top:10px;border-top:1px solid var(--line);}
+  .corpus b{font-variant-numeric:tabular-nums;}
+  .verdict{margin-top:8px;font-size:.88rem;border-radius:10px;padding:8px 12px;}
+  .v-agree{background:rgba(46,204,113,.1);color:var(--sel);}
+  .v-clash{background:rgba(240,168,104,.12);color:var(--warn);}
+  .v-na{background:#222833;color:var(--muted);}
+  .hint{color:var(--muted);font-size:.85rem;margin-top:12px;}
+  .clabel{font-size:13px;font-weight:600;fill:var(--ink);cursor:pointer;}
+  .axis{font-size:10px;fill:var(--muted);letter-spacing:1px;}
+  circle.node{cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Consonant-Space Explorer</h1>
+  <p class="sub">Click two consonants. The distance is exactly <code>consonant_distance()</code> from
+     <code>features.py</code>; the corpus line is Hirjee &amp; Brown's rap-rhyme log-odds for the same pair.</p>
+  <div class="stage">
+    <svg id="chart" width="460" height="420" viewBox="0 0 460 420" aria-label="Consonant chart"></svg>
+    <div class="panel">
+      <div class="readout">
+        <h2>Selected pair</h2>
+        <div class="pair" id="pair">— · —</div>
+        <div class="metric">our distance <span id="dist">—</span>
+          <div class="bar"><i id="distbar" style="width:0%"></i></div>
+        </div>
+        <div class="metric">our similarity <span id="sim">—</span>
+          <div class="bar"><i id="simbar" style="width:0%"></i></div>
+        </div>
+        <div class="corpus">corpus log-odds: <b id="lo">—</b>
+          <div class="verdict v-na" id="verdict">Pick two consonants…</div>
+        </div>
+      </div>
+      <p class="hint">Filled dot = voiced, hollow = voiceless (twins share a point in the real space;
+        they're nudged apart here). Sonority increases upward — the manner axis. Corpus values exist
+        for coda consonants only; W, Y, HH have none (they never close an English syllable).</p>
+      <p class="hint">Worth clicking: <b>K·P</b> and <b>B·G</b> (our space says distant, the corpus says
+        rhymable — ledger item 12a), <b>M·N</b> vs <b>T·K</b> (the nasal-discount question, 12c),
+        <b>DH·N</b> (our generosity the corpus rejects, 12b), <b>S·Z</b> vs <b>S·SH</b> (voicing vs one
+        place step).</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- ported verbatim from features.py --------------------------------------
+const C = { // [place, manner, voiced]
+  P:[0.00,0.00,0], B:[0.00,0.00,1], T:[0.40,0.00,0], D:[0.40,0.00,1],
+  K:[0.85,0.00,0], G:[0.85,0.00,1],
+  CH:[0.55,0.15,0], JH:[0.55,0.15,1],
+  F:[0.15,0.30,0], V:[0.15,0.30,1], TH:[0.25,0.30,0], DH:[0.25,0.30,1],
+  S:[0.40,0.30,0], Z:[0.40,0.30,1], SH:[0.55,0.30,0], ZH:[0.55,0.30,1],
+  HH:[1.00,0.30,0],
+  M:[0.00,0.55,1], N:[0.40,0.55,1], NG:[0.85,0.55,1],
+  L:[0.40,0.75,1], R:[0.55,0.75,1],
+  W:[0.10,0.90,1], Y:[0.70,0.90,1],
+};
+const W_VOICE=0.2, MAX_RAW_C=Math.SQRT2+W_VOICE;
+function consonantDistance(a,b){
+  const fa=C[a],fb=C[b];
+  const plane=Math.hypot(fa[0]-fb[0],fa[1]-fb[1]);
+  const voice=fa[2]!==fb[2]?1.0:0.0;
+  return (plane+W_VOICE*voice)/MAX_RAW_C;
+}
+// ---- Hirjee & Brown 2009 log-odds (see learning/audits/) -------------------
+const HB = {"B|B":4.3,"B|CH":-4.8,"B|D":1.1,"B|DH":0.4,"B|F":-5.5,"B|G":1.9,"B|JH":1.9,"B|K":-6.9,"B|L":-0.3,"B|M":-0.5,"B|N":-1.6,"B|NG":-5.5,"B|P":0.1,"B|R":-0.9,"B|S":-1.6,"B|SH":-4.6,"B|T":-1.0,"B|TH":-4.3,"B|V":2.3,"B|Z":0.3,"B|ZH":-2.5,"CH|CH":4.2,"CH|D":-1.6,"CH|DH":-4.9,"CH|F":-0.3,"CH|G":0.3,"CH|JH":0.4,"CH|K":1.5,"CH|L":-6.8,"CH|M":-6.6,"CH|N":-2.8,"CH|NG":-5.5,"CH|P":1.1,"CH|R":-6.7,"CH|S":0.3,"CH|SH":0.6,"CH|T":0.9,"CH|TH":1.4,"CH|V":-6.1,"CH|Z":-2.0,"CH|ZH":-2.5,"D|D":2.3,"D|DH":-7.0,"D|F":-7.6,"D|G":0.1,"D|JH":0.2,"D|K":-3.1,"D|L":-1.7,"D|M":-2.2,"D|N":-2.2,"D|NG":-3.0,"D|P":-1.8,"D|R":-0.9,"D|S":-9.0,"D|SH":-2.1,"D|T":0.2,"D|TH":0.0,"D|V":-0.2,"D|Z":0.0,"D|ZH":-4.6,"DH|DH":3.5,"DH|F":-5.6,"DH|G":-5.1,"DH|JH":-4.2,"DH|K":-0.4,"DH|L":-0.2,"DH|M":-2.0,"DH|N":-7.5,"DH|NG":-5.6,"DH|P":-6.2,"DH|R":-1.4,"DH|S":-7.0,"DH|SH":-4.8,"DH|T":-0.3,"DH|TH":1.3,"DH|V":2.8,"DH|Z":1.1,"DH|ZH":-2.6,"F|F":3.4,"F|G":-1.2,"F|JH":-4.9,"F|K":-0.3,"F|L":-1.5,"F|M":-1.3,"F|N":-3.5,"F|NG":-1.6,"F|P":1.1,"F|R":-2.7,"F|S":1.1,"F|SH":1.2,"F|T":-0.9,"F|TH":4.0,"F|V":0.6,"F|Z":-7.3,"F|ZH":-3.2,"G|G":4.2,"G|JH":1.9,"G|K":0.0,"G|L":-0.2,"G|M":-1.0,"G|N":-1.9,"G|NG":-5.7,"G|P":-0.6,"G|R":-0.8,"G|S":-2.5,"G|SH":-4.9,"G|T":-1.1,"G|TH":-4.5,"G|V":0.3,"G|Z":-0.3,"G|ZH":-2.7,"JH|JH":5.2,"JH|K":-6.3,"JH|L":-1.5,"JH|M":0.1,"JH|N":-0.5,"JH|NG":-4.8,"JH|P":-0.2,"JH|R":-0.3,"JH|S":-0.6,"JH|SH":0.6,"JH|T":-1.1,"JH|TH":-3.6,"JH|V":1.4,"JH|Z":1.0,"JH|ZH":4.1,"K|K":2.6,"K|L":-2.9,"K|M":-2.1,"K|N":-2.6,"K|NG":-1.3,"K|P":1.7,"K|R":-2.1,"K|S":-0.7,"K|SH":-0.6,"K|T":0.9,"K|TH":0.5,"K|V":-1.8,"K|Z":-3.1,"K|ZH":-4.7,"L|L":2.8,"L|M":-1.8,"L|N":-1.8,"L|NG":-2.8,"L|P":-8.1,"L|R":-0.5,"L|S":-2.9,"L|SH":-6.6,"L|T":-2.9,"L|TH":-6.3,"L|V":-1.3,"L|Z":-1.6,"L|ZH":-4.5,"M|M":2.7,"M|N":1.8,"M|NG":0.7,"M|P":-3.2,"M|R":-1.2,"M|S":-2.9,"M|SH":-1.1,"M|T":-2.5,"M|TH":0.4,"M|V":-0.6,"M|Z":-3.7,"M|ZH":-4.2,"N|N":2.2,"N|NG":1.2,"N|P":-2.5,"N|R":-1.0,"N|S":-2.3,"N|SH":-0.7,"N|T":-1.5,"N|TH":-0.6,"N|V":-1.5,"N|Z":-2.1,"N|ZH":-5.1,"NG|NG":4.1,"NG|P":-6.8,"NG|R":-2.7,"NG|S":-2.3,"NG|SH":-5.3,"NG|T":-3.5,"NG|TH":-5.0,"NG|V":-2.1,"NG|Z":-2.0,"NG|ZH":-3.2,"P|P":3.3,"P|R":-2.0,"P|S":-1.1,"P|SH":-0.7,"P|T":1.1,"P|TH":0.9,"P|V":-0.6,"P|Z":-7.9,"P|ZH":-3.8,"R|R":2.8,"R|S":-2.3,"R|SH":-0.8,"R|T":-1.2,"R|TH":-6.1,"R|V":-2.1,"R|Z":-2.2,"R|ZH":-4.3,"S|S":2.6,"S|SH":2.4,"S|T":-1.0,"S|TH":1.0,"S|V":-2.4,"S|Z":0.5,"S|ZH":0.0,"SH|SH":5.2,"SH|T":-0.6,"SH|TH":-4.1,"SH|V":-1.3,"SH|Z":-0.2,"SH|ZH":3.6,"T|T":1.7,"T|TH":1.6,"T|V":-0.9,"T|Z":-9.2,"T|ZH":-5.2,"TH|TH":4.4,"TH|V":0.5,"TH|Z":-6.1,"TH|ZH":-2.0,"V|V":2.9,"V|Z":-0.4,"V|ZH":1.6,"Z|Z":2.6,"Z|ZH":3.0,"ZH|ZH":6.8};
+function logOdds(a,b){
+  return HB[a+'|'+b] ?? HB[b+'|'+a] ?? null;
+}
+// ---------------------------------------------------------------------------
+
+const svg=document.getElementById('chart');
+const NS="http://www.w3.org/2000/svg";
+const PAD=48, W=460, H=420, PW=W-2*PAD, PH=H-2*PAD;
+const X=place=>PAD+place*PW;
+const Y=manner=>PAD+(1-manner)*PH;   // sonority up
+function el(n,a){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;}
+
+svg.appendChild(el('rect',{x:PAD,y:PAD,width:PW,height:PH,fill:'none',stroke:'#2a2f3a',rx:8}));
+svg.appendChild(el('text',{x:PAD,y:PAD-16,class:'axis'})).textContent='FRONT (lips)';
+const tr=el('text',{x:W-PAD,y:PAD-16,class:'axis','text-anchor':'end'});tr.textContent='BACK (glottis)';svg.appendChild(tr);
+const gl=el('text',{x:PAD-34,y:PAD+6,class:'axis'});gl.textContent='GLIDE';svg.appendChild(gl);
+const st=el('text',{x:PAD-34,y:H-PAD+2,class:'axis'});st.textContent='STOP';svg.appendChild(st);
+
+// Voiced/voiceless twins share coordinates; nudge for visibility.
+const twins=new Set(['P','B','T','D','K','G','CH','JH','F','V','TH','DH','S','Z','SH','ZH']);
+const selLine=el('line',{stroke:'var(--sel)','stroke-width':2,'stroke-dasharray':'4 3',opacity:0});
+svg.appendChild(selLine);
+
+let selection=[];
+const nodes={},pos={};
+
+for(const [name,d] of Object.entries(C)){
+  const dx=twins.has(name)?(d[2]?13:-13):0;
+  const cx=X(d[0])+dx, cy=Y(d[1]);
+  pos[name]=[cx,cy];
+  const node=d[2]
+    ? el('circle',{cx,cy,r:6,fill:'var(--accent)',class:'node','data-c':name})
+    : el('circle',{cx,cy,r:6,fill:'var(--card)',stroke:'var(--accent)','stroke-width':2,class:'node','data-c':name});
+  svg.appendChild(node); nodes[name]=node;
+  const lbl=el('text',{x:cx-7,y:cy-10,class:'clabel','data-c':name});lbl.textContent=name;svg.appendChild(lbl);
+}
+
+function clearHighlights(){
+  for(const [n,node] of Object.entries(nodes)){
+    node.setAttribute('r',6);
+    if(C[n][2]){node.setAttribute('fill','var(--accent)');node.removeAttribute('stroke');}
+    else{node.setAttribute('fill','var(--card)');node.setAttribute('stroke','var(--accent)');node.setAttribute('stroke-width',2);}
+  }
+}
+function pick(name){
+  if(selection.length===2) selection=[];
+  selection.push(name);
+  clearHighlights();
+  selection.forEach(s=>{nodes[s].setAttribute('r',8);nodes[s].setAttribute('stroke','var(--sel)');nodes[s].setAttribute('stroke-width',2.5);});
+  const pairEl=document.getElementById('pair');
+  if(selection.length===1){
+    pairEl.textContent=`${selection[0]} · —`;
+    setPair(null); selLine.setAttribute('opacity',0);
+    document.getElementById('verdict').className='verdict v-na';
+    document.getElementById('verdict').textContent='…now pick a second consonant.';
+  }else{
+    const [a,b]=selection;
+    pairEl.textContent=`${a} · ${b}`;
+    setPair({dist:consonantDistance(a,b), lo:logOdds(a,b)});
+    const pa=pos[a],pb=pos[b];
+    selLine.setAttribute('x1',pa[0]);selLine.setAttribute('y1',pa[1]);
+    selLine.setAttribute('x2',pb[0]);selLine.setAttribute('y2',pb[1]);
+    selLine.setAttribute('opacity',1);
+  }
+}
+function setPair(m){
+  const d=document.getElementById('dist'),s=document.getElementById('sim');
+  const dB=document.getElementById('distbar'),sB=document.getElementById('simbar');
+  const lo=document.getElementById('lo'),v=document.getElementById('verdict');
+  if(!m){d.textContent='—';s.textContent='—';dB.style.width='0%';sB.style.width='0%';lo.textContent='—';return;}
+  const sim=1-m.dist;
+  d.textContent=m.dist.toFixed(3);s.textContent=sim.toFixed(3);
+  dB.style.width=(m.dist*100).toFixed(1)+'%';sB.style.width=(sim*100).toFixed(1)+'%';
+  if(m.lo===null){
+    lo.textContent='n/a';
+    v.className='verdict v-na';
+    v.textContent='No corpus data — this sound never closes an English syllable, and the matrix covers codas.';
+    return;
+  }
+  lo.textContent=(m.lo>0?'+':'')+m.lo.toFixed(1);
+  const corpusRhymable=m.lo>0, weSayClose=sim>=0.65;
+  if(corpusRhymable===weSayClose){
+    v.className='verdict v-agree';
+    v.textContent=corpusRhymable
+      ? 'Agreement: our space calls them close, and rappers rhyme them more than chance.'
+      : 'Agreement: distant in our space, and the corpus finds them un-rhymable.';
+  }else{
+    v.className='verdict v-clash';
+    v.textContent=corpusRhymable
+      ? 'Disagreement: the corpus says rhymable-above-chance, but our space prices them distant — ledger item 12 territory.'
+      : 'Disagreement: our space calls them close, but the corpus says rappers avoid the pair — our generosity, item 12 territory.';
+  }
+}
+svg.addEventListener('click',e=>{const c=e.target.getAttribute&&e.target.getAttribute('data-c');if(c)pick(c);});
+</script>
+</body>
+</html>
