@@ -59,11 +59,9 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-import pronouncing
-
 from .models import Pronunciation
 from .phonetics import VOWELS
-from .syllabify import syllabify
+from .syllabify import cmudict_variants, syllabify
 
 # The prior on a letter-to-sound guess, subtracted from any match built on
 # one (same mechanism as scan.DEFAULT_COERCION_COST -- an explicit thumb on
@@ -120,7 +118,7 @@ _LEXICON: dict[str, tuple[str, ...]] = {
 
 def _variants(word: str) -> list[list[str]]:
     """Raw CMUdict variants for ``word`` as token lists ([] if OOV)."""
-    return [v.split() for v in pronouncing.phones_for_word(word.lower())]
+    return cmudict_variants(word)
 
 
 def _mint(word: str, variants: list[list[str]]) -> tuple[Pronunciation, ...]:
