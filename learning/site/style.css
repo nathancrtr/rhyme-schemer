@@ -462,8 +462,12 @@ article.lesson>h2:first-child,article.lesson>h3:first-child{margin-top:0;}
   margin-bottom:.9rem;}
 .specimen p:last-child{margin:0;}
 /* One rhyme-class word, drawn the way render.py draws it: a washed fill that
-   keeps primary ink readable, plus the full-strength hue as a thin tick. */
-.specimen .rw{border-radius:3px;padding:.06em .22em;
+   keeps primary ink readable, plus the full-strength hue as a thin tick.
+   Horizontal padding is kept tight and cancelled by an equal negative margin:
+   a highlight followed by a comma otherwise pushes the comma off the word and
+   reads as a typo -- "steady , my". The negative margin keeps the fill visible
+   while leaving the text's own spacing untouched. */
+.specimen .rw{border-radius:3px;padding:.08em .16em;margin:0 -.16em;
   background:color-mix(in srgb,var(--accent) 20%,transparent);
   box-shadow:inset 0 -.14em 0 color-mix(in srgb,var(--accent) 75%,transparent);}
 
