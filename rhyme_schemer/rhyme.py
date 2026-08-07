@@ -26,6 +26,10 @@ DEFAULT_CODA_WEIGHT = 0.35
 # sit *above* a near-vowel substitution (~0.1-0.2, so genuine matches are kept)
 # but *below* a far one (~0.6-0.7, so a truly spare syllable is skipped rather
 # than force-matched). See interactive/widgets/nw-alignment.html to feel it.
+# The penalty is *flat* by design: ALINE (Kondrak 2000) instead offers graded
+# compression/expansion ops (one phone priced against two), and tuning-ledger
+# item 10 records what the flat choice costs on smoothed rhymes (sky~higher)
+# plus the candidate fixes — variants first, compression as the alternative.
 DEFAULT_GAP_PENALTY = 0.6
 
 # The cut that turns the graded score into a yes/no. Chosen from evidence, not

@@ -333,6 +333,36 @@ here already; the review's contribution is that they have names.)*
    what the components choice actually costs, rather than adding more
    gates upstream of a percolation-prone grouping step.
 
+10. **Syllable-count mismatch is priced flat; smoothing is graded** (minted
+    2026-08-07, out of the ALINE deep-fold). ALINE (Kondrak 2000) carries
+    compression/expansion ops — one phone may align against *two*, priced
+    by similarity; our alignment's only tool for a count mismatch is the
+    flat `DEFAULT_GAP_PENALTY` (0.6). Probe triangle **sky / fire /
+    higher**, which a rapper smoothing "-ire" toward one long vowel treats
+    as one class: fire~higher **1.000** (both have 2-syllable readings),
+    sky~fire **0.741** (rescued by CMUdict's monosyllabic `F AY1 R`
+    variant, then held a hair under threshold by the missing-coda zero —
+    the same mechanism *and the same score* as item 4's day~wake),
+    sky~higher **0.500** ("higher" has no monosyllabic variant, so the gap
+    burns the column). Three scores for one perceptual relation, steered
+    by CMUdict's uneven variant coverage — the review's CMUdict threat
+    biting the kernel directly. Ear data (the learner, 2026-08-07):
+    fire~higher is correctly perfect; sky~fire is slant even when
+    smoothed but acceptable (so 0.741-near-threshold is roughly
+    faithful); unsmoothed sky~higher leans **non-rhyme** — "more precise
+    to say they can be co-contributors to an *assonance scheme*, which
+    may be perceived to the ear as a rhyme to some degree" — a relation
+    weaker than pairwise rhyme that still does perceptual work, and a
+    category Unit 14's gold format should be able to express. Candidate
+    fixes, in order: (a) **variants first** — supply smoothed readings
+    through the lexicon/G2P layer (the lincoln/reason rule again:
+    variants, not metric generosity; joins item 2's WikiPron sourcing
+    question); (b) **a compression op** — align one nucleus against two,
+    priced by `vowel_distance` along the glide trajectory instead of
+    flat. Compression is not generosity — it is a different alignment
+    move — but it reshapes every unequal-length comparison, so like item
+    7(a) it is a Unit 14 sweep *condition*, not a patch.
+
 Items 5 and 6 share a diagnosis: **performance context (line position, beat
 grid) carries information a segment-only scanner cannot see** — the
 performed-stress problem, one level up. That blank spot on the map has a

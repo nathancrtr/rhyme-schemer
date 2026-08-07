@@ -28,9 +28,48 @@ Lead them to: a gap must cost *more* than a good substitution (or everything ali
 - Substitution cost = `vowel_distance(a, b)`; gap = a constant penalty. The total cost → a similarity by inversion/normalization.
 - The equal-length case from Unit 6 is the special path down the diagonal with no gaps — alignment *generalizes* it; verify your old scores still come out when lengths match.
 - panphon's `Distance` class does exactly this (feature-weighted edit distance) — read its source to see the same idea in a mature library.
-- **This has a name in the literature: ALINE** (Kondrak 2000, https://webdocs.cs.ualberta.ca/~kondrak/papers/chum.pdf) — DP alignment of phone sequences with feature-decomposed similarity, the standard phonetic-alignment algorithm for 25 years. Reimplementing it from first principles was the point of this unit; read it *after* your implementation works, both for credit and because its design (per-feature salience weights, separate vowel/consonant treatment, expansions/compressions for diphthongs) answers questions we currently settle ad hoc.
+- **This has a name in the literature: ALINE** (Kondrak 2000, https://webdocs.cs.ualberta.ca/~kondrak/papers/chum.pdf) — DP alignment of phone sequences with feature-decomposed similarity, the standard phonetic-alignment algorithm for 25 years. Reimplementing it from first principles was the point of this unit; read it *after* your implementation works, both for credit and because its design answers questions we currently settle ad hoc — the next section maps them.
 
 Connect back: **"This is the workhorse algorithm of sequence comparison — diff, spell-check, bioinformatics. You're applying it to phonology; the structure is identical — and in phonology specifically, it's been the standard tool since 2000."**
+
+## 3b. What ALINE knows that we settle ad hoc
+
+Each of ALINE's three design elements maps onto a question our kernel answers
+*implicitly*. Reading the mapping is the fastest way to see your own design
+decisions as decisions.
+
+- **Per-feature salience weights.** ALINE scores phone similarity as a
+  weighted sum over features, every weight named and hand-set (place 40,
+  manner 50, voice 10...). We have salience weights too, but scattered:
+  `DEFAULT_NUCLEUS_WEIGHT`/`DEFAULT_CODA_WEIGHT` are explicit, and so are
+  `features.py`'s `_W_ROUND`/`_W_RHOTIC` — but the Euclidean metric on the
+  vowel plane silently fixes the backness:height ratio at 1:1. That ratio is
+  a third salience weight that currently doesn't exist as a parameter, so no
+  sweep can sweep it.
+
+> PAUSE. Ask: **"Find one more weight in the pipeline that exists only as a
+> structural choice, not as a number."** (Candidates: gaps scoring exactly 0
+> in `rhyme_score`; the seed gate's nucleus-only-ness in Unit 11.)
+
+- **Separate vowel/consonant treatment.** ALINE *discourages* vowel–consonant
+  alignment via its features; we make it impossible — NW sees only the vowel
+  skeleton, and each coda is welded to its column. Mostly a feature (no
+  pathological alignments can exist), but the weld means a consonant can
+  never shift columns to find its counterpart: one representational
+  commitment behind three ledger symptoms (item 4's missing-coda zero, item
+  7's invisible medial consonants, item 10's flat-gap smoothing).
+
+- **Expansions/compressions.** ALINE lets one phone align against *two*,
+  priced by similarity — a diphthong can match a two-vowel sequence. Our only
+  tool for a syllable-count mismatch is the flat gap penalty. The probe
+  triangle **sky / fire / higher** (a rapper smoothing "-ire" toward one long
+  vowel treats all three as classmates) exposes the cost: fire~higher scores
+  1.000, sky~fire 0.741 (rescued by CMUdict's monosyllabic `F AY1 R`
+  variant), sky~higher 0.500 ("higher" has no such variant, so the gap burns
+  the column) — three numbers for one perceptual relation, steered by
+  accidents of dictionary variant coverage. Ledger item 10 holds the ear
+  data and the candidate fixes (variants first; a compression op as the
+  metric-side alternative).
 
 ## 4. Common confusions
 - **Gap penalty too low** → everything aligns to gaps, scores collapse. Too high → real extra syllables can't be skipped.

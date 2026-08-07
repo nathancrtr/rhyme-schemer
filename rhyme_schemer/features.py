@@ -16,6 +16,14 @@ normalized to [0, 1]. They encode the standard lax-vowel centralization (e.g. ɪ
 sits lower and more central than i), so the tense/lax contrast falls out of
 position without a separate feature. This is the deliberately-small DIY table; a
 library like panphon can replace it later.
+
+A note on weights, prompted by ALINE (Kondrak 2000), which names a salience
+weight for every feature it consults: two of ours are explicit (``_W_ROUND``,
+``_W_RHOTIC``) but a third is not -- choosing the Euclidean metric on the plane
+fixes the backness:height ratio at 1:1, silently. That 1:1 is a deliberate
+default, not a finding; if evidence ever favors weighing height differently
+from backness, the knob must first be made to exist before the Unit 14 sweep
+can move it.
 """
 
 from __future__ import annotations
