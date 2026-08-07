@@ -91,7 +91,25 @@ downstream of that single choice. The field's current answer for coverage and
 variants is Wiktionary-scraped lexicons
 ([WikiPron](https://aclanthology.org/2020.lrec-1.521/)); the tuning ledger's
 plan to protect lincoln/reason "with dialect variants, not metric generosity"
-needs a source like that before it can execute.
+needs a source like that before it can execute. (A first probe, August 2026:
+WikiPron does carry useful common-word variants — non-rhotic "higher,"
+monosyllabic "fire" — but no proper nouns, so lincoln-type idiolect variants
+still have no source; details in the tuning ledger.)
+
+A note on dialect, stated deliberately: much of hip-hop is performed in
+African American English, and much of the NLP literature on AAE is a
+literature about systems *failing* AAE speakers — normalizing away exactly
+the phonology that carries the art. This project takes the opposite stance.
+Its G2P rules never "correct" a dialect spelling to the dictionary form;
+they recover the dictionary stem only to restore the performed surface
+phonology, because the spelling is the lyricist's own transcription of what
+they say. Each rule is grounded in the sociolinguistics of the feature it
+encodes — "-in'" is the classic (ING) variable
+([Fischer 1958](https://web.stanford.edu/~eckert/PDF/fischer1958.pdf);
+[Green 2002](https://www.cambridge.org/core/books/african-american-english/1AE59657F9CF1BBC3A2BF2B9BB29D1D0)
+for AAE specifically), "-a" is AAE non-rhoticity
+([Thomas 2007](https://compass.onlinelibrary.wiley.com/doi/abs/10.1111/j.1749-818X.2007.00029.x))
+— and the performed form is the one that scores.
 
 *(This positioning follows an external research review of the project —
 citation currency, blind spots, novelty — preserved in

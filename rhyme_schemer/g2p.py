@@ -37,6 +37,11 @@ says so*. This is Unit 11's move one layer down: the dictionary records
 citation facts, the performance overrides them, and we mint the performed
 form as data.
 
+The rules encode *documented* vernacular and AAE phonology, not invented
+respellings -- each rule's docstring cites the sociolinguistics of its
+feature, and the README's dialect note states the position outright:
+performed AAE phonology is ground truth here, not noise to normalize away.
+
 **Confidence is priced, not modeled.** A letter-to-sound guess is an
 unlikely claim of the same species as a coerced stress, and it travels the
 same road: ``Guess.cost`` is folded into ``Reading.cost`` at candidate
@@ -149,6 +154,13 @@ def _g_drop(word: str) -> tuple[str, list[list[str]]] | None:
     appended to the stem and the whole thing re-syllabified (the Maximal
     Onset Principle moves the stem's final consonant into the new
     syllable's onset, exactly as in speech).
+
+    The feature this encodes is the classic sociolinguistic **(ING)
+    variable** -- coronal [n] for velar [ng] in unstressed -ing -- the
+    founding variable of variationist sociolinguistics (Fischer 1958,
+    *Word* 14:47-56) and part of AAE's documented phonology (Green 2002,
+    *African American English*, CUP). It is pan-vernacular English, not
+    AAE-exclusive; "-in'" is simply its standard written transcription.
     """
     if not _G_DROP_RE.fullmatch(word):
         return None
@@ -183,6 +195,13 @@ def _a_for_er(word: str) -> tuple[str, list[list[str]]] | None:
     "-er" form, then keep the spelled phonology by rewriting its final ER
     to AH -- the stress digit carries over, since dropping the r doesn't
     move the beat.
+
+    The feature is AAE **non-rhoticity**: coda /r/ vocalizes, and Thomas
+    (2007, *Language and Linguistics Compass* 1:450-475) records that
+    r-lessness "is most common in unstressed syllables, as in over,
+    brother" -- precisely this rule's final unstressed -er environment.
+    Tuning-ledger item 11 generalizes the same feature beyond spelled
+    testimony (non-rhotic readings for standard spellings, priced).
     """
     if len(word) < 3 or not word.endswith("a"):
         return None

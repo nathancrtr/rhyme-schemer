@@ -248,7 +248,17 @@ here already; the review's contribution is that they have names.)*
    field's candidate answer. This item cannot execute until a source is
    named. *The audit ran 2026-08-07: findings in items 11–12 and
    `learning/audits/` (this item's EY/IH suspicion is superseded by item
-   11's broader diagnosis).* More broadly, "refit the vowel space from rhyme-pair data"
+   11's broader diagnosis).* **WikiPron probe verdict (2026-08-07)**: the
+   eng_latn_us data does carry useful common-word variants — "higher" has
+   non-rhotic [haɪə] alongside rhotic readings, "fire" has monosyllabic
+   [faɪɹ] (item 10's smoothing!), even "holla" has an entry — but **no
+   proper nouns**: "lincoln" is absent from both US and UK data, so the
+   lincoln-IY idiolect variant still has no external source (a small hand
+   lexicon of gold-annotation-driven variants may be the honest answer).
+   UK data is systematically non-rhotic but carries RP vowels, not AAE —
+   usable as an existence proof, not as a variant source. Net: WikiPron =
+   worthwhile *secondary* source for common-word variants; item 11's
+   rule-generated performed-phonology readings remain the primary plan. More broadly, "refit the vowel space from rhyme-pair data"
    (Hirjee & Brown's BLOSUM-style move) should be a Unit 14 *condition*,
    not just weight-tuning of the hand space.
 3. **EH/EY assonance chains** ("Every ~ shake the" 0.880) selected with mushy
