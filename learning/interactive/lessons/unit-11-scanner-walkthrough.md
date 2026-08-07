@@ -270,13 +270,26 @@ here already; the review's contribution is that they have names.)*
    consonants to the next syllable's onset, and the kernel ignores onsets in
    every column — so sweaty~heavy scores 1.0, indistinguishable from true
    perfect rhyme (identity from the stressed vowel onward). North-star
-   consistent, but the top of the scale is overcrowded. Candidate fix: a
-   small onset-similarity term for *non-initial* tail columns only (the
-   first column's onset must stay ignored — that's what makes cat/hat
-   rhyme). Phonology footnote from the review: since Kahn 1976, English
-   intervocalic consonants are often analyzed as *ambisyllabic* — "sweaty"
-   arguably shares its /t/ between syllables — and MOP's clean handoff of
-   medial consonants to onsets is precisely what makes them invisible here.
+   consistent, but the top of the scale is overcrowded — and the learner's
+   ear confirms the overclaim (probe pair, 2026-08-07): sweaty~Betty
+   (medial t~t) audibly outranks sweaty~heavy (t~v), yet the kernel ties
+   them at 1.0. Diagnosis, promoted from footnote to root cause after the
+   review: since Kahn 1976, a consonant between a stressed lax vowel and an
+   unstressed one is analyzed as *ambisyllabic* — "sweaty" shares its /t/
+   (it flaps like no true onset /t/, yet `SW EH1` can't close an English
+   syllable either). The medial consonant isn't invisible because the
+   kernel is vowels-first; it's invisible because **any hard syllable
+   boundary is a lossy discretization of a shared consonant**, and MOP
+   resolves the tie wholly in favor of the one constituent the kernel
+   discards. Candidate fixes, one per layer: (a) *syllabifier-side* — mark
+   or copy ambisyllabic consonants into the preceding coda, so the tail
+   keeps them and the ordinary coda term prices them (restores the
+   sweaty~Betty > sweaty~heavy ranking with zero kernel changes);
+   (b) *kernel-side* — keep MOP's clean split and add a small
+   onset-similarity term for *non-initial* tail columns only (the first
+   column's onset must stay ignored — that's what makes cat/hat rhyme).
+   Both deferred: (a) touches every coda comparison in every multisyllabic
+   tail, so it is a Unit 14 sweep *condition*, not a patch.
 
 8. **Chaining has no quality gate, so it amplifies threshold-huggers**
    (flagged by the learner, with ground truth attached). On Poe's *Raven*
@@ -391,6 +404,10 @@ annotation set):
   default threshold via AH~EH nucleus generosity — a feature-space datum,
   *not* a word-class one: interrogatives can genuinely bear beats, so adding
   "what" to FUNCTION_WORDS would be the wrong fix).
+- *sweaty~heavy* is a strong slant, **not** a perfect rhyme: the probe pair
+  sweaty~Betty (medial t~t) outranks it to the ear, but the kernel scores
+  both 1.0 — ledger item 7's overcrowded top of the scale, ear-confirmed
+  (2026-08-07).
 - *how/now* **should** share a class with *loud/out/down*. Probe:
   `coda_weight=0.30` (from 0.35) achieves exactly this on this verse with
   zero other changes to the scheme — a validated candidate fix, deliberately

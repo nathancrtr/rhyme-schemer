@@ -17,6 +17,20 @@ This module reconstructs the boundaries using two classic rules:
 
 Word-initial consonants are entirely the first onset; word-final consonants are
 entirely the last coda (there is no neighbor to compete for them).
+
+Both rules are *decision procedures*, not discovered truths, and MOP in
+particular forces a clean answer where English is genuinely torn. Since Kahn
+(1976), phonologists have observed that a consonant between a stressed lax
+vowel and an unstressed one -- the /t/ in "sweaty" -- behaves as if it belongs
+to **both** syllables at once ("ambisyllabic"): it flaps, which a true
+syllable-initial /t/ (as in "attack") never does, yet ``SW EH1`` cannot stand
+alone either, because a stressed lax vowel cannot end an English syllable.
+We resolve the tie wholly in the onset's favor because the pipeline needs one
+boundary, but the choice is lossy: whatever MOP hands to the onset disappears
+from the preceding syllable's coda, and the rhyme kernel downstream ignores
+onsets -- so a shared medial consonant vanishes from scoring entirely
+(sweaty~heavy scores a perfect 1.0; see tuning-ledger item 7 in the Unit 11
+walkthrough for the diagnosis and candidate fixes).
 """
 
 from __future__ import annotations
