@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About this course</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<h1>How this course works</h1>
+<p><strong>The repo is the spine.</strong> Each unit takes rhyme-schemer from one working
+state to the next. Theory is just-in-time: you read the chapter or paper that
+unblocks <em>this</em> step, never a survey. Where the code already exists, you read
+it as a worked example and prove your understanding by extending it; where it
+doesn't, you build it, usually by making a failing test pass.</p>
+<p><strong>A word about the voice.</strong> These materials were produced <em>during</em> the actual
+collaborative construction of the project, and they keep that character on
+purpose. You will find recorded design arguments, wrong turns that stayed
+wrong for three units before the evidence arrived, and judgments that rest
+explicitly on one listener's ear (marked as such — in rhyme detection, the
+annotator's ear <em>is</em> the instrument). That history is not noise around the
+course; it is the course. Watching a design decision get made — including the
+options that lost — teaches more than being handed the winner.</p>
+<p><strong>Think-first boxes.</strong> Where a guide pauses on a question, commit to your own
+answer before reading past the box. The friction is the point: the questions
+mark exactly the spots where a plausible wrong answer teaches something.</p>
+<p><strong>The hands-on layer.</strong> Widgets are self-contained pages that render the
+repo's <em>own numbers</em> — the vowel explorer computes the very
+<code>vowel_distance()</code> the kernel uses, and the sandbox is a verified port of the
+scoring pipeline. Exercises ship as failing tests: green bar = done. Quizzes
+are per-phase checkpoints.</p>
+<p><strong>Working the repo.</strong> You'll want a clone and a working Python environment
+(<code>pip install -r requirements.txt</code>; <code>python -m unittest discover tests</code>
+should be green before Unit 1). The tests are the course's grader.</p>
+<p><strong>Regenerating this site.</strong> Pages are generated from Markdown sources by
+<code>learning/build_site.py</code>; edit the source, not the HTML.</p>
+</main>
+<footer class="pager">
+
+</footer>
+</body>
+</html>

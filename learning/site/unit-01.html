@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 1 — Phonemes, ARPAbet & the lexicon</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">Phase 1 · The phonetic foundation</p>
+<h1>Unit 1 — Phonemes, ARPAbet & the lexicon</h1>
+<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<li><strong>Build:</strong> Read <code>phonetics.py</code> (<code>Stress</code>, <code>VOWELS</code>, <code>strip_stress</code>, <code>is_vowel</code>) and the <code>pronouncing</code>/CMUdict layer in <code>syllabify.py</code> (<code>pronunciation_for</code>). Add property-based tests for <code>strip_stress</code>/<code>is_vowel</code>.</li>
+<li><strong>Read:</strong> SLP3 <strong>Phonetics</strong> chapter (phonemes, IPA, ARPAbet); Parrish's CMUdict notes; ARPABET (Wikipedia).</li>
+<li><strong>Concepts:</strong> phoneme vs grapheme; transcription systems (IPA vs ARPAbet); the pronunciation lexicon; lexical stress (0/1/2); the out-of-vocabulary (OOV) problem; why CMUdict returns <em>variants</em>.</li>
+<li><strong>Exercise:</strong> In a REPL, collect five words CMUdict gets interestingly wrong or lacks (slang, names — <em>"Coogi"</em>). Write tests asserting <code>strip_stress("IH1") == ("IH", PRIMARY)</code> and friends, and that every ARPAbet vowel round-trips.</li>
+<li><strong>Milestone:</strong> New passing tests for the phonetics primitives, and a short note listing five OOV words (your future Unit-13 test set).</li>
+<li><strong>Interactive:</strong> <code>interactive/lessons/unit-01-phonemes-not-spelling.md</code>.</li>
+</ul></details>
+<article class="lesson"><p><strong>Objective:</strong> The learner internalizes that rhyme is a relation between <em>sounds</em>, that English spelling hides those sounds, and that a pronunciation lexicon (CMUdict, in ARPAbet) is therefore the foundation everything else stands on.
+<strong>Prerequisites to check:</strong> none beyond the Phase 0 orientation.
+<strong>Pairs with:</strong> <code>phonetics.py</code>; the <code>pronunciation_for</code> lookup in <code>syllabify.py</code>.</p>
+<h2>How to run this lesson</h2>
+<p>Dialogue, one question per turn, then stop and wait. The learner has a linguistics background — don't lecture them on what a phoneme is; use that knowledge, and aim the lesson at the <em>computational</em> consequences.</p>
+<h2>1. Diagnostic opener</h2>
+<p>Ask: <strong>"Do 'Lincoln' and 'reason' rhyme? Say both out loud before you answer."</strong>
+- If they say yes (correct): "Right — and notice you had to <em>say</em> them. On the page they share almost no letters. Hold onto that." → go to step 2.
+- If they hesitate on the spelling: that hesitation <em>is</em> the point — the eye says no, the ear says yes. → go to step 2.</p>
+<h2>2. Build the intuition</h2>
+<p>Point out the mismatch: <code>lincoln</code> and <code>reason</code> share no obvious spelled ending, yet <code>L IH1 NG K AH0 N</code> and <code>R IY1 Z AH0 N</code> share the <code>AH0 N</code> tail and a closely-related stressed vowel.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"If you had to write a function <code>do_these_rhyme(word1, word2)</code> using only the <em>letters</em>, where would it break first?"</strong></p>
+</blockquote>
+<p>Wait. Let them enumerate failures (silent letters, "ough", homophones like "their/there", "Lincoln/reason"). Then land it: spelling is a lossy, irregular encoding of sound, so any rhyme engine must first <em>recover the sound</em>. That recovery is what CMUdict gives us.</p>
+<h2>3. Formalize</h2>
+<p>Now make it precise:
+- A <strong>phoneme</strong> is a contrastive sound unit; <strong>graphemes</strong> (letters) map to phonemes many-to-many and irregularly in English.
+- <strong>ARPAbet</strong> is an ASCII phoneme alphabet; <strong>CMUdict</strong> maps ~134k words to ARPAbet pronunciations, with <strong>stress digits</strong> on vowels (0/1/2).
+- <code>pronouncing.phones_for_word("lincoln")</code> → <code>['L IH1 NG K AH0 N']</code>. That string is the real input to rhyme-schemer; the spelling was only ever a key for lookup.</p>
+<p>Connect back: "You already know this as a linguist. The engineering consequence is that the lexicon is a hard dependency, and its gaps — words it doesn't contain — become a whole problem of their own."</p>
+<h2>4. Common confusions</h2>
+<ul>
+<li>If they conflate <strong>syllables</strong> with <strong>phonemes</strong>: clarify that <code>IH1</code> is one phoneme; a syllable is a <em>group</em> (onset+nucleus+coda) we reconstruct in Unit 4.</li>
+<li>If they assume CMUdict is complete: it isn't — preview OOV. Ask them to try a slang word or a name and watch it return empty.</li>
+<li>If they ask why not just use a rhyming dictionary: because we want <em>graded slant</em> rhyme, which no lookup table encodes — that's the whole project.</li>
+</ul>
+<h2>5. Exit check</h2>
+<p>Ask: <strong>"Give me a pair of words that look like they should rhyme but don't, and a pair that don't look like they rhyme but do — and say how CMUdict would reveal each."</strong>
+- A good answer (e.g. "lessen/strengthen look close but don't; Lincoln/reason look far but do") → send them to the exercise: collect five OOV words and write the <code>strip_stress</code>/<code>is_vowel</code> property tests.
+- A shaky answer → return to step 2 with a fresh pair (try "love/move/prove" — same spelling, three different vowels).</p>
+<p><strong>Where this is heading:</strong> today's "recover the sound" sets up Unit 2, where we ask <em>how similar</em> two recovered sounds are — the graded question that makes slant rhyme possible.</p></article>
+</main>
+<footer class="pager">
+<a class="next" href="unit-02.html">Unit 2: The IPA vowel space & articulatory features →</a>
+</footer>
+</body>
+</html>

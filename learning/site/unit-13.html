@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 13 — Out-of-vocabulary words & grapheme-to-phoneme</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">Phase 4 · Seeing, guessing, measuring</p>
+<h1>Unit 13 — Out-of-vocabulary words & grapheme-to-phoneme</h1>
+<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<li><strong>Build:</strong> A G2P fallback for words CMUdict lacks (your Unit-1 list): rule-based first; optionally wire in a neural G2P.</li>
+<li><strong>Read:</strong> Epitran; for the neural side, the current baseline is byte-level transformers (ByT5 G2P, CharsiuG2P) benchmarked in the SIGMORPHON 2020–22 shared tasks — <code>g2p_en</code>, once the standard mention, is a 2019 artifact and effectively unmaintained; SLP3 on G2P if present in your draft.</li>
+<li><strong>Concepts:</strong> the OOV problem; <strong>grapheme-to-phoneme</strong> as rule-based vs <strong>neural</strong> (a direct bridge to your transformer knowledge); confidence/flagging of guessed pronunciations; dialect respellings as <em>performance transcriptions</em>, not noise. The dialect rules (g-drop, -a-for-er) encode <strong>documented AAE and vernacular phonology</strong> — velar nasal fronting and non-rhoticity — and each rule now carries its citation in <code>g2p.py</code> (Fischer 1958 and Green 2002 for the (ING) variable; Thomas 2007 for non-rhoticity, whose "most common in unstressed syllables" finding is exactly the -a rule's environment): the citations harden the rules <em>and</em> answer the "why does your tool rewrite Black speech?" question with receipts. (The NLP-on-AAE literature is substantially about systems <em>failing</em> AAE speakers; a tool that takes performed AAE phonology as ground truth is on the right side of that, and should say so deliberately.)</li>
+<li><strong>Exercise:</strong> Replace skip-and-flag with a G2P guess for three of your OOV words; mark guesses as lower-confidence so scoring can discount them.</li>
+<li><strong>Milestone:</strong> A previously-skipped word participates in a detected rhyme, flagged as G2P-derived.</li>
+</ul></details>
+<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+</main>
+<footer class="pager">
+<a class="prev" href="unit-12.html">← Unit 12: Visualizing the scheme</a><a class="next" href="unit-14.html">Unit 14: Evaluation: is it any good? →</a>
+</footer>
+</body>
+</html>

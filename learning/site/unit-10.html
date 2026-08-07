@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 10 — Grouping rhymes: similarity graphs & components</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">Phase 3 · From pairs to a scheme</p>
+<h1>Unit 10 — Grouping rhymes: similarity graphs & components</h1>
+<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<li><strong>Build:</strong> <code>group_rhymes(words, threshold)</code> — build a graph where an edge means "score ≥ threshold," then return connected components as rhyme classes.</li>
+<li><strong>Read:</strong> SLP3 on clustering basics; any union-find reference; Reddy &amp; Knight (2011) — the standard-cited paper for this task, which makes the <em>scheme</em> a latent variable to infer rather than a graph to component-ize.</li>
+<li><strong>Concepts:</strong> pairwise scores → groups; thresholding; the <strong>non-transitivity of slant rhyme</strong> (A rhymes with B, B with C, but not A with C) and why connected components is a deliberate (debatable) choice; union-find. Know the debate's names: components over threshold edges is <strong>single-link clustering</strong>, its failure mode is <strong>chaining</strong> (one generous edge glues two good clusters — the oldest known clustering pathology, and it <em>will</em> fire in Unit 11's ledger), and the principled alternatives are correlation clustering on signed weights, community detection penalizing sparse cuts, or Reddy &amp; Knight's scheme-as-inference.</li>
+<li><strong>Exercise:</strong> Group the line-end words of a real verse. Find a real non-transitive triple and decide how your grouping should treat it; encode the decision as a test.</li>
+<li><strong>Milestone:</strong> Line-end words of a verse grouped into colored rhyme classes (data, not yet pixels).</li>
+<li><strong>Interactive:</strong> lesson <code>unit-10-non-transitivity.md</code>; quiz <code>interactive/quizzes/phase-3-checkpoint.html</code> (build here).</li>
+<li><strong>Key insight:</strong> Slant-rhyme grouping isn't an equivalence relation — similarity rarely is. Choosing components vs. stricter clustering <em>is</em> a modeling decision, and naming it is half of computational linguistics.</li>
+</ul></details>
+<div class="hands-on"><h2>Hands-on</h2><a class="chip quiz" href="../interactive/quizzes/phase-3-checkpoint.html">✅ Phase 3 checkpoint</a></div>
+<article class="lesson"><p><strong>Objective:</strong> The learner can turn pairwise rhyme scores into groups via a similarity graph and connected components, and — more importantly — can articulate why slant-rhyme similarity is <em>not</em> an equivalence relation, making grouping a real modeling decision rather than a mechanical step.
+<strong>Prerequisites:</strong> A working <code>rhyme_score</code> (Units 6–8).
+<strong>Pairs with:</strong> <code>rhyme_schemer/rhyme.py</code> (<code>group_rhymes</code>).</p>
+<h2>How to run this lesson</h2>
+<p>Dialogue, one question per turn. The payload is conceptual; let the learner hit the trap themselves before you name it.</p>
+<h2>1. Diagnostic opener</h2>
+<p>Ask: <strong>"You have <code>rhyme_score</code> for any pair. To find rhyme groups in a verse, what's the simplest thing you could do with all the pairwise scores?"</strong>
+- Toward "threshold the scores and group what's connected" → step 2 (and spring the trap).
+- Unsure → suggest "make an edge whenever two words score above a threshold" and proceed.</p>
+<h2>2. Build the intuition</h2>
+<p>Edges above threshold → a graph → groups.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"Suppose A rhymes with B (above threshold) and B rhymes with C, but A and C score <em>below</em> threshold. Should A and C be in the same group?"</strong></p>
+</blockquote>
+<p>Wait. Let them sit in the discomfort. There's no clean answer — and that's the point. With <strong>connected components</strong>, A and C end up grouped <em>through</em> B even though they don't rhyme. That's the non-transitivity trap.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"Name a real triple where this happens."</strong> (Vowel chains like <code>city</code>/<code>gritty</code>/<code>pity</code> are tight; loosen the threshold and you can chain <code>feel</code>→<code>fill</code>→<code>fell</code> where the ends barely rhyme.)</p>
+</blockquote>
+<h2>3. Formalize</h2>
+<ul>
+<li>Build a graph: nodes = words/spans, edge if <code>rhyme_score ≥ threshold</code>. <strong>Connected components</strong> (union-find) = rhyme classes.</li>
+<li>Similarity relations are reflexive and symmetric but <strong>not transitive</strong>, so they are <em>not</em> equivalence relations — yet components impose transitivity by fiat. That's a choice with consequences.</li>
+<li>The choice has names: components over threshold edges is <strong>single-link clustering</strong>, and its failure mode — one generous edge gluing two good clusters into a mega-class — is <strong>chaining</strong> (percolation), the oldest known clustering pathology. It will fire, on schedule, in Unit 11's tuning ledger (items 1 and 9).</li>
+<li>Alternatives that don't force transitivity: stricter clustering (require all-pairs above threshold — cliques), correlation clustering on signed edge weights, community detection that penalizes sparse cuts, or soft/overlapping membership. The deepest alternative reframes the task: <strong>Reddy &amp; Knight (2011)</strong> (https://aclanthology.org/P11-2014/) treat the rhyme <em>scheme</em> as a latent structured object to infer — a prior over schemes regularizes the classes — with no pronunciation dictionary at all. Unit 14 prices our components choice against one such alternative.</li>
+</ul>
+<p>Connect back: <strong>"Naming the modeling decision <em>is</em> the computational-linguistics work here. The code is a few lines of union-find; the judgment — components vs. cliques vs. scheme-inference — is the substance, and the literature has already held the debate."</strong></p>
+<h2>4. Common confusions</h2>
+<ul>
+<li><strong>Treating the threshold as objective.</strong> It's a dial trading precision for recall; Unit 14 will let you measure the tradeoff instead of guessing.</li>
+<li><strong>Assuming one right grouping exists.</strong> Human annotators disagree on slant rhyme — there's no perfect ground truth, which is exactly why Unit 14 builds an evaluation.</li>
+</ul>
+<h2>5. Exit check</h2>
+<p>Ask: <strong>"For a verse I give you, pick a threshold, group the line-end words, and find one grouping you can defend and one you can't. What would you change — the threshold, or the grouping rule?"</strong>
+- Thoughtful answer naming the tradeoff → encode the decision as a test and move on.
+- Mechanical answer → re-run with a looser threshold until a bad chain appears, then revisit.</p>
+<p><strong>Where this is heading:</strong> these groups are the data behind the colors in the visualization (Unit 12), and the thing you'll score against gold annotations in evaluation (Unit 14).</p></article>
+</main>
+<footer class="pager">
+<a class="prev" href="unit-09.html">← Unit 9: Multi-word spans & pronunciation variants</a><a class="next" href="unit-11.html">Unit 11: Internal & multisyllabic rhyme: scanning a verse →</a>
+</footer>
+</body>
+</html>

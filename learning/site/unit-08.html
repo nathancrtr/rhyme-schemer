@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 8 — Unequal lengths: sequence alignment</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">Phase 2 · The rhyme kernel</p>
+<h1>Unit 8 — Unequal lengths: sequence alignment</h1>
+<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<li><strong>Build:</strong> Generalize <code>rhyme_score</code> to tails of <strong>different lengths</strong> (multisyllabic rhyme) via alignment: implement Needleman–Wunsch over vowel skeletons using <code>vowel_distance</code> as substitution cost and a tuned gap penalty.</li>
+<li><strong>Read:</strong> SLP3 Ch. 2 <strong>Minimum Edit Distance</strong> (the algorithm, the backtrace); panphon's <code>Distance</code> source (feature-weighted edit distance in the wild); afterward, Kondrak (2000) — what you just built is, almost exactly, <strong>ALINE</strong>, the standard phonetic-alignment algorithm for 25 years, and its salience weights, vowel/consonant split, and diphthong expansions answer questions we handle ad hoc.</li>
+<li><strong>Concepts:</strong> edit distance / Needleman–Wunsch / DTW; substitution cost from a feature metric; gap penalties; alignment as the general case of which equal-length scoring was a special case.</li>
+<li><strong>Exercise:</strong> <code>interactive/exercises/unit-08-alignment/</code> — implement the DP table and backtrace; make multisyllabic tests pass (e.g. "national"/"rational"; a 3-syllable vs 2-syllable near-rhyme). Verify equal-length inputs still match Unit 6's scores.</li>
+<li><strong>Milestone:</strong> Multisyllabic slant rhymes scored sensibly; the alignment visualized in the lesson.</li>
+<li><strong>Key insight:</strong> This is the same dynamic-programming alignment used for spell-check and DNA — you're applying a workhorse NLP algorithm to vowels.</li>
+<li><strong>Interactive:</strong> lesson <code>unit-08-alignment.md</code>.</li>
+</ul></details>
+<div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/nw-alignment.html">🧪 NW Alignment Explorer</a> <a class="chip exercise" href="../interactive/exercises/unit-08-alignment/task.md">⌨️ Exercise: unit-08-alignment</a> <a class="chip companion" href="sequence-alignment-family.html">📖 The sequence-alignment family</a></div>
+<article class="lesson"><p><strong>Objective:</strong> The learner can implement Needleman–Wunsch over vowel skeletons with a feature-distance substitution cost, and sees it as the same dynamic-programming alignment behind spell-check and DNA — generalized to vowels.
+<strong>Prerequisites:</strong> Units 5–7; willingness to read the Minimum Edit Distance section of SLP3 Ch. 2.
+<strong>Pairs with:</strong> <code>rhyme_schemer/rhyme.py</code>; <code>interactive/exercises/unit-08-alignment/</code>.</p>
+<h2>How to run this lesson</h2>
+<p>Dialogue, one question per turn. This is the hardest unit — go slow, build the DP table by hand on a tiny example before any code.</p>
+<h2>1. Diagnostic opener</h2>
+<p>Ask: <strong>"Your Unit 7 kernel averages similarity position-by-position. What does it do when one tail has three nuclei and the other has two — and why is that a problem for multisyllabic rhyme?"</strong>
+- Toward "position 3 has nothing to pair with / it crashes or mis-pairs" → step 2.
+- Unsure → walk a concrete pair ("national" 3 syllables vs "rational" 3 — then deliberately pick a 3-vs-2 case) and let the mismatch surface.</p>
+<h2>2. Build the intuition</h2>
+<p>We need to decide <em>which</em> nuclei correspond — and allow gaps when one side has an extra syllable. That's an alignment problem.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"If you've ever looked at a <code>git diff</code> or a spell-checker's suggestion, you've seen this. What are the three moves that turn one sequence into another?"</strong></p>
+</blockquote>
+<p>Wait. Elicit <strong>match/substitute, insert, delete</strong>. Then: aligning two vowel skeletons is exactly that, where the <em>cost</em> of a substitution isn't 0/1 but <code>vowel_distance</code> — a near-vowel substitution is cheap, a far one is expensive.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"So what should the cost of a gap (insert/delete) be, relative to a cheap vs. expensive substitution?"</strong></p>
+</blockquote>
+<p>Lead them to: a gap must cost <em>more</em> than a good substitution (or everything aligns to gaps) but be reachable when there's genuinely an extra syllable. It's a tunable penalty.</p>
+<h2>3. Formalize</h2>
+<ul>
+<li><strong>Needleman–Wunsch</strong>: fill a DP table <code>D[i][j]</code> = best alignment cost of the first <code>i</code> of one skeleton and <code>j</code> of the other, from <code>min(</code> substitute, insert, delete <code>)</code>. Backtrace recovers the alignment.</li>
+<li>Substitution cost = <code>vowel_distance(a, b)</code>; gap = a constant penalty. The total cost → a similarity by inversion/normalization.</li>
+<li>The equal-length case from Unit 6 is the special path down the diagonal with no gaps — alignment <em>generalizes</em> it; verify your old scores still come out when lengths match.</li>
+<li>panphon's <code>Distance</code> class does exactly this (feature-weighted edit distance) — read its source to see the same idea in a mature library.</li>
+<li><strong>This has a name in the literature: ALINE</strong> (Kondrak 2000, https://webdocs.cs.ualberta.ca/~kondrak/papers/chum.pdf) — DP alignment of phone sequences with feature-decomposed similarity, the standard phonetic-alignment algorithm for 25 years. Reimplementing it from first principles was the point of this unit; read it <em>after</em> your implementation works, both for credit and because its design answers questions we currently settle ad hoc — the next section maps them.</li>
+</ul>
+<p>Connect back: <strong>"This is the workhorse algorithm of sequence comparison — diff, spell-check, bioinformatics. You're applying it to phonology; the structure is identical — and in phonology specifically, it's been the standard tool since 2000."</strong></p>
+<h2>3b. What ALINE knows that we settle ad hoc</h2>
+<p>Each of ALINE's three design elements maps onto a question our kernel answers
+<em>implicitly</em>. Reading the mapping is the fastest way to see your own design
+decisions as decisions.</p>
+<ul>
+<li><strong>Per-feature salience weights.</strong> ALINE scores phone similarity as a
+  weighted sum over features, every weight named and hand-set (place 40,
+  manner 50, voice 10...). We have salience weights too, but scattered:
+  <code>DEFAULT_NUCLEUS_WEIGHT</code>/<code>DEFAULT_CODA_WEIGHT</code> are explicit, and so are
+  <code>features.py</code>'s <code>_W_ROUND</code>/<code>_W_RHOTIC</code> — but the Euclidean metric on the
+  vowel plane silently fixes the backness:height ratio at 1:1. That ratio is
+  a third salience weight that currently doesn't exist as a parameter, so no
+  sweep can sweep it.</li>
+</ul>
+<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"Find one more weight in the pipeline that exists only as a
+structural choice, not as a number."</strong> (Candidates: gaps scoring exactly 0
+in <code>rhyme_score</code>; the seed gate's nucleus-only-ness in Unit 11.)</p>
+</blockquote>
+<ul>
+<li>
+<p><strong>Separate vowel/consonant treatment.</strong> ALINE <em>discourages</em> vowel–consonant
+  alignment via its features; we make it impossible — NW sees only the vowel
+  skeleton, and each coda is welded to its column. Mostly a feature (no
+  pathological alignments can exist), but the weld means a consonant can
+  never shift columns to find its counterpart: one representational
+  commitment behind three ledger symptoms (item 4's missing-coda zero, item
+  7's invisible medial consonants, item 10's flat-gap smoothing).</p>
+</li>
+<li>
+<p><strong>Expansions/compressions.</strong> ALINE lets one phone align against <em>two</em>,
+  priced by similarity — a diphthong can match a two-vowel sequence. Our only
+  tool for a syllable-count mismatch is the flat gap penalty. The probe
+  triangle <strong>sky / fire / higher</strong> (a rapper smoothing "-ire" toward one long
+  vowel treats all three as classmates) exposes the cost: fire~higher scores
+  1.000, sky~fire 0.741 (rescued by CMUdict's monosyllabic <code>F AY1 R</code>
+  variant), sky~higher 0.500 ("higher" has no such variant, so the gap burns
+  the column) — three numbers for one perceptual relation, steered by
+  accidents of dictionary variant coverage. Ledger item 10 holds the ear
+  data and the candidate fixes (variants first; a compression op as the
+  metric-side alternative).</p>
+</li>
+</ul>
+<h2>4. Common confusions</h2>
+<ul>
+<li><strong>Gap penalty too low</strong> → everything aligns to gaps, scores collapse. Too high → real extra syllables can't be skipped.</li>
+<li><strong>Forgetting the backtrace</strong> → you get a score but can't show <em>which</em> syllables rhymed (needed for visualization, Unit 12). Build the backtrace now.</li>
+<li><strong>Distance vs. similarity bookkeeping</strong> → keep one convention; alignment naturally minimizes a cost, so convert to similarity at the end.</li>
+</ul>
+<h2>5. Exit check</h2>
+<p>Ask: <strong>"Hand-fill the 3×3 DP table for a tiny pair I give you, then read off the alignment. Where did a gap get chosen, and what did it cost you?"</strong>
+- Correct table + sensible gap → implement it; make the multisyllabic tests pass; confirm equal-length parity with Unit 6.
+- Stuck → shrink to a 2×2 and rebuild the recurrence cell by cell.</p>
+<p><strong>Where this is heading:</strong> with alignment, any two spans can be scored. Phase 3 turns these pairwise scores into <em>groups</em> — the rhyme scheme itself.</p></article>
+</main>
+<footer class="pager">
+<a class="prev" href="unit-07.html">← Unit 7: Graded slant rhyme & weighting</a><a class="next" href="unit-09.html">Unit 9: Multi-word spans & pronunciation variants →</a>
+</footer>
+</body>
+</html>

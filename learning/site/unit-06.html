@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 6 — Perfect rhyme first</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">Phase 2 · The rhyme kernel</p>
+<h1>Unit 6 — Perfect rhyme first</h1>
+<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<li><strong>Build:</strong> <code>rhyme_score(a, b)</code> for the <strong>equal-length</strong> case: average <code>vowel_similarity</code> over aligned nuclei in the tail, with <code>consonant_similarity</code> on codas weighted lower and onsets ignored. Calibrate so identical tails score <code>1.0</code>.</li>
+<li><strong>Read:</strong> re-skim Hirjee &amp; Brown's scoring section.</li>
+<li><strong>Concepts:</strong> model the easy case before the hard one; the threshold-<code>1.0</code> special case; weighting nuclei over codas; ignoring onsets (the README's design).</li>
+<li><strong>Exercise:</strong> Failing tests for perfect rhymes (<code>cat</code>/<code>hat</code>, <code>time</code>/<code>rhyme</code>) and clear non-rhymes; make them pass. Assert the score is symmetric and in <code>[0, 1]</code> (the repo's house style).</li>
+<li><strong>Milestone:</strong> Perfect rhyme detected at threshold <code>1.0</code>; non-rhymes well below.</li>
+</ul></details>
+<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+</main>
+<footer class="pager">
+<a class="prev" href="unit-05.html">← Unit 5: The vowel skeleton & the rhyme-bearing tail</a><a class="next" href="unit-07.html">Unit 7: Graded slant rhyme & weighting →</a>
+</footer>
+</body>
+</html>

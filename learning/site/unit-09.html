@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 9 — Multi-word spans & pronunciation variants</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">Phase 3 · From pairs to a scheme</p>
+<h1>Unit 9 — Multi-word spans & pronunciation variants</h1>
+<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<li><strong>Build:</strong> <code>pronunciation_for_span(words)</code> (a span is just a <code>Pronunciation</code>); make scoring <strong>variant-aware</strong> (best score over CMUdict variants), replacing the current first-variant-only behavior.</li>
+<li><strong>Read:</strong> <code>pronouncing</code> API (<code>phones_for_word</code> returns a list); the README note on multi-word spans.</li>
+<li><strong>Concepts:</strong> a multi-word span and a single word are the same downstream object; pronunciation <strong>variants</strong> and why rappers exploit them (coercion); taking the max over variants.</li>
+<li><strong>Exercise:</strong> Score a multisyllabic <em>multi-word</em> rhyme (e.g. "get up"/"setup"). Add a variant case where the rhyme only works under the second pronunciation.</li>
+<li><strong>Milestone:</strong> Spans and variants flow through <code>rhyme_score</code> unchanged downstream.</li>
+</ul></details>
+<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+</main>
+<footer class="pager">
+<a class="prev" href="unit-08.html">← Unit 8: Unequal lengths: sequence alignment</a><a class="next" href="unit-10.html">Unit 10: Grouping rhymes: similarity graphs & components →</a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The sequence-alignment family</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">Companion reading · Unit 8</p><h1>The Sequence-Alignment Family: Alignment, Seed-and-Extend, and Chaining</h1>
+<p><em>A companion essay for rhyme-schemer. Prerequisite: you've implemented (or
+read) <code>align_tails</code> in <code>rhyme.py</code> and <code>scan.py</code>. No biology assumed or
+required — these are general-purpose algorithms over sequences of symbols; the
+symbols are vowels for us, and we lean on the same three ideas that turn up
+whenever anyone compares long strings.</em></p>
+<hr />
+<h2>0. Why these algorithms keep showing up in one project</h2>
+<p>Three times now, a problem in this repo has had a matching solution in the
+theory of comparing sequences:</p>
+<table>
+<thead>
+<tr>
+<th>rhyme-schemer problem</th>
+<th>the algorithm</th>
+<th>the "canonical" home</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Score two whole rhyme tails of unequal length (Unit 8)</td>
+<td><strong>global alignment</strong> (Needleman–Wunsch)</td>
+<td>comparing two whole strings</td>
+</tr>
+<tr>
+<td><em>Find</em> rhymes anywhere in a verse without checking all O(n²) spans (Unit 11)</td>
+<td><strong>seed-and-extend</strong> (the BLAST heuristic)</td>
+<td>fast approximate search</td>
+</tr>
+<tr>
+<td>Fuse per-beat matches into the multisyllabic unit the ear hears (Unit 12)</td>
+<td><strong>co-linear chaining</strong></td>
+<td>stitching local hits into one</td>
+</tr>
+</tbody>
+</table>
+<p>That isn't a coincidence, and it isn't because rhyme is secretly biological.
+It's because <strong>all three problems are the same shape</strong>: you have two (or many)
+sequences of symbols drawn from a small alphabet, symbols can match
+<em>imperfectly</em> (a slant vowel; a mutated DNA base; a typo), and you want to
+line them up in a way that maximizes total similarity while respecting
+<em>order</em>. Any field with that shape — computational biology, plagiarism
+detection, <code>diff</code>, spell-check, music similarity, speech recognition —
+reinvents or imports the same toolkit. Biology got there early and with the
+most funding, so the vocabulary ("gap penalty", "local alignment", "BLAST")
+comes from there. The math is alphabet-agnostic.</p>
+<p>The unifying idea underneath all three: <strong>an alignment is a path, and the best
+alignment is a shortest/cheapest path.</strong> Once you see that, the three
+algorithms are just three different graphs and three different path problems.</p>
+<hr />
+<h2>1. Global alignment (Needleman–Wunsch) — the one you already built</h2>
+<h3>The problem</h3>
+<p>You have two sequences and you want a single score for <em>"how similar are these,
+end to end?"</em> — where they may differ in length, so you can't just compare
+position 1 to position 1. For us: two rhyme tails, <code>[EY, AH]</code> (wake up) versus
+<code>[EY, AH, P?]</code>… where a multisyllabic rhyme has more syllables on one side than
+the other. Comparing "position by position" breaks the moment the lengths
+differ or a syllable is inserted.</p>
+<h3>The idea: alignment as a grid path</h3>
+<p>Lay sequence A down the left edge of a grid and sequence B across the top. Any
+way of aligning them corresponds to a monotone path from the top-left corner
+to the bottom-right, where at each step you either:</p>
+<ul>
+<li>move <strong>diagonally</strong> — pair <code>A[i]</code> with <code>B[j]</code> (a <em>substitution</em>, cheap if
+  they're similar, dear if not),</li>
+<li>move <strong>down</strong> — consume <code>A[i]</code> against nothing (a <em>gap</em> in B),</li>
+<li>move <strong>right</strong> — consume <code>B[j]</code> against nothing (a <em>gap</em> in A).</li>
+</ul>
+<pre><code>        B:  E   Y   A   H
+     ┌───┬───┬───┬───┬───┐
+     │ 0 │→  │→  │→  │→  │
+   E ├───┼───┼───┼───┼───┤
+     │↓  │ ↘ │   │   │   │      ↘ diagonal = pair the two symbols
+   Y ├───┼───┼───┼───┼───┤      ↓  down     = gap (skip a symbol of A)
+     │↓  │   │ ↘ │   │   │      →  right    = gap (skip a symbol of B)
+   A ├───┼───┼───┼───┼───┤
+     │↓  │   │   │ ↘ │   │
+   H ├───┼───┼───┼───┼───┤
+     │↓  │   │   │   │ ↘ │  ← bottom-right corner = fully aligned
+     └───┴───┴───┴───┴───┘
+</code></pre>
+<p>Every path is a valid alignment; the score of a path is the sum of its step
+costs. So <em>"find the best alignment"</em> becomes <em>"find the cheapest corner-to-corner
+path"</em> — and because the path only ever moves toward the bottom-right, the
+cheapest way to reach any cell depends only on three neighbors already
+computed. That's the <strong>dynamic programming recurrence</strong> you wrote:</p>
+<pre><code>D[i][j] = min(
+    D[i-1][j-1] + substitution_cost(A[i], B[j]),   # diagonal: pair them
+    D[i-1][j]   + gap_penalty,                       # down: skip A[i]
+    D[i][j-1]   + gap_penalty,                        # right: skip B[j]
+)
+</code></pre>
+<p>Fill the grid row by row (each cell O(1) given its neighbors), and the
+bottom-right cell holds the best total cost. Then <strong>backtrace</strong> — walk from the
+corner back to the origin, at each cell asking "which of the three neighbors
+did I come from?" — to recover the actual pairing, not just its score. That
+backtrace is why <code>align_tails</code> returns <em>columns</em> and not just a number: the
+downstream coda scoring and (soon) the visualization need to know <em>which</em>
+syllable paired with which.</p>
+<h3>The name and the knobs</h3>
+<p>This is <strong>Needleman–Wunsch</strong> (1970), the first application of dynamic
+programming to sequence comparison. Two knobs define its behavior, and both
+live in <code>rhyme.py</code>:</p>
+<ul>
+<li><strong>substitution cost</strong> — how much a mismatch hurts. For us this is
+  <code>vowel_distance</code>: near-vowels cost little, far ones cost a lot. In the
+  textbook version it's a fixed "match = 0, mismatch = 1"; our graded cost is
+  what makes it a <em>slant</em>-rhyme scorer instead of an equality check.</li>
+<li><strong>gap penalty</strong> (<code>DEFAULT_GAP_PENALTY</code>) — the price of an unpaired symbol.
+  Set it too low and the algorithm skips freely, matching anything to anything;
+  too high and it force-pairs symbols that shouldn't be. Our value sits
+  <em>above</em> a near-vowel substitution but <em>below</em> a far one, exactly so genuine
+  slant pairs are kept while spare syllables are dropped.</li>
+</ul>
+<h3>Cost</h3>
+<p><code>O(m·n)</code> time and space for sequences of length m and n. For rhyme tails
+(2–6 syllables) that's nothing. For two whole genomes (billions of symbols)
+it's <code>10¹⁸</code> — hopelessly slow, and <strong>the reason the next algorithm exists.</strong></p>
+<h3>The "global" in global alignment</h3>
+<p>Needleman–Wunsch pins <em>both</em> ends: the path must start at the top-left corner
+and finish at the bottom-right, so every symbol of both sequences is accounted
+for. That's the right model when you already know the two things are
+counterparts and want to score them whole — which is exactly the rhyme-tail
+situation (you've already decided these two tails are the rhyme; now grade
+them). It's the <em>wrong</em> model when you want to find a good-matching <em>region</em>
+buried inside two much longer sequences, where forcing the ends to align just
+drags in noise. That distinction is the seam between Unit 8 and Unit 11.</p>
+<hr />
+<h2>2. Local alignment and seed-and-extend — the scanner's engine</h2>
+<h3>The problem shift</h3>
+<p>In Unit 11 the question changed from <em>"score these two tails"</em> to <em>"somewhere
+in this verse, are there two stretches that rhyme?"</em> Now you don't know the
+endpoints — that's the <em>output</em>, not the input. And you can't afford to run a
+full alignment between every pair of candidate spans: that's the O(n²)-spans ×
+O(n²)-pairs blowup we counted early in Unit 11.</p>
+<h3>Local alignment (Smith–Waterman), briefly</h3>
+<p>There's a cousin of Needleman–Wunsch called <strong>Smith–Waterman</strong> (1981) that
+finds the single best-matching <em>sub-region</em> of two sequences rather than
+aligning them end to end. The trick is a one-line change to the recurrence:
+add a fourth option, <code>0</code>, to the <code>min</code>/<code>max</code> —</p>
+<pre><code>D[i][j] = max(0, diagonal, up, left)   # a 0 lets the alignment &quot;restart&quot;
+</code></pre>
+<p>— so an alignment that's going badly resets to nothing instead of accumulating
+penalty, and you read the answer off the <em>best cell anywhere in the grid</em>
+rather than the corner. That finds the best local region between <em>two given</em>
+sequences. But it's still <code>O(m·n)</code> per pair, so on its own it doesn't solve the
+"search a whole verse / database" problem. For that you need to avoid looking at
+most pairs at all.</p>
+<h3>The BLAST heuristic: seed, then extend</h3>
+<p><strong>BLAST</strong> (Basic Local Alignment Search Tool, 1990) is the most-cited method in
+its field, and its idea is one every programmer can appreciate: <em>don't run the
+expensive algorithm everywhere — run a cheap filter first, and only pay for the
+expensive part where the filter says it might be worth it.</em> Three steps:</p>
+<ol>
+<li><strong>Seed.</strong> Find short, high-quality exact-or-near-exact matches ("seeds" or
+   "words"). These are cheap to find (hash lookups) and most of the sequence
+   produces none — so you've thrown away the vast boring majority for almost no
+   cost. <em>A rhyme cannot exist without its anchor syllables matching, so only
+   stressed-syllable pairs are worth seeding from.</em></li>
+<li><strong>Extend.</strong> From each seed, grow outward in both directions, accumulating
+   score, and <strong>stop when the score starts dropping</strong> — the extension is only
+   worth continuing while it improves. This recovers a good local alignment
+   around each promising seed without ever aligning the non-seeded regions.</li>
+<li><strong>Threshold / rank.</strong> Keep extended hits above a significance cut; rank the
+   survivors.</li>
+</ol>
+<p>The payoff is enormous: instead of aligning everything to everything, you do
+cheap seeding first and expensive alignment only in the neighborhoods seeds
+point at. You trade a <em>guarantee</em> (Smith–Waterman finds the provably best local
+alignment) for <em>speed</em> (BLAST finds the good ones fast and rarely misses a real
+one). That is the classic <strong>heuristic bargain</strong>: give up "provably optimal" for
+"fast and almost always right," and know exactly which you're giving up.</p>
+<h3>How this maps onto <code>scan.py</code>, precisely</h3>
+<p>Our scanner is BLAST's skeleton with rhyme-flavored steps:</p>
+<ul>
+<li><strong>Seed</strong> = the seed gate (<code>_seed_ok</code>). A pair of candidates is only worth
+  scoring if their <em>anchor syllables</em> rhyme on their own — the anchor is our
+  seed, and "anchors must match" is our "seed must be a near-exact word." The
+  phonological restriction that only stressed, full-vowel syllables can anchor
+  is what makes seeds sparse (most positions never seed), which is the whole
+  point of seeding.</li>
+<li><strong>Extend</strong> = the rhyme kernel scoring the tail from the anchor outward, plus
+  selection's rule that a trailing syllable only stays if it pulls the <em>average</em>
+  up — that is literally "extend while the score improves, stop when it drops."</li>
+<li><strong>Threshold / rank</strong> = <code>find_matches</code>' threshold and <code>select_matches</code>'
+  score-first ranking.</li>
+</ul>
+<p>So Unit 11 wasn't "inspired by" BLAST loosely; it's the same three-phase
+structure, with each phase's generic requirement ("seeds must be
+high-quality", "extend while improving") instantiated by a fact about rhyme.</p>
+<h3>The knobs, and the bargain they encode</h3>
+<ul>
+<li><strong>seed sensitivity</strong> — shorter/looser seeds find more real matches but waste
+  time on more false leads; longer/stricter seeds are faster but miss faint
+  ones. Our <code>DEFAULT_SEED_THRESHOLD</code> is exactly this dial: lower it and more
+  anchor pairs qualify as seeds.</li>
+<li>Every knob here trades <strong>sensitivity</strong> (don't miss real rhymes — recall)
+  against <strong>specificity</strong> (don't chase fake ones — precision). You'll meet that
+  tradeoff by its proper names in Unit 14, when you finally <em>measure</em> it
+  instead of guessing.</li>
+</ul>
+<hr />
+<h2>3. Co-linear chaining — Unit 12's compound-builder</h2>
+<h3>The problem</h3>
+<p>Seed-and-extend gives you a <em>set</em> of local hits. But one real feature often
+shows up as <em>several</em> nearby hits that ought to be read as a single longer
+alignment — interrupted by a gap too big for extension to have crossed, yet
+clearly part of one story. In our terms: "PALMS-are-SWEATY ~ ARMS-are-HEAVY" is
+one 4-syllable rhyme the ear hears as a unit, but the scanner (correctly, per
+its per-beat model) emits it as two separate matches, <code>palms are ~ arms are</code>
+and <code>sweaty ~ heavy</code>. We need to recognize that these two hits <em>line up</em> and
+fuse them.</p>
+<h3>The idea: hits as points, a compound as a monotone path</h3>
+<p>Put every local hit on a 2-D plane: the x-axis is position in sequence A, the
+y-axis is position in sequence B. A hit is a little segment (it occupies a
+range on each axis). Two hits are <strong>co-linear / chainable</strong> if one lies <em>down
+and to the right</em> of the other — i.e. it comes strictly later in <em>both</em>
+sequences. Chain a set of hits that are pairwise compatible in that sense and
+you've got one long alignment threading through them.</p>
+<pre><code>   position in B ↑
+                 │
+     &quot;heavy&quot;     │              ● (sweaty~heavy)      both coordinates
+                 │             ╱                       increase → chainable
+     &quot;arms are&quot;  │        ● (palms are~arms are)
+                 │       ╱
+                 └───────────────────────────→ position in A
+                    both hits go down-and-right together = one compound
+
+   A crossing pair (down-LEFT) would be a reversal, not a compound — reject it.
+</code></pre>
+<p>The rule "later in both sequences, same order" is exactly your <strong>sandwich
+observation</strong> made precise. Your "SWEATY is the meat between PALMS and ARMS"
+is what interleaving looks like from the middle; "both hits step down-and-right
+together" is what it looks like from the extents. The extent view is the one
+that generalizes cleanly to <strong>three or more</strong> beats (a chain, not just a pair)
+and to hits that are far apart or on different lines (where nothing is
+literally sandwiched but the compound is just as real).</p>
+<h3>Why it's a classic (and where it lives in the wild)</h3>
+<p>After BLAST-style tools produce many local hits, a <strong>chaining</strong> step stitches
+compatible ones into larger alignments — it's standard post-processing in
+genome-scale aligners, and the general problem ("given weighted intervals/hits,
+find the best-scoring chain of mutually compatible ones") is a well-studied
+piece of computational geometry. The clean version sorts hits by one coordinate
+and runs a dynamic program (or an interval structure) to find the maximum-weight
+increasing chain — a close relative of <strong>longest-increasing-subsequence</strong>, which
+you may have met in coding interviews. Same skeleton as the two algorithms
+above: <em>the best chain is the best-scoring monotone path through a set of
+points.</em> Alignment was a path through a grid; chaining is a path through a
+scatter of hits.</p>
+<h3>What we actually need (and don't)</h3>
+<p>Our version is deliberately tiny, because our hits are already few and clean:</p>
+<ul>
+<li><strong>Adjacency, not just order.</strong> In genomics, chained hits can have large gaps
+  between them (introns, etc.). For a rhyme <em>compound</em> the ear only fuses beats
+  that are contiguous — <code>palms are</code> then <em>immediately</em> <code>sweaty</code> — so our
+  chaining requires the extents to <strong>abut</strong> (share a boundary), a stricter
+  condition than mere down-and-right. We tried and <em>rejected</em> tolerating a
+  one-word gap: on the Lose Yourself verse it fused unrelated beats from
+  different rhyme classes (<code>palms sweaty ~ calm ready</code>) five times for every
+  real compound. A blind gap can't tell a throwaway (<code>so</code>) from a word already
+  claimed by another beat (<code>palms [are] sweaty</code>, where <code>are</code> belongs to the
+  <code>palms are ~ arms are</code> beat) — that distinction needs the gap's <em>content</em>,
+  which a match-level post-pass can't see. And the one thing a gap would buy —
+  fusing across <em>differing</em> fillers (<code>palms are so sweaty ~ arms are really
+  heavy</code>) — isn't clearly a real perceived rhyme. Parallel fillers that are
+  <em>identical</em> on both sides need no gap help anyway: span enumeration absorbs
+  them into a beat (as an identity column) before chaining runs. So: strict
+  abutment, full stop.</li>
+<li><strong>Same order, no crossing.</strong> Enforced exactly as above: reject a pair whose
+  sequences disagree on order (that's chiasmus, a different device).</li>
+<li><strong>No scoring contest.</strong> Genome chainers maximize a weighted chain because
+  hits compete and overlap messily. Ours simply grows maximal runs of
+  abutting, same-order matches — closer to a union-find / transitive closure
+  over a "these two abut" relation than to a weighted-path optimization. If
+  real verses ever produce competing overlapping chains, the full
+  maximum-weight-chain DP is the principled upgrade, and it's the same shape as
+  everything else here.</li>
+</ul>
+<p>So <code>chain_matches</code> will be a pure post-pass over <code>VerseScan.matches</code>: no
+scanner or kernel changes, each beat keeps its own rhyme class (the compound
+<em>spans</em> classes — that's the whole point), and the renderer gets a uniform
+picture whether a given compound happened to survive selection whole or in
+pieces.</p>
+<hr />
+<h2>4. The through-line</h2>
+<p>Read the three together and one picture keeps redrawing itself:</p>
+<ul>
+<li><strong>An alignment is a monotone path</strong>, and the best one is a cheapest/best path
+  found by dynamic programming.</li>
+<li><em>Global</em> (Needleman–Wunsch): path across a full grid, both ends pinned —
+    score two known counterparts whole. <strong>(Unit 8: <code>align_tails</code>.)</strong></li>
+<li><em>Local + seeded</em> (Smith–Waterman idea, BLAST heuristic): find good
+    <em>regions</em> without pinning ends, and skip most of the work with a cheap seed
+    filter first. <strong>(Unit 11: the scanner.)</strong></li>
+<li><em>Chaining</em>: a path not through a grid but through a scatter of local hits,
+    fusing compatible ones into one longer structure. <strong>(Unit 12:
+    <code>chain_matches</code>.)</strong></li>
+<li>Every one exposes the same <strong>two-sided knob</strong>: how freely to match (gap
+  penalty / seed looseness / gap tolerance) trades finding-real-things
+  (sensitivity, recall) against not-inventing-things (specificity, precision).
+  Unit 14 is where you stop turning those knobs by feel and start measuring.</li>
+<li>And each step up the ladder <em>reuses</em> the one below: chaining chains the hits
+  that seed-and-extend produced, and each hit was scored by an alignment. The
+  scanner is alignment wrapped in a search; the compound-builder is a search
+  wrapped around the scanner.</li>
+</ul>
+<p>None of this is biology. It's what falls out whenever you compare sequences of
+imperfectly-matching symbols and care about order — which is precisely the
+structure of rhyme over a stream of vowels. The life sciences are simply where
+these particular tools were sharpened first; we're borrowing the whetstone, not
+the knife.</p>
+<h3>If you want to go deeper (all alphabet-agnostic algorithm reading)</h3>
+<ul>
+<li>Needleman–Wunsch and Smith–Waterman: any algorithms text's dynamic-programming
+  chapter, or the "edit distance / sequence alignment" section (it's the same
+  DP as Levenshtein distance, which powers spell-checkers and <code>diff</code>).</li>
+<li>The seed-and-extend / heuristic-search idea generalizes as "filter cheaply,
+  verify expensively" — the same pattern behind database query planning and
+  approximate nearest-neighbor search.</li>
+<li>Chaining ↔ longest-increasing-subsequence and maximum-weight interval
+  scheduling: classic DP/greedy problems you may know from interview prep.</li>
+</ul>
+</main>
+<footer class="pager">
+<a class="next" href="unit-08.html">Unit 8: Unequal lengths: sequence alignment →</a>
+</footer>
+</body>
+</html>

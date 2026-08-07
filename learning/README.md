@@ -1,5 +1,11 @@
 # rhyme-schemer: the course
 
+**Open [`site/index.html`](site/index.html) in a browser — that's the course.**
+Every page is static and self-contained (no server needed); the site is
+generated from the Markdown sources here by `build_site.py`, so edit the
+Markdown, not the HTML, and rebuild with
+`pip install markdown && python learning/build_site.py`.
+
 A complete, interactive course for learning **NLP and computational phonology by finishing this repo**. You'll work from the phonetic foundation already in `rhyme_schemer/` — phonemes, articulatory features, syllabification — forward through the rhyme-scoring kernel, sequence alignment, rhyme-scheme grouping, visualization, grapheme-to-phoneme, and evaluation, until the tool described in the top-level README actually exists.
 
 It's built for an implementation-first learner at ~3–5 hrs/week, about six months. The repo is the spine: every concept is in service of code you'll read or write, and most exercises are "make the failing test pass."

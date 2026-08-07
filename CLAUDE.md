@@ -166,9 +166,14 @@ when you add user-facing surface.
 
 ## The `learning/` directory
 
-`learning/` is a self-contained, project-driven course (curriculum, Socratic
-lesson guides, browser widgets, quizzes, and exercise stubs) for learning NLP and
+`learning/` is a self-contained, project-driven course (curriculum, lesson
+guides, browser widgets, quizzes, and exercise stubs) for learning NLP and
 computational phonology *by finishing this repo*. It was added via `git subtree`.
+The course is **delivered as a static browser site**: `learning/site/` is
+generated from the Markdown sources by `learning/build_site.py` (dev-only dep:
+`pip install markdown`). Markdown is the source of truth — after editing any
+lesson or `curriculum.md`, rerun the build script and commit the regenerated
+site alongside the source change.
 It is documentation/teaching material, not part of the package — don't import from
 it or wire it into the build. The browser widgets render the repo's own numbers
 (e.g. `vowel-explorer.html` calls the same `vowel_distance` math), so if you change

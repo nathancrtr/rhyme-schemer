@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 14 — Evaluation: is it any good?</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">Phase 4 · Seeing, guessing, measuring</p>
+<h1>Unit 14 — Evaluation: is it any good?</h1>
+<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<li><strong>Build:</strong> An eval harness, then point it at ground truth that mostly <strong>already exists</strong> — don't build gold from scratch when the field has it. Three corpora: <strong>MCFlow</strong> (Condit-Schultz 2016 — 124 rap songs transcribed with rhyme annotations <em>and their metric placement</em>), <strong>Haider &amp; Kuhn's</strong> hip-hop set (annotated for rhyme <em>and assonance</em> — exactly the north star), and <strong>Hirjee &amp; Brown's own annotated lyrics</strong> (thesis — makes results directly comparable to the named prior art). In-house annotation only fills gaps, and then with a <strong>second annotator and a reported agreement figure</strong> — otherwise the tuning sweep optimizes toward one person's ear. Content safety: evaluate locally against downloaded corpora; store song IDs + offsets in the repo, never lyric text.</li>
+<li><strong>Read:</strong> SLP3 Ch. 2 on <strong>precision / recall / F-score</strong>; Hirjee &amp; Brown's evaluation methodology; the MCFlow paper; Haider &amp; Kuhn (2018) on their annotation.</li>
+<li><strong>Concepts:</strong> annotate <em>groups</em>, score <em>pairs</em> (groups impose transitivity gold shouldn't); <strong>two metric families answering different questions</strong> — pairwise link P/R/F vs class-level clustering metrics (B-cubed, adjusted Rand) — the mega-class pathologies (ledger items 1, 9) only show up in the latter, so report both; inter-annotator agreement as the <em>ceiling</em> any scanner score is read against (annotator disagreement on slant rhyme is Katz's finding, not an annoyance); error analysis as the real payoff.</li>
+<li><strong>Exercise:</strong> Run the harness on external gold plus your own double-annotated verses; do the error analysis: are misses threshold problems, feature-coordinate problems, or OOV problems? Route each to its ledger item. Then design the sweep as <strong>conditions, not just dials</strong>: alongside thresholds/weights/chaining-gate values, include (a) <em>refit the vowel space from rhyme-pair data</em> — Hirjee &amp; Brown's central BLOSUM-style move; the quick pre-check already ran as <code>learning/audits/</code> (rank comparison against their published matrices; ledger items 11–12 — Katz's and Kawahara's tables, once slated for this role, are consonantal and audit the consonant space instead) — and (b) <em>one edge-weight-aware clustering condition</em> (correlation clustering or similar) to measure what the connected-components choice actually costs.</li>
+<li><strong>Milestone:</strong> P/R/F <em>and</em> clustering numbers against external gold, an agreement ceiling to read them against, and a prioritized list of what to fix — measured, not guessed.</li>
+<li><strong>Key insight:</strong> You can't improve what you can't measure, and rhyme has no perfect ground truth — agreement is partial, <em>and that is a fact about the task</em>. Building the ruler is as much the work as building the tool; borrowing the field's rulers is how your numbers mean something to anyone else.</li>
+</ul></details>
+<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+</main>
+<footer class="pager">
+<a class="prev" href="unit-13.html">← Unit 13: Out-of-vocabulary words & grapheme-to-phoneme</a><a class="next" href="unit-15.html">Unit 15: Capstone: the finished tool + the written understanding →</a>
+</footer>
+</body>
+</html>
