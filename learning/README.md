@@ -11,18 +11,25 @@ learning/
 ├── README.md                 ← you are here
 ├── learning-resources.md      tiered, verified resources ("why this one")
 ├── curriculum.md              the 15-unit, project-driven syllabus + dependency map
+├── audits/                    corpus-evidence checks on the feature spaces
+│   ├── hirjee_brown_2009.py     H&B's learned rhyme matrices, as data
+│   └── audit_feature_space.py   rank-compare them against features.py
 └── interactive/
     ├── lessons/               Socratic lesson guides (run with Claude)
     │   ├── unit-01-phonemes-not-spelling.md
     │   ├── unit-02-feature-distance.md
     │   ├── unit-07-the-rhyme-kernel.md
     │   ├── unit-08-alignment.md
-    │   └── unit-10-non-transitivity.md
+    │   ├── unit-10-non-transitivity.md
+    │   ├── unit-11-scanner-walkthrough.md   + the open tuning ledger
+    │   └── sequence-alignment-family.md     diff/DNA/rhyme, one algorithm
     ├── widgets/               open these in a browser
     │   ├── vowel-explorer.html    click two vowels → the exact vowel_distance()
-    │   └── syllabifier.html       watch the Maximal Onset Principle split a word
+    │   ├── syllabifier.html       watch the Maximal Onset Principle split a word
+    │   └── nw-alignment.html      feel the gap penalty in the DP table
     ├── quizzes/
     │   ├── phase-1-checkpoint.html  self-checking, explanatory feedback
+    │   ├── phase-3-checkpoint.html
     │   └── question-bank.md         pool for "quiz me on Phase N"
     └── exercises/
         └── unit-05-rhyme-tail/      stub + failing tests → make them green
