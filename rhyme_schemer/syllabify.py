@@ -94,6 +94,31 @@ def syllabify(phones: list[str]) -> tuple[Syllable, ...]:
     return tuple(syllables)
 
 
+def cmudict_variants(word: str) -> list[list[str]]:
+    """CMUdict's pronunciations for ``word`` as clean phoneme-token lists.
+
+    The one thing this does beyond splitting: **drop CMUdict's inline
+    comments.** A handful of entries carry a trailing ``#`` note about the
+    variant's provenance -- ``pronouncing`` hands back
+    ``"F IH1 N AH0 # org, irish"`` for "fine" -- and a naive ``.split()``
+    turns ``#``, ``org,`` and ``irish`` into phonemes. Those sail through
+    syllabification (none is a vowel, so they land in a coda) and then
+    crash ``features.consonant_distance`` on a ``KeyError``. Found by
+    running real corpus lyrics, not by any fixture; every CMUdict lookup
+    must come through here so the quirk is handled exactly once.
+    """
+    cleaned = []
+    for variant in pronouncing.phones_for_word(word.lower()):
+        tokens = []
+        for token in variant.split():
+            if token.startswith("#"):
+                break
+            tokens.append(token)
+        if tokens:
+            cleaned.append(tokens)
+    return cleaned
+
+
 def pronunciations_for(word: str) -> list[Pronunciation]:
     """Look up *all* of ``word``'s CMUdict pronunciations and syllabify each.
 
@@ -107,10 +132,9 @@ def pronunciations_for(word: str) -> list[Pronunciation]:
     contract: callers test truthiness). Order follows CMUdict, so the first
     entry is the one ``pronunciation_for`` returns.
     """
-    variants = pronouncing.phones_for_word(word.lower())
     return [
-        Pronunciation(syllables=syllabify(v.split()), text=word)
-        for v in variants
+        Pronunciation(syllables=syllabify(tokens), text=word)
+        for tokens in cmudict_variants(word)
     ]
 
 
