@@ -26,13 +26,16 @@ learning/
     ├── widgets/               open these in a browser
     │   ├── vowel-explorer.html    click two vowels → the exact vowel_distance()
     │   ├── syllabifier.html       watch the Maximal Onset Principle split a word
-    │   └── nw-alignment.html      feel the gap penalty in the DP table
+    │   ├── nw-alignment.html      feel the gap penalty in the DP table
+    │   ├── rhyme-score-sandbox.html   two words → tails, alignment, score receipts
+    │   └── generate_sandbox_lexicon.py  regenerates the sandbox's embedded words
     ├── quizzes/
     │   ├── phase-1-checkpoint.html  self-checking, explanatory feedback
     │   ├── phase-3-checkpoint.html
     │   └── question-bank.md         pool for "quiz me on Phase N"
     └── exercises/
-        └── unit-05-rhyme-tail/      stub + failing tests → make them green
+        ├── unit-05-rhyme-tail/      stub + failing tests → make them green
+        └── unit-08-alignment/       guided NW skeleton + hand-worked table
 ```
 
 ## How to start
