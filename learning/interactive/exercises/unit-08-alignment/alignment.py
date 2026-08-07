@@ -21,7 +21,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from rhyme_schemer.features import consonant_similarity, vowel_distance, vowel_similarity
 from rhyme_schemer.models import Syllable

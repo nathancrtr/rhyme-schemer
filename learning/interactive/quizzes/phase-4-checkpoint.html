@@ -1,0 +1,106 @@
+<!--
+  Phase 4 checkpoint quiz for rhyme-schemer (Units 12-13 + evaluation
+  concepts). Same self-checking template as phase-1: immediate explanatory
+  feedback on every option; distractors target specific misconceptions.
+  No localStorage; in-memory only.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 4 Checkpoint — Seeing, Guessing, Measuring</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--ok:#2ecc71;--no:#e74c3c;--accent:#6ea8fe;--line:#2a2f3a;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 ui-sans-serif,system-ui,-apple-system,sans-serif;}
+  .wrap{max-width:720px;margin:0 auto;padding:32px 20px 64px;}
+  h1{font-size:1.35rem;margin:0 0 4px;}
+  .sub{color:var(--muted);margin:0 0 24px;}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:0 0 16px;}
+  .q h2{font-size:1.05rem;margin:0 0 14px;font-weight:600;}
+  .opt{display:block;width:100%;text-align:left;padding:12px 14px;margin:8px 0;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:10px;cursor:pointer;font:inherit;transition:.12s;}
+  .opt:hover:not(:disabled){border-color:var(--accent);}
+  .opt:disabled{cursor:default;}
+  .opt.correct{border-color:var(--ok);background:rgba(46,204,113,.10);}
+  .opt.wrong{border-color:var(--no);background:rgba(231,76,60,.10);}
+  .why{font-size:.92rem;color:var(--muted);margin:6px 2px 0;padding-left:14px;border-left:2px solid var(--line);display:none;}
+  .why.show{display:block;}
+  code{font-family:ui-monospace,monospace;}
+  .score{position:sticky;bottom:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-top:8px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Phase 4 Checkpoint — Seeing, Guessing, Measuring</h1>
+  <p class="sub">Units 12–13, plus the evaluation concepts. Click an answer to see why every option is right or wrong.</p>
+  <div id="quiz"></div>
+  <div class="score" id="score"></div>
+</div>
+<script>
+const QUIZ_DATA=[
+ {q:"The renderer colors by <em>rhyme class</em> rather than by vowel. What's the argument?",
+  options:[
+   {text:"Class colors are easier to compute than vowel colors",correct:false,why:"Cost isn't the issue — color-by-vowel is trivially computable from the phonetics. The argument is about what to SHOW."},
+   {text:"The scanner spent eleven units judging; coloring by vowel would discard those judgments and display raw input phonetics",correct:true,why:"Right — render the analysis's conclusions (mistakes included), not the input. That honesty is a feature: it made the precision debt visible."},
+   {text:"Vowel-based coloring is impossible for diphthongs",correct:false,why:"Brath's visualizations color by vowel just fine, diphthongs included. It's a different school, deliberately not chosen."}]},
+ {q:"Why does <code>plan_verse</code> resolve every policy decision into a <code>RenderPlan</code> before any HTML or terminal output exists?",
+  options:[
+   {text:"One place decides, N emitters paint — and policy becomes testable as data instead of as HTML strings",correct:true,why:"Right — with two renderers, any judgment inside an emitter must be re-made identically forever. The plan/emitter split is the forcing function."},
+   {text:"HTML generation is too slow to make decisions inline",correct:false,why:"Performance isn't the driver; consistency and testability are."},
+   {text:"Terminal output can't express policy",correct:false,why:"It can (the terminal renderer shows the same decisions) — which is exactly why the decisions must live upstream of both."}]},
+ {q:"A verse has ten rhyme classes; the palette has eight slots. Classes nine and ten…",
+  options:[
+   {text:"reuse the first two hues",correct:false,why:"Never cycle: the eleventh hue is indistinguishable from the third, and a false color match is a false claim about the analysis."},
+   {text:"fold into a neutral wash",correct:true,why:"Right — largest classes claim the eight slots; overflow goes gray. A reader can trust that same-color = same class, always."},
+   {text:"are dropped from the rendering",correct:false,why:"They still render (extents, ticks, tooltips) — they just don't get a categorical hue."}]},
+ {q:"In the G2P chain, why does the hand lexicon outrank the spelling rules?",
+  options:[
+   {text:"Lexicon lookups are faster than regex rules",correct:false,why:"Speed is irrelevant at this scale. The ordering is about which source is TRUSTED when both claim a word."},
+   {text:"'Shoulda' pattern-matches -a-for-er via 'shoulder' but actually contracts 'should have' — only curated truth knows that",correct:true,why:"Right — rules are pattern-matching, the lexicon is curated truth, and curated truth wins wherever both apply."},
+   {text:"The lexicon contains more words than the rules can match",correct:false,why:"It's deliberately tiny (a closed class of contractions). Coverage isn't why it outranks; correctness is."}]},
+ {q:"'Chokin'' is pronounced via dictionary 'choking' — but with final N, not NG. Why keep the N?",
+  options:[
+   {text:"Because CMUdict lists the N variant for -ing words",correct:false,why:"It doesn't — the dictionary gives NG. The N comes from the RULE honoring the spelling."},
+   {text:"The apostrophe is the lyricist transcribing performance; N-vs-NG is a coda difference the kernel scores",correct:true,why:"Right — dialect spellings are performance transcriptions. Recover the stem, keep the spelled surface phonology."},
+   {text:"NG can't appear in codas",correct:false,why:"NG appears ONLY in codas (and medially) — 'choking' ends in NG. The rewrite is about performance, not phonotactics."}]},
+ {q:"Dictionary, lexicon, and rule pronunciations cost 0; letter-to-sound costs 0.1. What's the principle?",
+  options:[
+   {text:"Confidence is priced, not modeled: the spelling or lexicon testifies, but a guess must buy its way into a rhyme",correct:true,why:"Right — same mechanism as the coercion cost. A marginal rhyme built on a guess dies; Coogi~groovy at 1.0 shrugs it off."},
+   {text:"Letter-to-sound is slower, so its results are penalized",correct:false,why:"The cost prices UNCERTAINTY, not compute."},
+   {text:"The kernel checks each pronunciation's source and discounts guesses",correct:false,why:"Deliberately not — the kernel is provenance-free. The cost folds in at candidate minting (scan.py), outside the kernel."}]},
+ {q:"Gold annotators mark <em>groups</em>, but the harness scores <em>pairs</em>. Why explode groups into pairs?",
+  options:[
+   {text:"Pairs are easier to store than groups",correct:false,why:"Storage is trivial either way. The reason is about what a group CLAIMS."},
+   {text:"Groups impose transitivity gold shouldn't: annotating A B C implies A~C, and pair scoring makes one bad bridge cost exactly the bad pairs it creates",correct:true,why:"Right — Unit 10's lesson, applied to evaluation. The not: directive exists to veto exactly one induced pair."},
+   {text:"Humans can't annotate groups reliably",correct:false,why:"Humans naturally annotate IN groups ('steady/ready/confetti — one family') — that's why the format takes groups and the scorer explodes them."}]},
+ {q:"Why report class-level clustering metrics (B-cubed/ARI) <em>in addition to</em> pairwise link P/R/F?",
+  options:[
+   {text:"Clustering metrics are more standard in the literature",correct:false,why:"Both families are standard. The reason is that they answer DIFFERENT questions."},
+   {text:"The mega-class pathologies only show up at class level: edge precision can be high while component glue ruins the classes",correct:true,why:"Right — high edge P + low class P localizes the failure to the grouping, not the kernel. One number family can't make that diagnosis."},
+   {text:"Pairwise metrics can't handle groups of more than two",correct:false,why:"They can — groups explode into pairs. The issue is what each family is SENSITIVE to."}]},
+];
+const quizEl=document.getElementById('quiz'),scoreEl=document.getElementById('score');
+let answered=0,correct=0;
+QUIZ_DATA.forEach((item,qi)=>{
+ const card=document.createElement('div');card.className='q';
+ const h=document.createElement('h2');h.innerHTML=(qi+1)+'. '+item.q;card.appendChild(h);
+ let locked=false;
+ item.options.forEach((opt)=>{
+  const btn=document.createElement('button');btn.className='opt';btn.innerHTML=opt.text;
+  const why=document.createElement('div');why.className='why';why.textContent=opt.why;
+  btn.addEventListener('click',()=>{
+   if(locked)return;locked=true;answered++;if(opt.correct)correct++;
+   Array.from(card.querySelectorAll('.opt')).forEach((b,i)=>{b.disabled=true;if(item.options[i].correct)b.classList.add('correct');});
+   if(!opt.correct)btn.classList.add('wrong');
+   card.querySelectorAll('.why').forEach(w=>w.classList.add('show'));
+   scoreEl.textContent='Answered '+answered+' / '+QUIZ_DATA.length+'  ·  '+correct+' correct';
+  });
+  card.appendChild(btn);card.appendChild(why);
+ });
+ quizEl.appendChild(card);
+});
+scoreEl.textContent='Answered 0 / '+QUIZ_DATA.length;
+</script>
+</body>
+</html>

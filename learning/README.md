@@ -37,12 +37,13 @@ learning/
     │   ├── gold-annotator.html        click words into groups → tests/gold format
     │   └── generate_sandbox_lexicon.py  regenerates the sandbox's embedded words
     ├── quizzes/
-    │   ├── phase-1-checkpoint.html  self-checking, explanatory feedback
-    │   ├── phase-3-checkpoint.html
-    │   └── question-bank.md         pool for "quiz me on Phase N"
+    │   ├── phase-1..4-checkpoint.html  self-checking, explanatory feedback
+    │   └── question-bank.md            pool for self-testing by phase
     └── exercises/
         ├── unit-05-rhyme-tail/      stub + failing tests → make them green
-        └── unit-08-alignment/       guided NW skeleton + hand-worked table
+        ├── unit-08-alignment/       guided NW skeleton + hand-worked table
+        ├── unit-10-grouping/        union-find + the grouping decision, signed
+        └── unit-13-g2p-extension/   extend the chain as lyrics expose gaps
 ```
 
 ## How to start

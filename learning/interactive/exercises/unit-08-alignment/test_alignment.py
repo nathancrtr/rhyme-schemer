@@ -12,7 +12,7 @@ import sys
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from alignment import GAP_PENALTY, _syllable_similarity, align_tails, score_alignment
 from rhyme_schemer import Stress, Syllable, pronunciation_for
