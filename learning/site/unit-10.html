@@ -35,9 +35,11 @@
 <h2>How to run this lesson</h2>
 <p>Dialogue, one question per turn. The payload is conceptual; let the learner hit the trap themselves before you name it.</p>
 <h2>1. Diagnostic opener</h2>
-<p>Ask: <strong>"You have <code>rhyme_score</code> for any pair. To find rhyme groups in a verse, what's the simplest thing you could do with all the pairwise scores?"</strong>
-- Toward "threshold the scores and group what's connected" → step 2 (and spring the trap).
-- Unsure → suggest "make an edge whenever two words score above a threshold" and proceed.</p>
+<p>Ask: <strong>"You have <code>rhyme_score</code> for any pair. To find rhyme groups in a verse, what's the simplest thing you could do with all the pairwise scores?"</strong></p>
+<ul>
+<li>Toward "threshold the scores and group what's connected" → step 2 (and spring the trap).</li>
+<li>Unsure → suggest "make an edge whenever two words score above a threshold" and proceed.</li>
+</ul>
 <h2>2. Build the intuition</h2>
 <p>Edges above threshold → a graph → groups.</p>
 <blockquote class="think"><p><span class="think-label">Think first</span> <strong>"Suppose A rhymes with B (above threshold) and B rhymes with C, but A and C score <em>below</em> threshold. Should A and C be in the same group?"</strong></p>
@@ -59,9 +61,11 @@
 <li><strong>Assuming one right grouping exists.</strong> Human annotators disagree on slant rhyme — there's no perfect ground truth, which is exactly why Unit 14 builds an evaluation.</li>
 </ul>
 <h2>5. Exit check</h2>
-<p>Ask: <strong>"For a verse I give you, pick a threshold, group the line-end words, and find one grouping you can defend and one you can't. What would you change — the threshold, or the grouping rule?"</strong>
-- Thoughtful answer naming the tradeoff → encode the decision as a test and move on.
-- Mechanical answer → re-run with a looser threshold until a bad chain appears, then revisit.</p>
+<p>Ask: <strong>"For a verse I give you, pick a threshold, group the line-end words, and find one grouping you can defend and one you can't. What would you change — the threshold, or the grouping rule?"</strong></p>
+<ul>
+<li>Thoughtful answer naming the tradeoff → encode the decision as a test and move on.</li>
+<li>Mechanical answer → re-run with a looser threshold until a bad chain appears, then revisit.</li>
+</ul>
 <p><strong>Where this is heading:</strong> these groups are the data behind the colors in the visualization (Unit 12), and the thing you'll score against gold annotations in evaluation (Unit 14).</p></article>
 </main>
 <footer class="pager">

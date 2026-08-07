@@ -188,13 +188,15 @@
 <li><strong>Build:</strong> Polish the pipeline into one entry point: paste a verse → an HTML visualization of its rhyme scheme, OOV handled, score reported. Then write a 2–3 page articulation of the phonology and NLP you now understand — phonemes and features, syllabification, the rhyme kernel, alignment, grouping, G2P, evaluation — and where each lives in the code.</li>
 <li><strong>Milestone:</strong> A demo you'd show someone, plus the writeup that proves the learning, not just the code.</li>
 </ul>
-<p><strong>Frontiers (pick your own path):</strong>
-- <strong>Swap in panphon</strong> for the hand-built feature tables; compare detections and re-run your eval.
-- <strong>Phonetic word embeddings</strong> (Parrish 2017): represent whole lines as vectors for fast candidate retrieval before exact scoring.
-- <strong>Unsupervised rhyme-scheme discovery</strong> (Reddy &amp; Knight 2011; also Addanki &amp; Wu 2013): the scheme as a latent variable inferred by EM, no pronunciation dictionary at all — the principled alternative to Unit 10's components, and a different answer to the mega-class problem.
-- <strong>Prosody &amp; flow:</strong> bring stress/meter into scoring, not just segments. This frontier has a literature — Adams (2009) on the metrical techniques of flow, MCFlow's beat-grid encoding, Ohriner's <em>Flow</em> (2019) — and one concrete experiment: validate the scanner's <em>inferred</em> performed-stress anchors against MCFlow's <em>observed</em> placements.
-- <strong>Variant disambiguation:</strong> pick the pronunciation that maximizes <em>whole-verse</em> rhyme, not per-pair.
-- <strong>The workshop paper.</strong> Per the external review (<code>REVIEW.md</code> §5), three of the scanner's ideas are genuinely fresh: performed stress as an enumerable, <em>priced</em> reading; the average-raising extension rule (with chain auto-splitting as a corollary); and "dialect spellings are performance transcriptions." Alone none is a paper; together — the scanner with priced performed-stress inference, evaluated on MCFlow against Hirjee &amp; Brown and a Haider &amp; Kuhn-style neural baseline — they plausibly clear the bar at the NLP4MusA / Computational Humanities / ML4Audio workshop tier. Unit 14's numbers are the missing ingredient.</p>
+<p><strong>Frontiers (pick your own path):</strong></p>
+<ul>
+<li><strong>Swap in panphon</strong> for the hand-built feature tables; compare detections and re-run your eval.</li>
+<li><strong>Phonetic word embeddings</strong> (Parrish 2017): represent whole lines as vectors for fast candidate retrieval before exact scoring.</li>
+<li><strong>Unsupervised rhyme-scheme discovery</strong> (Reddy &amp; Knight 2011; also Addanki &amp; Wu 2013): the scheme as a latent variable inferred by EM, no pronunciation dictionary at all — the principled alternative to Unit 10's components, and a different answer to the mega-class problem.</li>
+<li><strong>Prosody &amp; flow:</strong> bring stress/meter into scoring, not just segments. This frontier has a literature — Adams (2009) on the metrical techniques of flow, MCFlow's beat-grid encoding, Ohriner's <em>Flow</em> (2019) — and one concrete experiment: validate the scanner's <em>inferred</em> performed-stress anchors against MCFlow's <em>observed</em> placements.</li>
+<li><strong>Variant disambiguation:</strong> pick the pronunciation that maximizes <em>whole-verse</em> rhyme, not per-pair.</li>
+<li><strong>The workshop paper.</strong> Per the external review (<code>REVIEW.md</code> §5), three of the scanner's ideas are genuinely fresh: performed stress as an enumerable, <em>priced</em> reading; the average-raising extension rule (with chain auto-splitting as a corollary); and "dialect spellings are performance transcriptions." Alone none is a paper; together — the scanner with priced performed-stress inference, evaluated on MCFlow against Hirjee &amp; Brown and a Haider &amp; Kuhn-style neural baseline — they plausibly clear the bar at the NLP4MusA / Computational Humanities / ML4Audio workshop tier. Unit 14's numbers are the missing ingredient.</li>
+</ul>
 <hr />
 <h2>Concept dependency map</h2>
 <p>Arrows mean "understand before." The left column is phonetics/phonology; the right is algorithms.</p>

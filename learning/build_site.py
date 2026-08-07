@@ -104,7 +104,19 @@ LINK_MAP = {
 # Rendering
 # ---------------------------------------------------------------------------
 
+# GitHub-flavored Markdown lets a list open directly under a paragraph line;
+# python-markdown needs a blank line first, else the bullets are swallowed
+# into the paragraph. Insert the blank line: before a column-0 list item,
+# when the previous line is ordinary paragraph text (not blank, not itself a
+# list item or continuation, not a blockquote/heading/table row).
+_LIST_AFTER_PARAGRAPH = re.compile(
+    r"(^(?![ \t>#|]|[-*+] |\d+\. ).+)\n(?=(?:[-*+]|\d+\.) )",
+    re.MULTILINE,
+)
+
+
 def md_to_html(text: str) -> str:
+    text = _LIST_AFTER_PARAGRAPH.sub(r"\1\n\n", text)
     html = markdown.markdown(text, extensions=["fenced_code", "tables"])
     # Socratic pauses become think-first boxes.
     html = re.sub(
