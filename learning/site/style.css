@@ -470,19 +470,39 @@ article.lesson>h2:first-child,article.lesson>h3:first-child{margin-top:0;}
 /* ==================================================================
    9. WIDGET / QUIZ CHROME
    The eleven standalone interactive pages link this same stylesheet, so
-   they inherit the palette and the type ramp. They get a slim bar back
-   into the course, because a widget opened from a lesson used to be a
-   dead end.
+   they inherit the palette, the faces, and the type ramp. Each keeps its
+   own <style> block for its own mechanics -- the DP table, the vowel
+   plane, the quiz options -- and that block loads *after* this file, so
+   anything genuinely widget-specific still wins.
+
+   The contract those pages follow:
+     - link ../../site/style.css, then their own <style>
+     - re-declare the legacy token names (--bg/--card/--line/--muted) in
+       terms of the design tokens, so their existing rules keep working
+     - map their accent variables onto --hue-N slots rather than the old
+       hardcoded hexes
+     - open <body> with .toolbar, so a widget reached from a lesson is no
+       longer a dead end
    ================================================================== */
-.tool{max-width:58rem;margin:0 auto;padding:2.2rem 1.5rem 4rem;}
-.tool h1{font-size:1.75rem;margin:0 0 .25rem;}
-.tool .sub{color:var(--ink-muted);font-size:1.02rem;margin:0 0 1.9rem;}
-.card{background:var(--surface-raised);border:1px solid var(--rule);
-  border-radius:var(--radius);}
-.back{display:inline-flex;align-items:center;gap:.45rem;
+.toolbar{position:sticky;top:0;z-index:40;
+  background:var(--surface-header);border-bottom:1px solid var(--rule);
+  backdrop-filter:saturate(1.6) blur(12px);
+  -webkit-backdrop-filter:saturate(1.6) blur(12px);}
+.toolbar-in{max-width:60rem;margin:0 auto;padding:.55rem 1.25rem;
+  display:flex;align-items:center;gap:1rem;}
+.toolbar .brand{margin-left:auto;font-size:.82rem;}
+.toolbar .theme{width:1.75rem;height:1.75rem;}
+.back{display:inline-flex;align-items:center;gap:.5rem;
   font-family:var(--sans);font-size:.78rem;font-weight:600;
   color:var(--ink-muted);text-decoration:none;}
-.back:hover{color:var(--ink);}
+.back:hover{color:var(--ink);text-decoration:none;}
 .back::before{content:"";width:.4rem;height:.4rem;flex:none;
   border-left:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
   transform:rotate(45deg);}
+
+/* Shared shapes the interactive pages lean on. */
+.card{background:var(--surface-raised);border:1px solid var(--rule);
+  border-radius:var(--radius);}
+.tool-title{font-size:1.65rem;margin:0 0 .2rem;letter-spacing:-.022em;}
+.tool-sub{color:var(--ink-muted);font-size:1.02rem;margin:0 0 1.8rem;
+  line-height:1.5;}

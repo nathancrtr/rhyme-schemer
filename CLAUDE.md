@@ -178,3 +178,15 @@ It is documentation/teaching material, not part of the package — don't import 
 it or wire it into the build. The browser widgets render the repo's own numbers
 (e.g. `vowel-explorer.html` calls the same `vowel_distance` math), so if you change
 the feature spaces, those widgets may need matching updates.
+
+**Design.** The stylesheet is generated too: `learning/style_source.py` is the
+design system (and documents its own reasoning) and emits `site/style.css`.
+Its palette is transcribed from `rhyme_schemer/render.py` — the warm paper
+ground and the eight categorical hue slots, in the renderer's fixed order —
+so **if you retune that palette, retune `style_source.py` to match**. The
+eleven hand-authored pages under `interactive/` link the same stylesheet and
+express their own colors as `--hue-N` / `--fill-N`, following render.py's
+split: full-strength hue for thin marks, washed fill wherever text sits on
+the color. Typefaces are SIL-OFL, committed subset under `site/fonts/`, and
+rebuilt only by `learning/build_fonts.py` when coverage changes. Note that
+`--mono` is the monospace *family* token; widgets must not reuse that name.

@@ -287,10 +287,11 @@ THEME_BOOT = ('<script>(function(){try{var t=localStorage.getItem("rs-theme");'
               'if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}'
               'catch(e){}})();</script>')
 
-# Toggle + rail scrollspy. Both degrade to nothing if JS is off: the theme
-# still follows the OS, and the rail still works as plain anchor links.
-SITE_JS = """<script>
-(function(){
+# Toggle + rail scrollspy, written out as site/course.js so the eleven
+# hand-authored widget and quiz pages can link the same file instead of each
+# carrying its own copy. Both features degrade to nothing if JS is off: the
+# theme still follows the OS, and the rail still works as plain anchor links.
+COURSE_JS = """(function(){
   var root=document.documentElement, btn=document.getElementById("theme-toggle");
   if(btn) btn.addEventListener("click",function(){
     var dark=root.dataset.theme
@@ -315,7 +316,9 @@ SITE_JS = """<script>
     var el=document.getElementById(id); if(el) obs.observe(el);
   });
 })();
-</script>"""
+"""
+
+SITE_JS = '<script src="course.js"></script>'
 
 
 PAGE = """<!DOCTYPE html>
@@ -634,6 +637,7 @@ def main() -> None:
     SITE.mkdir(exist_ok=True)
     curriculum = (LEARNING / "curriculum.md").read_text()
     (SITE / "style.css").write_text(style_source.stylesheet())
+    (SITE / "course.js").write_text(COURSE_JS)
     build_index()
     build_unit_pages(curriculum)
     build_document_pages(curriculum)
