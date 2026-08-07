@@ -26,7 +26,110 @@
 <li><strong>Exercise:</strong> Replace skip-and-flag with a G2P guess for three of your OOV words; mark guesses as lower-confidence so scoring can discount them.</li>
 <li><strong>Milestone:</strong> A previously-skipped word participates in a detected rhyme, flagged as G2P-derived.</li>
 </ul></details>
-<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+<article class="lesson"><p><strong>Objective:</strong> you can explain the G2P fallback chain — what each link
+knows, why they run in that order, and why a guess carries a price — and
+you can state the design principle that makes the dialect rules <em>respectful
+recovery</em> rather than normalization. <strong>Prerequisites:</strong> Units 11–12.
+<strong>Pairs with:</strong> <code>rhyme_schemer/g2p.py</code>.</p>
+<h2>The problem, sized honestly</h2>
+<p>Since Unit 1 you've been collecting words CMUdict lacks; since Unit 3 the
+pipeline has skip-and-flagged them. On real lyrics the skips cluster into
+<em>kinds</em>, and the kinds want different tools:</p>
+<ol>
+<li><strong>Dialect spellings of known words</strong> — "chokin'," "flossin'," "holla."
+   The dictionary <em>knows</em> these words; the spelling encodes how they're
+   performed. Recoverable by rules that lean on the dictionary.</li>
+<li><strong>A closed class of slang contractions</strong> — "imma," "finna," "tryna."
+   Not rule-derivable ("imma" is "I'm gonna"; no letter pattern says so).
+   A small hand lexicon is the honest tool.</li>
+<li><strong>Genuinely unknown strings</strong> — brands ("Coogi"), onomatopoeia
+   ("blaow"), coinages. Only letter-to-sound rules can say anything, and
+   what they say is a guess.</li>
+</ol>
+<h2>The chain, and why the order matters</h2>
+<p><code>pronounce(word)</code> tries: <strong>dictionary → lexicon → rules → letter-to-sound</strong>.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> Why must the hand lexicon outrank the spelling rules? Find a word
+that would go wrong the other way around.</p>
+</blockquote>
+<p>The recorded example is "shoulda": it <em>pattern-matches</em> the -a-for-er rule
+(via "shoulder") but actually contracts "should have" — only the lexicon
+knows that. Curated truth outranks pattern-matching wherever both claim a
+word. Dictionary-first-with-fallbacks is also the field's consensus
+architecture (Epitran leans on a lexicon for English; neural G2P slots in
+behind the same interface) — Unit 1's founding lesson about English
+spelling, now load-bearing.</p>
+<h2>The design principle: dialect spellings are performance transcriptions</h2>
+<p>The obvious normalization — "chokin'" <em>is</em> "choking," so look it up, done —
+is subtly wrong. The apostrophe is the lyricist <strong>transcribing what they
+say</strong>: coda N rather than NG. And N-vs-NG is precisely the kind of coda
+difference the kernel scores. So every rule recovers the dictionary <em>stem</em>,
+then <strong>keeps the spelled surface phonology</strong>: look up "choking," rewrite
+the final NG to the N the lyricist wrote. Likewise "holla"/"gangsta" spell
+a performed non-rhotic final vowel — <code>AH0</code>, which rhymes with "follow" —
+where dictionary "holler" ends in <code>ER0</code>, which doesn't.</p>
+<p>This is Unit 11's move one layer down: the dictionary records citation
+facts, the performance overrides them, and the performed form is minted as
+data.</p>
+<h2>The rules are documented phonology, cited</h2>
+<p>Neither rule is an invented respelling; each encodes a feature the
+sociolinguistics literature has documented for decades, and each carries
+its citation in the code:</p>
+<ul>
+<li><strong>g-drop</strong> encodes the classic <strong>(ING) variable</strong> — coronal [n] for
+  velar [ŋ] in unstressed -ing — the founding variable of variationist
+  sociolinguistics (Fischer 1958) and part of AAE's documented phonology
+  (Green 2002). Pan-vernacular English, not AAE-exclusive; "-in'" is
+  simply its standard written transcription.</li>
+<li><strong>-a-for-er</strong> encodes <strong>AAE non-rhoticity</strong> — coda /r/ vocalizes — and
+  Thomas (2007) records that r-lessness "is most common in unstressed
+  syllables, as in <em>over, brother</em>": exactly this rule's final
+  unstressed-ER environment.</li>
+</ul>
+<p>The citations do double duty: they harden the rules, and they answer "why
+does your tool rewrite Black speech?" with receipts — it doesn't. Much of
+the NLP literature on AAE is a literature about systems <em>failing</em> AAE
+speakers by normalizing the performance away. This project's stated
+position (see the README's dialect paragraph) is the opposite: performed
+AAE phonology is ground truth here, and the performed form is the one that
+scores.</p>
+<h2>Confidence is priced, not modeled</h2>
+<p>A letter-to-sound guess is an unlikely claim of the same species as a
+coerced stress, and it travels the same road: <code>Guess.cost</code> (0 for
+dictionary, lexicon, and rules — the spelling or the lexicon <em>testifies</em> —
+and <code>DEFAULT_LTS_COST = 0.1</code> for letter-to-sound) folds into the reading's
+cost at candidate minting. A marginal rhyme built on a guess dies; a strong
+one ("Coogi"~"groovy" at 1.0) shrugs the price off. The kernel and
+<code>models.py</code> stay provenance-free — a guessed <code>Pronunciation</code> is just a
+<code>Pronunciation</code> — while <code>source</code> lets the scanner and renderer <em>say</em> how
+each pronunciation was obtained: guessed words get a dashed underline and a
+provenance tooltip line, distinct from OOV's dotted. And "OOV" now means
+something stronger than before: <em>even guessing failed</em> (no vowel to build
+on — "brrr").</p>
+<h2>The bill arrives, on schedule</h2>
+<p>Recall Unit 9: every convenience has a cost, and the cost lands downstream.
+G2P's recall gain arrived married to a precision loss, observed at this
+unit's own end-to-end check: the chain's pronunciations were <em>correct</em>, yet
+"-in'"~"-ing" bridge edges glued chokin'/jokin', Coogi/groovy, and
+flowing/going into one OW mega-class — every G2P word is a new <em>node</em>
+feeding Unit 10's percolation-prone grouping. Nothing to fix in <code>g2p.py</code>
+itself; ledger item 9 routes it to Unit 14 alongside its siblings. Say it
+as a slogan: <strong>new coverage inherits old debt.</strong></p>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Order the chain and give the one-word reason each
+link outranks the next. (2) Why does "chokin'" get N-for-NG <em>rather
+than</em> being normalized to "choking"? (3) Which features do the two
+dialect rules encode, and roughly who documented them? (4) Why does only
+letter-to-sound carry a cost?</p>
+</blockquote>
+<h2>Exercise</h2>
+<p>From the syllabus: replace skip-and-flag with a G2P guess for three of
+your Unit-1 OOV words; confirm a previously-skipped word now participates
+in a detected rhyme, flagged as guessed. Then feed the chain a word it
+<em>should</em> refuse ("brrr") and confirm it stays OOV.</p>
+<p><strong>Where this is heading:</strong> coverage is as wide as it's getting; Unit 14
+finally builds the ruler — and ledger item 11 already sketches this
+module's next job (minting non-rhotic readings for <em>standard</em> spellings,
+priced, as performed-phonology variants).</p></article>
 </main>
 <footer class="pager">
 <a class="prev" href="unit-12.html">← Unit 12: Visualizing the scheme</a><a class="next" href="unit-14.html">Unit 14: Evaluation: is it any good? →</a>

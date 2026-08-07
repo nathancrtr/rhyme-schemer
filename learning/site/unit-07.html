@@ -28,45 +28,96 @@
 <li><strong>Interactive:</strong> widget <code>interactive/widgets/rhyme-score-sandbox.html</code> — two words in, every receipt out (tails, alignment, per-column blend), exactly <code>rhyme_score()</code>'s numbers; lesson <code>unit-07-the-rhyme-kernel.md</code>.</li>
 </ul></details>
 <div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/rhyme-score-sandbox.html">🧪 Rhyme-Score Sandbox</a></div>
-<article class="lesson"><p><strong>Objective:</strong> The learner can explain and implement <code>rhyme_score</code> as a <em>graded</em> function — perfect rhyme as the special case at the top of a continuum, slant rhyme as everything tunable below it — and understands the weights as approximations of perceptual similarity.
-<strong>Prerequisites to check:</strong> Units 5 (rhyme tail) and 6 (perfect-rhyme scoring) done; <code>vowel_similarity</code>/<code>consonant_similarity</code> understood.
-<strong>Pairs with:</strong> <code>rhyme_schemer/rhyme.py</code>; widget <code>rhyme-score-sandbox.html</code>; the perceptual-similarity reading.</p>
-<h2>How to run this lesson</h2>
-<p>Dialogue, one question per turn. The learner has built perfect-rhyme scoring already; this lesson is about <em>loosening</em> it without breaking it. Resist handing them the weights — make them derive the shape.</p>
-<h2>1. Diagnostic opener</h2>
-<p>Ask: <strong>"Your Unit 6 scorer returns 1.0 for 'cat'/'hat' and something low for 'cat'/'dog'. What does it currently return for 'Lincoln'/'reason', and is that what you want?"</strong></p>
-<ul>
-<li>If they've noticed it scores too low (the codas match but the vowels <code>IH</code>/<code>IY</code> aren't identical): good, the problem is live. → step 2.</li>
-<li>If unsure: have them run it. The gap between the number and their ear is the lesson.</li>
-</ul>
-<h2>2. Build the intuition</h2>
-<p>The perfect-rhyme scorer treats vowels as equal-or-not. But Unit 2 gave us <em>graded</em> vowel similarity. The kernel's job is to let near-vowels contribute near-full credit.</p>
-<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"In the rhyming tail, which carries more rhyme weight — the nucleus (vowel) or the coda (consonants after it)? And should the onset count at all?"</strong></p>
+<article class="lesson"><p><strong>Objective:</strong> you can explain and implement <code>rhyme_score</code> as a <em>graded</em>
+function — perfect rhyme as the special case at the top of a continuum, slant
+rhyme as everything tunable below it — and you understand the weights as
+approximations of perceptual similarity. <strong>Prerequisites:</strong> Units 5 (rhyme
+tail) and 6 (perfect-rhyme scoring); <code>vowel_similarity</code> /
+<code>consonant_similarity</code> understood. <strong>Pairs with:</strong> <code>rhyme_schemer/rhyme.py</code>;
+the Rhyme-Score Sandbox widget; the perceptual-similarity reading.</p>
+<h2>The problem your Unit 6 scorer has</h2>
+<p>Your scorer returns 1.0 for cat/hat and something suitably low for cat/dog.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> What does it return for Lincoln/reason — and is that what you want?
+Run it before reading on.</p>
 </blockquote>
-<p>Wait for their reasoning. Steer toward the README's design: nuclei dominate, codas matter less, onsets are ignored. Ask <em>why</em> onsets are ignored (because "cat"/"hat" rhyme despite different onsets — that's the definition of rhyme).</p>
-<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"So if you're averaging similarities over the tail, how would you express 'codas count, but less'?"</strong></p>
+<p>If you've run it, you've seen the gap: the codas match but <code>IH</code> and <code>IY</code>
+aren't <em>identical</em>, so an equal-or-not treatment of vowels scores the pair
+far below where your ear puts it. That gap between the number and your ear
+is this unit. Unit 2 built graded vowel similarity precisely so that
+near-vowels can earn near-full credit — the kernel's job is to let them.</p>
+<h2>Deriving the shape</h2>
+<blockquote class="think"><p><span class="think-label">Think first</span> In the rhyming tail, which carries more rhyme weight — the nucleus
+(the vowel) or the coda (the consonants after it)? And should the onset
+count at all?</p>
 </blockquote>
-<p>Lead them to a weighted average: weight on nucleus similarity, smaller weight on coda similarity, onset excluded.</p>
-<h2>3. Formalize</h2>
+<p>Work from cases. Cat/hat rhyme <em>despite</em> different onsets — that's not an
+exception to rhyme, it's practically the definition: what comes before the
+stressed vowel is free. So the onset contributes nothing. Between nucleus
+and coda: say "read"/"seed" (nuclei differ, codas match) against
+"read"/"red" (nucleus matches... in one pronunciation — more on that in
+Unit 9). Hip-hop practice settles it emphatically: the north star is
+vowel-led rhyme, consonants as flexible texture. So: <strong>nuclei dominate,
+codas matter less, onsets are ignored.</strong></p>
+<blockquote class="think"><p><span class="think-label">Think first</span> If you're averaging similarities over the tail, how do you express
+"codas count, but less" in arithmetic?</p>
+</blockquote>
+<p>A weighted average per syllable position: a full weight on nucleus
+similarity, a smaller weight on coda similarity, onset absent — then
+normalize by the total weight so that an identical syllable scores exactly
+1.0 <em>whatever</em> the weights are. That normalization is what keeps "perfect
+rhyme = 1.0" true while you tune.</p>
+<h2>The formal pieces</h2>
 <ul>
-<li><code>rhyme_score</code> over the tail = a weighted combination of per-position <code>vowel_similarity</code> (nuclei) and <code>consonant_similarity</code> (codas), nuclei weighted above codas, onsets dropped.</li>
-<li>A <strong>threshold</strong> turns the continuous score into a yes/no when needed; <strong>1.0</strong> recovers perfect rhyme exactly.</li>
-<li>The weights are not arbitrary: they approximate <strong>perceptual similarity</strong> — the empirical finding (Steriade's P-map; Hirjee &amp; Brown) that the imperfect rhymes people actually accept track how confusable the sounds are.</li>
+<li><code>rhyme_score</code> over the tail = per-position weighted blends of
+  <code>vowel_similarity</code> (nuclei) and <code>consonant_similarity</code> (codas), averaged.
+  In the repo: <code>DEFAULT_NUCLEUS_WEIGHT = 1.0</code>, <code>DEFAULT_CODA_WEIGHT = 0.35</code>.</li>
+<li>A <strong>threshold</strong> turns the continuous score into a yes/no when a decision
+  is needed (<code>is_rhyme</code>, default 0.75); threshold 1.0 recovers perfect
+  rhyme exactly. Weights shape the <em>ranking</em>; the threshold only decides
+  where to cut. Keep those two knobs separate in your head — most
+  "looseness" questions are threshold questions.</li>
+<li>The weights are not arbitrary: they approximate <strong>perceptual similarity</strong>
+  — the empirical finding (Steriade's P-map; Hirjee &amp; Brown; the Katz and
+  Kawahara line of work) that the imperfect rhymes people actually accept
+  track how confusable the sounds are. Your weighted feature combination is
+  ordinary scoring-model machinery; only the features are articulatory.</li>
 </ul>
-<p>Connect back: "This is the same move as a weighted feature combination in any scoring model you've built — the novelty is only that the features are articulatory."</p>
-<h2>4. Common confusions</h2>
+<p>Now open the <strong>Rhyme-Score Sandbox</strong> and type pairs at it: it shows the
+tails, every per-column nucleus/coda receipt, and the final score — the
+exact numbers your <code>rhyme_score</code> produces. Try cat/hat, Lincoln/reason,
+Lincoln/listen, read/seed. The receipts are the fastest way to see <em>which
+term</em> is responsible for any score that surprises you.</p>
+<h2>Common confusions</h2>
 <ul>
-<li><strong>Overfitting to one pair.</strong> If they tune weights until "Lincoln/reason" is perfect, ask what that did to "cat/cot." Insist on a <em>battery</em> of pairs and on testing <em>orderings</em>, not magnitudes.</li>
-<li><strong>Threshold vs. weights.</strong> Tease these apart: weights shape the ranking; the threshold only decides where to cut. Slant-rhyme looseness is mostly the threshold.</li>
-<li><strong>Codas overpowering.</strong> If a matched coda rescues a bad vowel pair, the coda weight is too high — rhyme is vowel-led.</li>
+<li><strong>Overfitting to one pair.</strong> If you tune weights until Lincoln/reason is
+  perfect, check what happened to cat/cot. One pair is one datapoint;
+  calibrate on a <em>battery</em>, and encode <strong>orderings</strong> (perfect &gt; slant &gt;
+  none) as tests rather than exact magnitudes — the house test style
+  exists for exactly this reason.</li>
+<li><strong>Fixing threshold problems with weights</strong> (or vice versa). If the
+  ranking is right but the yes/no is wrong, it's the threshold. If the
+  ranking itself is wrong, no threshold can save it — that's weights, or
+  the feature space underneath them (see the audit trail from Unit 2).</li>
+<li><strong>Codas overpowering.</strong> If a matched coda rescues a bad vowel pair, the
+  coda weight is too high — rhyme is vowel-led. (The repo's history has a
+  recorded instance: read/seed scoring above threshold traces to generous
+  vowel similarity <em>plus</em> the matched D, and it's logged as a known
+  precision risk, not tuned away — the tuning freeze says knobs move only
+  under Unit 14's evaluation.)</li>
 </ul>
-<h2>5. Exit check</h2>
-<p>Ask: <strong>"Predict the ordering of these by your score, then run them: 'time'/'rhyme', 'time'/'tone', 'Lincoln'/'reason', 'Lincoln'/'orange'. If the ranking is wrong, is it a weight problem or a threshold problem?"</strong></p>
-<ul>
-<li>Correct ranking + correct diagnosis → send them to encode that ordering as tests and to the sandbox widget to feel the weight knobs.</li>
-<li>Wrong → return to step 2 and separate the two knobs again on their actual numbers.</li>
-</ul>
-<p><strong>Where this is heading:</strong> the kernel assumes the two tails are the <em>same length</em>. Unit 8 breaks that assumption — multisyllabic rhyme needs alignment.</p></article>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> predict the <em>ordering</em> your score gives these, then run
+them — time/rhyme, time/tone, Lincoln/reason, Lincoln/orange. If your
+ranking disagrees with the code's, diagnose before fixing: weight
+problem, threshold problem, or feature-space problem?</p>
+</blockquote>
+<h2>Exercise</h2>
+<p>From the syllabus: make Lincoln/reason score as a slant rhyme above your
+chosen threshold while Lincoln/orange stays below — and encode the ordering
+(perfect &gt; slant &gt; none) as tests, not magnitudes.</p>
+<p><strong>Where this is heading:</strong> the kernel silently assumes the two tails have
+the same number of syllables. Unit 8 breaks that assumption — multisyllabic
+rhyme needs alignment.</p></article>
 </main>
 <footer class="pager">
 <a class="prev" href="unit-06.html">← Unit 6: Perfect rhyme first</a><a class="next" href="unit-08.html">Unit 8: Unequal lengths: sequence alignment →</a>

@@ -30,41 +30,89 @@
 <li><strong>Interactive:</strong> widget <code>vowel-explorer.html</code>; lesson <code>unit-02-feature-distance.md</code>.</li>
 </ul></details>
 <div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/vowel-explorer.html">🧪 Vowel-Space Explorer</a></div>
-<article class="lesson"><p><strong>Objective:</strong> The learner sees <code>vowel_distance</code> not as ad-hoc arithmetic but as "distance in a feature space," and recognizes it as the same idea behind word embeddings — scaled down to 15 vowels.
-<strong>Prerequisites:</strong> Unit 1; comfort reading <code>features.py</code>.
-<strong>Pairs with:</strong> widget <code>vowel-explorer.html</code>; <code>features.py</code> (vowel half).</p>
-<h2>How to run this lesson</h2>
-<p>Dialogue, one question per turn. Use the widget live — have the learner click pairs as you go.</p>
-<h2>1. Diagnostic opener</h2>
-<p>Ask: <strong>"<code>vowel_distance('IH','IY')</code> is small and <code>vowel_distance('IH','UW')</code> is large. Before looking at the code — what real difference between those vowels is the number measuring?"</strong></p>
-<ul>
-<li>Toward "IH and IY are both front/high, UW is back" → step 2.</li>
-<li>Unsure → have them open the widget and click the three vowels; the geometry answers it.</li>
-</ul>
-<h2>2. Build the intuition</h2>
-<p>Each vowel is a point on the height × backness plane; distance on that plane <em>is</em> dissimilarity.</p>
-<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"<code>AY</code> ('bite') is stored as a glide from one point to another, not a single point. Why would a single (height, backness) point fail to capture it?"</strong></p>
+<article class="lesson"><p><strong>Objective:</strong> you see <code>vowel_distance</code> not as ad-hoc arithmetic but as
+"distance in a feature space," and recognize it as the same idea behind word
+embeddings — scaled down to 15 vowels. <strong>Prerequisites:</strong> Unit 1. <strong>Pairs
+with:</strong> the Vowel-Space Explorer widget; <code>features.py</code> (vowel half).</p>
+<p>Have the widget open in another tab as you read — every claim below is
+clickable there, and the numbers it shows are the exact values
+<code>vowel_distance()</code> computes.</p>
+<h2>The question a number has to answer</h2>
+<p><code>vowel_distance('IH','IY')</code> is small; <code>vowel_distance('IH','UW')</code> is large.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> Before looking at any code: what real, physical difference between
+those vowels is the number measuring?</p>
 </blockquote>
-<p>Wait. Land it: a diphthong's quality <em>moves</em> during the vowel; modeling it as start→end is the smallest honest representation. Have them click <code>AY</code> and <code>OY</code> in the widget and notice the shared offglide pulls them together.</p>
-<h2>3. Formalize</h2>
+<p>Say the three vowels — "bit," "beat," "boot" — and pay attention to your
+tongue. For the first two it sits high and forward; for "boot" it pulls high
+and <em>back</em> (and your lips round). The number is measuring articulation:
+where in the mouth the vowel lives. <code>features.py</code> places every vowel on a
+plane — tongue <strong>height</strong> on one axis, <strong>backness</strong> on the other — and
+similarity is simply distance on that plane. IH and IY are neighbors; UW is
+across the map.</p>
+<h2>Diphthongs: a vowel that moves</h2>
+<blockquote class="think"><p><span class="think-label">Think first</span> <code>AY</code> ("bite") is stored as a <em>glide</em> from one point to another,
+not as a single point. Why would one (height, backness) point fail?</p>
+</blockquote>
+<p>Because the vowel's quality <em>changes while you say it</em>: "bite" starts low
+and central and ends high and front. A single point would have to average
+away the very motion that makes it AY. Modeling a diphthong as start → end
+is the smallest honest representation. Click <code>AY</code> and <code>OY</code> in the widget:
+their <em>start</em> points are far apart, but the shared offglide (both end near
+ɪ) pulls the pair's distance in. Hold that observation — it returns below
+with consequences.</p>
+<h2>The formal pieces</h2>
 <ul>
-<li><code>vowel_distance</code> = mean plane-distance of the start points and the end points, plus small nudges for rounding and rhoticity, normalized to [0,1].</li>
-<li>Identity ⇒ 0; symmetry holds; range is bounded — exactly the structural tests in <code>test_features.py</code>.</li>
+<li><code>vowel_distance</code> = the mean of the plane-distances between the two
+  start points and the two end points, plus small weighted nudges for
+  <strong>roundedness</strong> and <strong>rhoticity</strong>, normalized into [0, 1].</li>
+<li>Identity ⇒ 0; symmetry holds; the range is bounded. Those three facts are
+  exactly the <em>structural</em> tests in <code>test_features.py</code> — the house style is
+  to pin properties and orderings, not magic numbers.</li>
+<li>You have just met a <strong>4-dimensional embedding built by hand</strong>. word2vec
+  makes the same move — "similar = close in a vector space" — with 300
+  dimensions learned from data instead of 4 placed by ear. When you meet
+  embeddings elsewhere, you'll have already implemented the core idea at a
+  size you can see all of.</li>
 </ul>
-<p>Connect back: <strong>"You've just built a 4-dimensional embedding by hand. word2vec does the same thing — 'similar = close in a learned vector space' — only with 300 dimensions learned from data instead of 4 placed by ear. When you meet embeddings on your ML track, you'll have already implemented the core idea."</strong></p>
-<h2>4. Common confusions</h2>
+<h2>Common confusions</h2>
 <ul>
-<li><strong>Tense/lax as a separate feature.</strong> It isn't here — <code>IH</code> sits lower/more central than <code>IY</code>, so the contrast falls out of <em>position</em>. Show them the coordinates.</li>
-<li><strong>Why a square, not the IPA trapezoid.</strong> The code uses Euclidean distance on raw coordinates, so the honest picture is a square; the trapezoid is a presentation choice. The widget notes this.</li>
-<li><strong>Articulatory adjacency ≠ perceptual confusability.</strong> The quadrilateral is a tongue-position diagram, not a psychoacoustic space (that would be Bark-scaled formant space), and corpus data exists on which vowel pairs rappers <em>actually</em> treat as rhymable (Katz 2015, Kawahara 2007 — see the resources shelf). The hand-placed space is the pedagogical stand-in; the tuning ledger's "EY/IH too generous" complaints are its predictable symptom, and Unit 14 makes refitting it from data a first-class experiment.</li>
+<li><strong>"Where's the tense/lax feature?"</strong> There isn't one — deliberately. <code>IH</code>
+  is <em>placed</em> lower and more central than <code>IY</code> (the standard lax
+  centralization), so the tense/lax contrast falls out of position without
+  a separate dimension. Look at the coordinates in <code>features.py</code>.</li>
+<li><strong>Why the widget draws a square, not the IPA trapezoid.</strong> The code runs
+  Euclidean distance on raw coordinates, so the honest picture of the space
+  the code measures in is a square. The trapezoid is the traditional
+  presentation of the same axes. The gap between them is worth noticing:
+  every diagram encodes a choice.</li>
+<li><strong>Articulatory adjacency is not perceptual confusability — or rhyme
+  practice.</strong> The quadrilateral is a tongue-position diagram, not a
+  psychoacoustic space (that would be Bark-scaled formant space), and not a
+  record of what rappers actually rhyme. This project <em>checked</em>: the
+  hand-placed space was rank-compared against Hirjee &amp; Brown's rhyme-derived
+  log-odds matrix (<code>learning/audits/</code>), and the audit found two systematic
+  biases — the diphthong offglides you just clicked park EY and AY on top of
+  the front vowels (EY~IH is our closest pair of all 105; the corpus says
+  rappers treat it as unrhymable), and rhoticity is overpriced (non-rhotic
+  performance rhymes ER against AH-like vowels far more freely than our
+  binary flag allows). Tuning-ledger item 11 holds the full findings; Unit
+  14 makes "refit this space from data" a first-class experiment. The space
+  you're learning is a good pedagogical instrument <em>and</em> a measured
+  approximation — both true at once.</li>
 </ul>
-<h2>5. Exit check</h2>
-<p>Ask: <strong>"Pick two vowels you'd expect to be middling-close, predict the similarity to one decimal, then check in the widget. If you're off, is it the height axis or the backness axis fooling you?"</strong></p>
-<ul>
-<li>Good calibration → on to the exercise (justify/adjust a coordinate, keep ordering tests green).</li>
-<li>Off → re-run with a clearer pair and re-examine which axis dominates.</li>
-</ul>
-<p><strong>Where this is heading:</strong> this graded vowel similarity is the raw material the rhyme kernel (Unit 7) will weight and combine.</p></article>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> pick two vowels you expect to be middling-close, predict
+the similarity to one decimal, then check in the widget. If you're off,
+which axis fooled you — height or backness? (And for a diphthong pair:
+was it the start or the end doing the work?)</p>
+</blockquote>
+<h2>Exercise</h2>
+<p>From the syllabus: adjust or justify two coordinate choices in <code>features.py</code>
+without breaking the ordering tests — predict which tests <em>would</em> shift
+before you touch anything, then verify.</p>
+<p><strong>Where this is heading:</strong> this graded vowel similarity is the raw material
+the rhyme kernel (Unit 7) weights and combines — and the audit above is your
+first taste of Unit 14, where the whole space goes on trial.</p></article>
 </main>
 <footer class="pager">
 <a class="prev" href="unit-01.html">← Unit 1: Phonemes, ARPAbet & the lexicon</a><a class="next" href="unit-03.html">Unit 3: Consonants: place, manner, voicing, sonority →</a>

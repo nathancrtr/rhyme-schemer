@@ -26,7 +26,97 @@
 <li><strong>Exercise:</strong> Render a full verse to a standalone HTML file; handle the overlapping-membership case.</li>
 <li><strong>Milestone:</strong> A shareable HTML visualization of a verse's rhyme scheme — the README's original goal, realized.</li>
 </ul></details>
-<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+<article class="lesson"><p><strong>Objective:</strong> you can turn a <code>VerseScan</code> into the colored verse view the
+README promised on day one — and you can defend every rendering decision as
+a <em>policy</em>, separated from the pixels that execute it. <strong>Prerequisites:</strong>
+Unit 11. <strong>Pairs with:</strong> <code>rhyme_schemer/render.py</code>; <code>tests/test_render.py</code>.</p>
+<h2>What color means: render the judgments, not the phonetics</h2>
+<p>The field offers three schools for coloring rhyme. Color-by-vowel (Martin
+Brath's lyric visualizations): every EY is one hue, every IY another — the
+<em>input phonetics</em> made visible. Multi-channel formatting (Hirjee &amp; Brown's
+Rhyme Analyzer): five stacked typographic channels for different rhyme
+types. And color-by-<strong>rhyme-class</strong> (the Pudding/Vox school): words that
+the analysis groups together share a color, whatever their vowels are.</p>
+<p>This project renders <strong>classes</strong>. The reasoning: the scanner already spent
+eleven units <em>judging</em> — gating, pricing, selecting, grouping. Coloring by
+vowel would throw those judgments away and show raw phonetics; stacking
+five channels shows everything and communicates little to a non-specialist.
+The renderer's job is to display the scanner's <em>conclusions</em> — and, less
+comfortably, that means its mistakes too. That discomfort is a feature;
+hold the thought.</p>
+<h2>Policy as data: <code>RenderPlan</code></h2>
+<p><code>render.py</code> splits in two. <code>plan_verse</code> resolves a verse plus its
+<code>VerseScan</code> into a <strong><code>RenderPlan</code></strong> — a data structure in which every
+policy decision is already made: which class each word span belongs to,
+what fills it, what marks it. Then <code>render_html</code> and <code>render_terminal</code> are
+deliberately <strong>dumb emitters</strong> that walk the plan and paint.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> Why insist the emitters be dumb? What goes wrong when rendering
+policy lives inside the HTML generator?</p>
+</blockquote>
+<p>Two renderers is the forcing function: any judgment made inside
+<code>render_html</code> has to be re-made — identically, forever — inside
+<code>render_terminal</code>, and inside every future emitter. Hoisting every decision
+into the plan means one place decides and N places paint. It also makes
+policy <em>testable as data</em>: <code>test_render.py</code> asserts against plans, not
+against HTML strings.</p>
+<h2>The hard cases are the normal cases</h2>
+<p>Real verses are not tidy:</p>
+<ul>
+<li><strong>Words in multiple classes.</strong> Common — up to five classes on one word in
+  real data, with extents that both nest <em>and</em> cross. Policy: the word's
+  fill goes to its <strong>best-scoring</strong> class; the others appear as small tick
+  bars; the tooltip carries the full receipts (each class, each partner,
+  each score). Show the winner, keep the evidence.</li>
+<li><strong>Compounds.</strong> Unit 11's selector splits glued chains into one-beat
+  matches by design ("palms are SWEATY ~ arms are HEAVY" is two matches in
+  two classes); <code>chain_matches</code> reassembles adjacent same-line runs so the
+  ear-sized unit renders as one — under a <em>neutral</em> spanning rule, since a
+  compound's beats belong to different classes.</li>
+<li><strong>OOV words</strong> get a dotted underline; <strong>G2P-guessed</strong> words (Unit 13) a
+  dashed one plus a provenance line in the tooltip — the reader can always
+  tell attested from inferred from absent.</li>
+</ul>
+<h2>Palette discipline</h2>
+<p>Eight fixed-order categorical slots, chosen as text-safe tints and
+validated for color-vision deficiency in both light and dark modes.
+Largest classes claim slots first; classes beyond eight fold into a neutral
+wash rather than cycling hues — <strong>never cycle</strong>: the eleventh hue is
+indistinguishable from the third, and a false color match is a false claim
+about the analysis.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> A verse has ten rhyme classes. Defend "two of them go gray" over
+"reuse colors" to a designer who finds gray boring.</p>
+</blockquote>
+<h2>What rendering taught the project — the recorded moment</h2>
+<p>Unit 12 was where the precision debt stopped being abstract. The ledger had
+suspected generous edges for two units; <em>rendering the fixture verses made
+it visible</em> — mega junk classes in the Poe stanza, function-word glue,
+passenger beats riding real compounds ("kind of a mess," in the learner's
+recorded verdict). The response is the project's whole epistemics in
+miniature: no knob was turned. Every observation went into the tuning
+ledger, and <strong>all</strong> tuning was deferred to Unit 14's evaluation sweep,
+because fixing what you can suddenly <em>see</em> — before you can <em>measure</em> — is
+how a system gets tuned to one demo verse. The renderer's job was to make
+the debt visible; the harness's job is to price it.</p>
+<h2>A test-fixture rule with teeth</h2>
+<p>Never embed multi-line commercial lyrics in fixtures — copyright, plus
+content-filter breakage in tooling. The repo's fixtures are an original
+engineered verse and public-domain poetry (Poe, Gilbert &amp; Sullivan);
+single iconic mild lines are acceptable. This rule shaped Unit 14 too:
+evaluation corpora are referenced by song ID + offsets, never by committed
+lyric text.</p>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Why does a word's fill color follow its
+<em>best-scoring</em> class rather than its first or largest? (2) What would be
+lost — concretely — if classes beyond eight cycled hues? (3) Why does
+the plan/emitter split make the multi-class policy testable?</p>
+</blockquote>
+<h2>Exercise</h2>
+<p>From the syllabus: render a full verse to a standalone HTML file, and make
+sure a word with overlapping class memberships displays fill, ticks, and
+tooltip receipts correctly in both HTML and terminal output.</p>
+<p><strong>Where this is heading:</strong> the renderer shows the scanner's judgments,
+mistakes included. Unit 13 widens coverage (OOV words join the scan);
+Unit 14 finally measures what you've been looking at.</p></article>
 </main>
 <footer class="pager">
 <a class="prev" href="unit-11.html">← Unit 11: Internal & multisyllabic rhyme: scanning a verse</a><a class="next" href="unit-13.html">Unit 13: Out-of-vocabulary words & grapheme-to-phoneme →</a>

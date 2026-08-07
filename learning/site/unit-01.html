@@ -27,43 +27,87 @@
 <li><strong>Milestone:</strong> New passing tests for the phonetics primitives, and a short note listing five OOV words (your future Unit-13 test set).</li>
 <li><strong>Interactive:</strong> <code>interactive/lessons/unit-01-phonemes-not-spelling.md</code>.</li>
 </ul></details>
-<article class="lesson"><p><strong>Objective:</strong> The learner internalizes that rhyme is a relation between <em>sounds</em>, that English spelling hides those sounds, and that a pronunciation lexicon (CMUdict, in ARPAbet) is therefore the foundation everything else stands on.
-<strong>Prerequisites to check:</strong> none beyond the Phase 0 orientation.
-<strong>Pairs with:</strong> <code>phonetics.py</code>; the <code>pronunciation_for</code> lookup in <code>syllabify.py</code>.</p>
-<h2>How to run this lesson</h2>
-<p>Dialogue, one question per turn, then stop and wait. The learner has a linguistics background — don't lecture them on what a phoneme is; use that knowledge, and aim the lesson at the <em>computational</em> consequences.</p>
-<h2>1. Diagnostic opener</h2>
-<p>Ask: <strong>"Do 'Lincoln' and 'reason' rhyme? Say both out loud before you answer."</strong></p>
-<ul>
-<li>If they say yes (correct): "Right — and notice you had to <em>say</em> them. On the page they share almost no letters. Hold onto that." → go to step 2.</li>
-<li>If they hesitate on the spelling: that hesitation <em>is</em> the point — the eye says no, the ear says yes. → go to step 2.</li>
-</ul>
-<h2>2. Build the intuition</h2>
-<p>Point out the mismatch: <code>lincoln</code> and <code>reason</code> share no obvious spelled ending, yet <code>L IH1 NG K AH0 N</code> and <code>R IY1 Z AH0 N</code> share the <code>AH0 N</code> tail and a closely-related stressed vowel.</p>
-<blockquote class="think"><p><span class="think-label">Think first</span> <strong>"If you had to write a function <code>do_these_rhyme(word1, word2)</code> using only the <em>letters</em>, where would it break first?"</strong></p>
+<article class="lesson"><p><strong>Objective:</strong> you internalize that rhyme is a relation between <em>sounds</em>, that
+English spelling hides those sounds, and that a pronunciation lexicon —
+CMUdict, in ARPAbet — is therefore the foundation everything else stands on.
+<strong>Prerequisites:</strong> the Phase 0 orientation. <strong>Pairs with:</strong> <code>phonetics.py</code>;
+the <code>pronunciation_for</code> lookup in <code>syllabify.py</code>.</p>
+<h2>Start with your ear</h2>
+<blockquote class="think"><p><span class="think-label">Think first</span> Do "Lincoln" and "reason" rhyme? Say both out loud — actually out
+loud — before you answer.</p>
 </blockquote>
-<p>Wait. Let them enumerate failures (silent letters, "ough", homophones like "their/there", "Lincoln/reason"). Then land it: spelling is a lossy, irregular encoding of sound, so any rhyme engine must first <em>recover the sound</em>. That recovery is what CMUdict gives us.</p>
-<h2>3. Formalize</h2>
-<p>Now make it precise:</p>
+<p>If you said yes, notice what you had to do to get there: you had to <em>say</em>
+them. On the page they share almost no letters. If you hesitated, that
+hesitation is itself the finding — the eye says no, the ear says yes. Either
+way, you've just run the experiment this whole unit generalizes.</p>
+<p>Here's the mismatch made explicit. The spellings look unrelated, but the
+pronunciations —</p>
+<pre><code>lincoln  →  L IH1 NG K AH0 N
+reason   →  R IY1 Z AH0 N
+</code></pre>
+<p>— share the entire <code>AH0 N</code> tail and closely related stressed vowels. The
+rhyme was in the sounds all along; the spelling was hiding it.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> Suppose you had to write <code>do_these_rhyme(word1, word2)</code> using only
+the <em>letters</em>. Where does it break first? List three failure cases before
+reading on.</p>
+</blockquote>
+<p>The list writes itself once you start: silent letters ("comb"/"tomb"/"bomb"
+— three spellings of "-omb", three different sounds); the "ough" fiasco
+("through"/"though"/"tough"/"cough" — one spelling, four rhyme classes);
+homophones spelled apart ("their"/"there"); rhymes spelled apart
+("Lincoln"/"reason"). And the classic: "love"/"move"/"prove" — same four
+final letters, three different vowels, no two of them perfect rhymes.
+English spelling is a lossy, irregular encoding of sound. Any rhyme engine
+must therefore first <em>recover the sound</em>, and that recovery is what a
+pronunciation lexicon provides.</p>
+<h2>The formal pieces</h2>
 <ul>
-<li>A <strong>phoneme</strong> is a contrastive sound unit; <strong>graphemes</strong> (letters) map to phonemes many-to-many and irregularly in English.</li>
-<li><strong>ARPAbet</strong> is an ASCII phoneme alphabet; <strong>CMUdict</strong> maps ~134k words to ARPAbet pronunciations, with <strong>stress digits</strong> on vowels (0/1/2).</li>
-<li><code>pronouncing.phones_for_word("lincoln")</code> → <code>['L IH1 NG K AH0 N']</code>. That string is the real input to rhyme-schemer; the spelling was only ever a key for lookup.</li>
+<li>A <strong>phoneme</strong> is a contrastive sound unit — the difference between "bat"
+  and "pat" is one phoneme. <strong>Graphemes</strong> (letters) map to phonemes
+  many-to-many, and in English, irregularly.</li>
+<li><strong>ARPAbet</strong> is an ASCII alphabet for English phonemes — friendlier to code
+  than IPA, and what CMUdict uses. Vowels carry a trailing <strong>stress digit</strong>:
+  <code>1</code> primary, <code>2</code> secondary, <code>0</code> unstressed. So <code>IH1</code> is a stressed KIT
+  vowel. (<code>phonetics.py</code>'s <code>strip_stress</code> and <code>is_vowel</code> exist so no other
+  code ever parses those digits by hand.)</li>
+<li><strong>CMUdict</strong> maps ~134k words to ARPAbet pronunciations.
+  <code>pronouncing.phones_for_word("lincoln")</code> → <code>['L IH1 NG K AH0 N']</code>. That
+  string is the real input to rhyme-schemer; the spelling was only ever a
+  lookup key.</li>
 </ul>
-<p>Connect back: "You already know this as a linguist. The engineering consequence is that the lexicon is a hard dependency, and its gaps — words it doesn't contain — become a whole problem of their own."</p>
-<h2>4. Common confusions</h2>
+<p>Two engineering consequences follow, and both become whole units later. The
+lexicon is a <strong>hard dependency with gaps</strong>: try
+<code>phones_for_word("coogi")</code> and watch it return <code>[]</code> — the out-of-vocabulary
+problem, Unit 13's territory. And the lexicon returns a <strong>list</strong>: "read" has
+two pronunciations, "either" has two, and which one a rapper <em>performs</em> is
+not the dictionary's call — variants become Unit 9's territory.</p>
+<h2>Common confusions</h2>
 <ul>
-<li>If they conflate <strong>syllables</strong> with <strong>phonemes</strong>: clarify that <code>IH1</code> is one phoneme; a syllable is a <em>group</em> (onset+nucleus+coda) we reconstruct in Unit 4.</li>
-<li>If they assume CMUdict is complete: it isn't — preview OOV. Ask them to try a slang word or a name and watch it return empty.</li>
-<li>If they ask why not just use a rhyming dictionary: because we want <em>graded slant</em> rhyme, which no lookup table encodes — that's the whole project.</li>
+<li><strong>Phonemes are not syllables.</strong> <code>IH1</code> is one phoneme; a syllable is a
+  <em>structure</em> (onset + nucleus + coda) that we will have to reconstruct,
+  because CMUdict doesn't mark syllable boundaries at all — that's Unit 4.</li>
+<li><strong>CMUdict is not complete, and not neutral.</strong> It's North American citation
+  pronunciation, informally maintained. The README names it as a threat to
+  validity; keep that in your peripheral vision from day one.</li>
+<li><strong>"Why not just use a rhyming dictionary?"</strong> Because lookup tables encode
+  <em>perfect</em> rhyme, and the entire point of this project is <strong>graded slant
+  rhyme</strong> — Lincoln/reason must count, and no table says how much.</li>
 </ul>
-<h2>5. Exit check</h2>
-<p>Ask: <strong>"Give me a pair of words that look like they should rhyme but don't, and a pair that don't look like they rhyme but do — and say how CMUdict would reveal each."</strong></p>
-<ul>
-<li>A good answer (e.g. "lessen/strengthen look close but don't; Lincoln/reason look far but do") → send them to the exercise: collect five OOV words and write the <code>strip_stress</code>/<code>is_vowel</code> property tests.</li>
-<li>A shaky answer → return to step 2 with a fresh pair (try "love/move/prove" — same spelling, three different vowels).</li>
-</ul>
-<p><strong>Where this is heading:</strong> today's "recover the sound" sets up Unit 2, where we ask <em>how similar</em> two recovered sounds are — the graded question that makes slant rhyme possible.</p></article>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> produce a pair of words that <em>look</em> like they should rhyme
+but don't, and a pair that don't look like they rhyme but do — then say
+how CMUdict reveals each. ("Lessen"/"strengthen" vs "Lincoln"/"reason" is
+the canonical answer; find your own pair too.)</p>
+</blockquote>
+<h2>Exercise</h2>
+<p>From the syllabus: in a REPL, collect five words CMUdict gets interestingly
+wrong or lacks entirely (slang, names — "Coogi" starts the list). Save them:
+they become your Unit 13 test set. Then write the property tests for the
+phonetics primitives — <code>strip_stress("IH1") == ("IH", PRIMARY)</code> and friends,
+and that every ARPAbet vowel round-trips.</p>
+<p><strong>Where this is heading:</strong> "recover the sound" sets up Unit 2's question —
+<em>how similar</em> are two recovered sounds? That graded question is what makes
+slant rhyme computable.</p></article>
 </main>
 <footer class="pager">
 <a class="next" href="unit-02.html">Unit 2: The IPA vowel space & articulatory features →</a>

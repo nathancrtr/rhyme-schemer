@@ -27,7 +27,72 @@
 <li><strong>Milestone:</strong> <code>rhyme_tail</code> passes its suite, including the "lessen/strengthen don't rhyme" case.</li>
 </ul></details>
 <div class="hands-on"><h2>Hands-on</h2><a class="chip exercise" href="../interactive/exercises/unit-05-rhyme-tail/task.md">⌨️ Exercise: unit-05-rhyme-tail</a></div>
-<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+<article class="lesson"><p><strong>Objective:</strong> you can implement <code>rhyme_tail</code> — the slice of a pronunciation
+that actually carries rhyme — and defend its anchor: the <em>last
+primary-stressed</em> syllable, not the last syllable. <strong>Prerequisites:</strong> Units
+1–4 (this is the first <em>build</em> unit: the phonetic foundation is now yours to
+stand on). <strong>Pairs with:</strong> <code>rhyme_schemer/rhyme.py</code> (<code>rhyme_tail</code>);
+<code>interactive/exercises/unit-05-rhyme-tail/</code>.</p>
+<h2>Where rhyme lives</h2>
+<p>"Lessen" and "strengthen" share a final syllable — both end in the same
+unstressed <code>-en</code> — and do not rhyme at all. "Reason" and "season" rhyme
+across <em>two</em> syllables. The difference is stress:</p>
+<pre><code>lessen      L EH1 . S AH0 N        strengthen  S T R EH1 NG . TH AH0 N
+reason      R IY1 . Z AH0 N        season      S IY1 . Z AH0 N
+</code></pre>
+<p>Rhyme is anchored at the <strong>last stressed syllable</strong> and runs from there to
+the end of the word. For reason/season that's <code>IY1 …</code> onward — two matching
+syllables. For lessen/strengthen the anchored material is <code>EH1 . S AH0 N</code> vs
+<code>EH1 NG . TH AH0 N</code> — the shared <code>-en</code> was never the rhyme-bearing part,
+just trailing coincidence after two very different stressed syllables.</p>
+<p>That anchored slice is the <strong>rhyme tail</strong>, and every scoring step for the
+rest of the course operates on tails, never on whole words. Its sequence of
+nuclei is the <strong>vowel skeleton</strong> — the spine that Unit 8's alignment will
+walk.</p>
+<h2>The spec, with its edge cases</h2>
+<p><code>rhyme_tail(pron) -&gt; tuple[Syllable, ...]</code>:</p>
+<ul>
+<li>The syllables from the <strong>last PRIMARY-stressed</strong> syllable to the end.</li>
+<li>No primary anywhere? Fall back to the last SECONDARY-stressed syllable.</li>
+<li>No stress at all? The final syllable alone.</li>
+<li>Empty pronunciation → empty tail.</li>
+</ul>
+<blockquote class="think"><p><span class="think-label">Think first</span> Why "last" primary rather than "first"? Invent a case where they
+differ before reading on.</p>
+</blockquote>
+<p>Single words rarely carry two primaries — but Unit 9 makes multi-word
+<em>spans</em> into ordinary <code>Pronunciation</code>s, and a span like "GEM-in-I" carries
+a primary per word. The rhyme anchors on the final beat ("…-I!"), so the
+<em>last</em> primary wins. Writing <code>rhyme_tail</code> to scan for the last one costs
+nothing today and makes spans work for free later — a small example of
+designing the invariant before the feature that needs it.</p>
+<p>And the fallbacks aren't decoration: CMUdict contains stress-less
+pronunciations (reduced function words), and a scorer that crashes on "a"
+is not a scorer. The final-syllable fallback says: with no stress evidence,
+the most rhyme-like thing left is the word's end.</p>
+<h2>One honest caveat, recorded now</h2>
+<p>The tail trusts <em>dictionary</em> stress. Hip-hop performance routinely
+overrides it — a rapper lands the beat on "em-CEE" where the dictionary
+says "EM-cee," and suddenly the performed tail differs from the citation
+tail. That gap is not this unit's problem, but it is real, it is recorded
+(the performed-vs-lexical-stress thread), and Unit 11 eventually solves it
+properly: performed stress becomes an enumerated, <em>priced</em> reading rather
+than a dictionary fact. For now: citation stress, deliberately.</p>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) <code>rhyme_tail</code> of "around" (<code>AH0 . R AW1 N D</code>) — how
+many syllables and why? (2) Why must lessen/strengthen come out as
+non-rhyming from any correct tail implementation? (3) What does the tail
+of a stress-less pronunciation contain?</p>
+</blockquote>
+<h2>Exercise</h2>
+<p><code>interactive/exercises/unit-05-rhyme-tail/</code> ships the stub and failing
+tests — the tests assert structure (the tail is a suffix; its nuclei are a
+suffix of the vowel skeleton) plus the examples above, including the
+hand-built fallback cases. Green bar = the rhyme engine has its first
+working part, written by you.</p>
+<p><strong>Where this is heading:</strong> Unit 6 scores two tails of equal length; Unit 7
+grades the scoring; Unit 8 aligns unequal tails. Everything runs on the
+slice you just built.</p></article>
 </main>
 <footer class="pager">
 <a class="prev" href="unit-04.html">← Unit 4: Syllables & phonotactics: the Maximal Onset Principle</a><a class="next" href="unit-06.html">Unit 6: Perfect rhyme first →</a>

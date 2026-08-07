@@ -26,7 +26,92 @@
 <li><strong>Exercise:</strong> Score a multisyllabic <em>multi-word</em> rhyme (e.g. "get up"/"setup"). Add a variant case where the rhyme only works under the second pronunciation.</li>
 <li><strong>Milestone:</strong> Spans and variants flow through <code>rhyme_score</code> unchanged downstream.</li>
 </ul></details>
-<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+<div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/rhyme-score-sandbox.html">🧪 Rhyme-Score Sandbox</a></div>
+<article class="lesson"><p><strong>Objective:</strong> you can make the kernel score phrases against words and take
+the best score over dictionary variants — and you can articulate what each
+convenience <em>costs</em>, because both bills arrive in later units.
+<strong>Prerequisites:</strong> Unit 8. <strong>Pairs with:</strong> <code>syllabify.py</code> (the <code>*_for_span</code>
+and plural <code>pronunciations_*</code> lookups); <code>rhyme.py</code> (<code>best_rhyme_score</code>,
+<code>best_is_rhyme</code>).</p>
+<h2>Spans: the invariant pays out</h2>
+<p>Rappers rhyme <em>phrases</em>: "get up" against "setup," "palms are" against
+"arms are." The kernel scores <code>Pronunciation</code>s — so the design question is
+whether a phrase needs a new type.</p>
+<p>It doesn't, and that's the payoff of the model's core invariant: <strong>a word
+and a multi-word span are both just <code>Pronunciation</code>s.</strong> "Get up" is the two
+words' syllables laid end to end (<code>Pronunciation.concat</code>); nothing
+downstream can even tell which it started as. <code>pronunciation_for_span</code>
+builds it; the unchanged kernel scores it. Remember Unit 5's decision to
+anchor the tail on the <em>last</em> primary stress? Spans carry several primaries
+— that decision was quietly waiting for this unit.</p>
+<h2>Variants: the rapper picks the reading</h2>
+<p>CMUdict returns a <em>list</em>: "read" is <code>R IY1 D</code> or <code>R EH1 D</code>, "either" opens
+with <code>IY</code> or <code>AY</code>. Which one is performed is not the dictionary's call —
+it's the rapper's, and a rapper picks <strong>whichever reading rhymes</strong>.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> Given variant lists for both words, how should a scorer decide
+which pronunciations to compare?</p>
+</blockquote>
+<p>Score all pairings and take the <strong>max</strong> — that is the entire content of
+<code>best_rhyme_score</code> / <code>best_is_rhyme</code>. Span variants are the cartesian
+product of the words' variants ("read"×2 · "it"×1 = 2 readings of "read
+it"), and the max runs over all of it. Note the layering: the kernel still
+only ever sees one <code>Pronunciation</code> against one; best-over-variants is a
+thin wrapper <em>around</em> the kernel, not a change <em>inside</em> it.</p>
+<h2>What the max really models — a recorded idiolect story</h2>
+<p>This project learned what variants are for the honest way. Early on, the
+kernel ranked lincoln/listen (0.870) <em>above</em> lincoln/reason (0.829), which
+struck the learner as backwards. The first instinct was to reach for the
+weights — push nucleus similarity harder. Measured, that made it <em>worse</em>:
+rewarding exact vowel matches widens listen's lead, because in CMUdict's
+General American, "lincoln" and "listen" share <code>IH</code> exactly while "reason"
+has <code>IY</code>.</p>
+<p>The actual finding: the learner <em>pronounces</em> Lincoln's first vowel as <code>IY</code>
+("bean," not "bin"). In their idiolect, lincoln/reason is a perfect
+stressed-vowel match — their ear was right, and it disagreed with the
+dictionary, not with the math. The fix therefore lives in the
+<strong>pronunciation input</strong> (a dialect variant supplying the <code>IY</code> reading),
+never in the weights. That principle — <em>variants, not metric generosity</em> —
+has since won the same argument two more times in this project (smoothed
+readings, ledger item 10; non-rhotic readings, ledger item 11). When a
+score offends your ear, ask "is this a distance problem or a <em>reading</em>
+problem?" before touching any knob.</p>
+<h2>The bill: optimism by construction</h2>
+<blockquote class="think"><p><span class="think-label">Think first</span> Best-over-variants means "two words rhyme if <em>some</em> pairing of
+their readings rhymes." What does that do to precision as variant lists
+grow?</p>
+</blockquote>
+<p>It inflates recall and erodes precision, mechanically: more variants, more
+chances to clear the threshold spuriously — and it compounds with any
+generosity in the feature space underneath. This is the right model for
+"did the rapper <em>find</em> a rhyme here?" and the wrong model for "do these
+words <em>naturally</em> rhyme?" — the project wants the first question, accepts
+the cost, and has the cost on the books (it feeds the false-positive
+pressure that Unit 10's grouping then amplifies; Unit 14 measures the
+damage).</p>
+<h2>A cliffhanger you can reproduce</h2>
+<p>Open the Rhyme-Score Sandbox and score <strong>get up ~ setup</strong>. You'll get 0.5 —
+embarrassingly low for the flagship span example. Read the tails to see
+why: citation stress puts a primary on "up," the tail anchors on the <em>last</em>
+primary, and the span's tail shrinks to one syllable while "setup" keeps
+two. The span machinery is fine; the <em>stress</em> is wrong — performed "GET-up"
+demotes the particle. Making performed stress a first-class, priced reading
+is exactly Unit 11's scanner, and this pair is its motivating example.</p>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Why does <code>pronunciation_for_span(["get","up"])</code>
+return one object rather than two? (2) How many readings does a
+three-word span have if its words carry 2, 1, and 3 variants? (3) State
+the lincoln/reason principle in one sentence. (4) Why is
+best-over-variants "optimistic by construction," and when is that the
+right model?</p>
+</blockquote>
+<h2>Exercise</h2>
+<p>From the syllabus: score a multisyllabic multi-word rhyme; then construct a
+pair where the rhyme only works under a <em>second</em> CMUdict variant and assert
+that <code>best_rhyme_score</code> finds it while first-variant-only scoring misses
+it.</p>
+<p><strong>Where this is heading:</strong> Unit 10 turns pairwise verdicts into groups;
+Unit 11 turns "the rapper picks the reading" from pronunciation variants
+into <em>performed-stress</em> variants — same move, one level deeper.</p></article>
 </main>
 <footer class="pager">
 <a class="prev" href="unit-08.html">← Unit 8: Unequal lengths: sequence alignment</a><a class="next" href="unit-10.html">Unit 10: Grouping rhymes: similarity graphs & components →</a>

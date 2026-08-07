@@ -15,8 +15,8 @@ come in kinds (measured on the fixture corpus and CMUdict itself):
    "blaow", coinages like "bling") -- only **letter-to-sound** rules can
    say anything, and what they say is a guess.
 
-The chain tries each in order: dictionary, normalization rules, lexicon,
-letter-to-sound. This dictionary-first-with-fallback shape is the same
+The chain tries each in order: dictionary, lexicon, normalization rules,
+letter-to-sound (see ``pronounce`` for why the lexicon outranks the rules). This dictionary-first-with-fallback shape is the same
 architecture the field converged on -- ``g2p_en`` is a CMUdict lookup with a
 seq2seq model behind it, and Epitran, rule-based for most languages, leans
 on a lexicon for English precisely because English spelling is too irregular

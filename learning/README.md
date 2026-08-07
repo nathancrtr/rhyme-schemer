@@ -22,12 +22,7 @@ learning/
 │   └── audit_feature_space.py   rank-compare them against features.py
 └── interactive/
     ├── lessons/               Socratic lesson guides (run with Claude)
-    │   ├── unit-01-phonemes-not-spelling.md
-    │   ├── unit-02-feature-distance.md
-    │   ├── unit-04-syllables-and-phonotactics.md
-    │   ├── unit-07-the-rhyme-kernel.md
-    │   ├── unit-08-alignment.md
-    │   ├── unit-10-non-transitivity.md
+    │   ├── unit-01 … unit-13 lesson guides  (all units except 14–15, one file each)
     │   ├── unit-11-scanner-walkthrough.md   + the open tuning ledger
     │   └── sequence-alignment-family.md     diff/DNA/rhyme, one algorithm
     ├── widgets/               open these in a browser

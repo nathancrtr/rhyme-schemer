@@ -26,7 +26,107 @@
 <li><strong>Exercise:</strong> Add an assertion that voicing pairs (e.g. <code>S</code>/<code>Z</code>, <code>P</code>/<code>B</code>) are closer than same-manner different-place pairs, and explain the weight that makes it true.</li>
 <li><strong>Milestone:</strong> A passing consonant test you wrote, plus a one-paragraph rationale for the sonority ordering.</li>
 </ul></details>
-<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+<article class="lesson"><p><strong>Objective:</strong> you can read the consonant half of <code>features.py</code> as a
+deliberate parallel to the vowel space — a 2-D plane plus a binary nudge —
+and explain why its axes are place and sonority-ordered manner.
+<strong>Prerequisites:</strong> Unit 2. <strong>Pairs with:</strong> <code>features.py</code> (consonant half).</p>
+<h2>The same move, different anatomy</h2>
+<p>Unit 2 put vowels on a plane (height × backness) and made similarity a
+distance. Consonants get the parallel treatment, but their anatomy offers
+different axes:</p>
+<ul>
+<li><strong>Place of articulation</strong> — <em>where</em> the airflow is constricted, front to
+  back: bilabial (p, b, m) → labiodental (f, v) → dental (th) → alveolar
+  (t, d, s, n, l) → postalveolar (sh, ch, r) → palatal (y) → velar
+  (k, g, ng) → glottal (h). Run "p, t, k" and feel the constriction walk
+  backwards through your mouth.</li>
+<li><strong>Manner of articulation</strong> — <em>how</em> the constriction shapes the air: a
+  full stop and release (stops), a stop released into friction
+  (affricates), turbulent narrowing (fricatives), airflow through the nose
+  (nasals), vowel-like partial closures (liquids), and nearly-vowels
+  (glides).</li>
+<li><strong>Voicing</strong> — whether the vocal folds vibrate. Put a finger on your
+  throat and alternate "sss"/"zzz": same place, same manner, voicing is
+  the entire difference.</li>
+</ul>
+<p><code>features.py</code> maps place and manner to the plane's two axes and treats
+voicing the way roundedness was treated for vowels: a small weighted nudge
+(<code>_W_VOICE = 0.2</code>), because voicing is a real but <em>minor</em> perceptual cue
+for rhyme.</p>
+<h2>Why manner is ordered by sonority</h2>
+<p>The manner axis isn't in arbitrary order — it runs stop → affricate →
+fricative → nasal → liquid → glide, which is the <strong>sonority hierarchy</strong>
+from least to most vowel-like.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> Why is that the right <em>ordering</em> for a similarity axis? What pair
+of manners should be nearest neighbors, and does the sonority order
+agree?</p>
+</blockquote>
+<p>Two payoffs. First, similarity: sonority-adjacent manners genuinely
+confuse — a liquid and a glide are both "almost a vowel," a stop and an
+affricate share the closure. Distance along a sonority-ordered axis tracks
+that. Second, foreshadowing: Unit 4 builds syllables on the principle that
+sonority <em>rises</em> to the nucleus and <em>falls</em> after it — the same hierarchy
+does double duty as a similarity scale here and a well-formedness principle
+there. One concept, two load-bearing jobs.</p>
+<h2>Predict, then check</h2>
+<blockquote class="think"><p><span class="think-label">Think first</span> Using the axes, predict which pair is closer in each case, then
+verify with <code>consonant_similarity</code> in a REPL: (a) M~N vs M~SH;
+(b) S~Z vs T~K; (c) S~Z vs S~SH.</p>
+</blockquote>
+<p>The real numbers: M~N is 0.752 (a pure place move, same manner) while M~SH
+is 0.502 (place <em>and</em> manner <em>and</em> voicing all differ). S~Z is 0.876 (only
+the 0.2 voicing nudge) while T~K is 0.721 (a long place move,
+alveolar → velar). And the third case is the instructive one: S~SH comes
+out at 0.907 — <em>closer than the voicing pair</em> — because one step along the
+place axis (alveolar → postalveolar, 0.15) costs less than the voicing
+nudge (0.2). Small place steps are cheap; voicing is mid-priced; big place
+moves and manner jumps are dear. Whether that pricing is <em>right</em> is an
+empirical question — which is the next section.</p>
+<h2>The audit: what corpus evidence says about this space</h2>
+<p>The course ran the check (Unit 2 told this story for vowels;
+<code>learning/audits/</code> holds the machinery). Rank-compared against Hirjee &amp;
+Brown's rhyme-derived consonant matrix, this space agrees moderately
+(Spearman ρ ≈ +0.41) with three instructive disagreements, recorded as
+tuning-ledger item 12:</p>
+<ul>
+<li><strong>Coda stop-place is overpriced.</strong> Rap practice freely rhymes K against
+  P and B against G in codas (both corpus-positive; Hirjee &amp; Brown note
+  those very pairs "validate Holtman's hierarchy") — but our long place
+  moves rank them among the most distant pairs. The ear evidently forgives
+  coda place more than a tongue-position map suggests.</li>
+<li><strong>The nasal discount is unrepresentable.</strong> Katz (2015) found place
+  mismatches among <em>nasals</em> (m~n) perceptually far cheaper than among oral
+  stops (t~k) — but our parallel geometry prices both as the same place
+  move, <em>by construction</em>. A hand-built space can't express an asymmetry
+  its axes don't encode. (Honest complication: pooled corpus counts don't
+  show the asymmetry either — a live tension between the two best
+  sources.)</li>
+<li><strong>Kawahara's ordering: we pass.</strong> His often-rhyming Japanese pairs
+  (m~n, t~s, r~n) all outrank his rarely-rhyming ones (m~ʃ, n~p) in our
+  space. The space isn't wrong — it's an approximation with mapped edges.</li>
+</ul>
+<h2>Why consonants matter less here (and where the weight lives)</h2>
+<p>Consonants matter to rhyme mostly in the <strong>coda</strong> — and less than vowels
+overall. Notice what the code does with that fact: <code>features.py</code> does <em>not</em>
+bake a discount into <code>consonant_distance</code>. The relative weighting lives one
+layer up, in the rhyme scorer (Unit 7's <code>DEFAULT_CODA_WEIGHT</code>). Each layer
+knows only its own business: the feature space answers "how similar are
+these two sounds?", the kernel answers "how much does that matter for
+rhyme?" — the stratification discipline the whole repo runs on.</p>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Why is HH (glottal) the loneliest consonant on the
+plane? (2) Which does our space treat as more similar, CH~JH or CH~SH —
+and what feature drives each comparison? (3) State the nasal-discount
+problem from memory, and why the current geometry cannot express it.</p>
+</blockquote>
+<h2>Exercise</h2>
+<p>From the syllabus: add an ordering assertion of your own — the classic is
+that voicing pairs (S~Z, P~B) beat big place moves (T~K) — and write one
+sentence explaining the weight that makes it true. House style: orderings,
+not magnitudes.</p>
+<p><strong>Where this is heading:</strong> Unit 4 assembles phonemes into syllables using
+the sonority hierarchy you just met; the coda similarities priced here
+become the kernel's texture term in Units 6–7.</p></article>
 </main>
 <footer class="pager">
 <a class="prev" href="unit-02.html">← Unit 2: The IPA vowel space & articulatory features</a><a class="next" href="unit-04.html">Unit 4: Syllables & phonotactics: the Maximal Onset Principle →</a>

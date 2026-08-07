@@ -26,7 +26,68 @@
 <li><strong>Exercise:</strong> Failing tests for perfect rhymes (<code>cat</code>/<code>hat</code>, <code>time</code>/<code>rhyme</code>) and clear non-rhymes; make them pass. Assert the score is symmetric and in <code>[0, 1]</code> (the repo's house style).</li>
 <li><strong>Milestone:</strong> Perfect rhyme detected at threshold <code>1.0</code>; non-rhymes well below.</li>
 </ul></details>
-<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+<article class="lesson"><p><strong>Objective:</strong> you can score equal-length rhyme tails with a weighted
+nucleus/coda blend calibrated so identical tails score exactly 1.0 — and you
+know why building the easy case first is a strategy, not a stall.
+<strong>Prerequisites:</strong> Unit 5. <strong>Pairs with:</strong> <code>rhyme_schemer/rhyme.py</code>
+(<code>rhyme_score</code>'s equal-length core, <code>_coda_similarity</code>,
+<code>_syllable_similarity</code>).</p>
+<h2>Model the easy case before the hard one</h2>
+<p>The full problem — graded, multisyllabic, unequal-length slant rhyme — has
+too many moving parts to debug at once. So this unit deliberately shrinks
+it: <strong>equal-length tails only</strong>, scored position by position. Every later
+generalization (graded weighting in Unit 7, alignment in Unit 8) must
+<em>reduce to</em> today's behavior on today's inputs — Unit 8's tests literally
+assert that parity. Build the floor, then build on it.</p>
+<h2>The shape of the score</h2>
+<p>Two tails of the same length pair up syllable by syllable. Per pair:</p>
+<ul>
+<li><strong>Nucleus similarity</strong> — <code>vowel_similarity</code> on the two vowels.</li>
+<li><strong>Coda similarity</strong> — compare the consonant tuples. The repo's
+  <code>_coda_similarity</code> is deliberately crude: position-by-position over the
+  <em>longer</em> coda, a consonant with no counterpart contributes 0, two empty
+  codas agree perfectly. (Real consonant alignment would be Unit 8
+  machinery; crude is <em>enough</em> while tails are equal length, and the
+  crudeness correctly prices a missing or extra coda consonant.)</li>
+<li><strong>Onset — not consulted.</strong> Cat/hat is the definition of rhyme, not an
+  edge case.</li>
+</ul>
+<p>Blend nucleus and coda with weights (nucleus dominant), then average the
+per-position blends across the tail.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> Whatever weights you pick, identical tails must score exactly
+1.0 — perfect rhyme is the top of the scale. What single arithmetic
+choice guarantees that for <em>any</em> weights?</p>
+</blockquote>
+<p>Divide by the total weight: <code>(w_n·nucleus + w_c·coda) / (w_n + w_c)</code>. Both
+similarities are 1.0 for identical material, so the blend is 1.0 no matter
+how the weights are set. That normalization is load-bearing — it means
+Unit 7 can tune weights freely without ever breaking the top of the scale.</p>
+<h2>House test style, from day one</h2>
+<p>Encode the properties, not the magnitudes: the score is <strong>symmetric</strong>;
+it lives in <strong>[0, 1]</strong>; identical tails hit exactly 1.0; perfect rhymes
+(cat/hat, time/rhyme) beat clear non-rhymes by a wide margin. Ordering
+assertions survive re-tuning; magic-number assertions die at the first
+calibration pass. The repo's <code>tests/</code> model this style throughout.</p>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Why does cat/hat score exactly 1.0 despite different
+onsets? (2) What does <code>_coda_similarity</code> return for "day"~"wake" tails
+(<code>EY</code> vs <code>EY K</code> — one coda empty)? Why is that a <em>feature</em> here — and
+can you guess which tuning-ledger item it eventually becomes? (3) Which
+property test would catch an accidental <code>nucleus/coda</code> swap?</p>
+</blockquote>
+<p>(That day/wake question is a genuine thread: the missing-coda zero puts
+day~wake at 0.741, one hair under the eventual threshold — ledger item 4.
+You just built the mechanism; Unit 14 decides whether it's calibrated
+right.)</p>
+<h2>Exercise</h2>
+<p>From the syllabus: failing tests for perfect rhymes and clear non-rhymes;
+make them pass; assert symmetry and range. Then try to <em>break</em> your scorer
+with a weird-but-legal input (empty coda, monosyllable, identical words)
+before the tests do.</p>
+<p><strong>Where this is heading:</strong> Unit 7 exposes the weights and threshold and
+loosens this scorer into a slant-rhyme detector; Unit 8 removes the
+equal-length assumption. The 1.0 you calibrated today stays the top of the
+scale forever.</p></article>
 </main>
 <footer class="pager">
 <a class="prev" href="unit-05.html">← Unit 5: The vowel skeleton & the rhyme-bearing tail</a><a class="next" href="unit-07.html">Unit 7: Graded slant rhyme & weighting →</a>
