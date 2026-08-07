@@ -56,6 +56,7 @@ UNITS = [
          widgets=[("Vowel-Space Explorer", "interactive/widgets/vowel-explorer.html")]),
     dict(num=3, phase=1, title="Consonants: place, manner, voicing, sonority"),
     dict(num=4, phase=1, title="Syllables & phonotactics: the Maximal Onset Principle",
+         lesson="unit-04-syllables-and-phonotactics.md",
          widgets=[("Syllabifier", "interactive/widgets/syllabifier.html")],
          quiz=("Phase 1 checkpoint", "interactive/quizzes/phase-1-checkpoint.html")),
     dict(num=5, phase=2, title="The vowel skeleton & the rhyme-bearing tail",
@@ -90,6 +91,7 @@ UNITS = [
 # .md links appearing in prose, rewritten to their site pages.
 LINK_MAP = {
     "unit-01-phonemes-not-spelling.md": "unit-01.html",
+    "unit-04-syllables-and-phonotactics.md": "unit-04.html",
     "unit-02-feature-distance.md": "unit-02.html",
     "unit-07-the-rhyme-kernel.md": "unit-07.html",
     "unit-08-alignment.md": "unit-08.html",

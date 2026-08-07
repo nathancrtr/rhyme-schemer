@@ -28,7 +28,141 @@
 <li><strong>Interactive:</strong> widget <code>syllabifier.html</code>; quiz <code>interactive/quizzes/phase-1-checkpoint.html</code>.</li>
 </ul></details>
 <div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/syllabifier.html">🧪 Syllabifier</a> <a class="chip quiz" href="../interactive/quizzes/phase-1-checkpoint.html">✅ Phase 1 checkpoint</a></div>
-<div class="pending">The full guide for this unit is still being written; the syllabus entry above is the map in the meantime. Guides land unit by unit as the course build-out continues.</div>
+<article class="lesson"><p><strong>Objective:</strong> you can explain how a flat phoneme string becomes structured
+syllables — onset, nucleus, coda — and why the boundary the code draws is a
+<em>decision</em>, not a discovery. <strong>Prerequisites:</strong> Units 1–3. <strong>Pairs with:</strong>
+<code>rhyme_schemer/syllabify.py</code>, <code>rhyme_schemer/models.py</code>, the onset tables in
+<code>rhyme_schemer/phonetics.py</code>; the Syllabifier widget.</p>
+<h2>The problem: CMUdict hands us a string, rhyme needs a structure</h2>
+<p>Look up "lincoln" and the dictionary gives you a flat sequence:</p>
+<pre><code>lincoln  →  L IH1 NG K AH0 N
+</code></pre>
+<p>No boundaries. But everything this project does downstream — the rhyme tail,
+nucleus-versus-coda weighting, "onsets are ignored" — talks about <em>parts of
+syllables</em>. Before any of that vocabulary means anything, six phonemes have
+to become two structured syllables:</p>
+<pre><code>L IH1 NG . K AH0 N
+</code></pre>
+<p>Who decided the NG belongs to the <em>first</em> syllable and the K to the
+<em>second</em>? That decision is this unit.</p>
+<h2>Syllable anatomy: a sonority mountain</h2>
+<p>A syllable has three slots. The <strong>nucleus</strong> is its vowel — the peak. The
+<strong>onset</strong> is the consonants that climb up to it; the <strong>coda</strong> is the
+consonants that fall away after it. Nucleus + coda together form the
+<strong>rime</strong> — the part that sounds alike in words that rhyme, which is why the
+data model (<code>models.py</code>) gives <code>Syllable</code> a <code>.rime</code> property while no code
+anywhere asks for "onset + nucleus."</p>
+<p>"Climb" and "fall" are not metaphors here. Phonemes differ in <strong>sonority</strong> —
+roughly, how loud and vowel-like they are: stops are the least sonorous,
+then affricates, fricatives, nasals, liquids, glides, and vowels at the top.
+A well-formed syllable rises in sonority to its nucleus and falls after it —
+a mountain with the vowel at the summit. Say "plant" slowly: p (stop) →
+l (liquid) → a (vowel) → n (nasal) → t (stop). Up, peak, down.</p>
+<p>You have already met this hierarchy in the code: <code>features.py</code> orders its
+consonant MANNER axis by sonority. That ordering does double duty — it makes
+sonority-adjacent consonants <em>near</em> in the similarity space (Unit 3), and it
+is the organizing principle behind which onsets English permits at all.</p>
+<h2>Phonotactics: not every consonant string is a legal onset</h2>
+<p><strong>Phonotactics</strong> is a language's rulebook for sound sequences. English
+happily begins a syllable with "pl" (rising sonority: stop → liquid) but
+never with "lp" (falling). The Sonority Sequencing Principle predicts most
+of the rulebook for free.</p>
+<p>Most — not all. English keeps a famous family of exceptions: /s/ + stop
+clusters. "St", "sp", "sk", "str", "spl" all <em>fall</em> or plateau in sonority
+on the way in (fricative → stop), and are all perfectly legal. Every
+phonology textbook flags this; the /s/-clusters simply have to be listed.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> Before reading on: which of these should be legal English onsets?
+<strong>"str"</strong> (as in <em>street</em>), <strong>"ngk"</strong>, <strong>"pn"</strong> (as in... anything?),
+<strong>"sw"</strong> (as in <em>sweaty</em>). Commit to answers.</p>
+</blockquote>
+<p>"Str" — legal, an /s/-exception. "Sw" — legal, rising (fricative → glide).
+"Ngk" — illegal; NG can't even <em>start</em> an English syllable alone. "Pn" —
+illegal in English (though fine in Greek, whence "pneumatic"; the p falls
+silent in borrowing precisely because English phonotactics won't seat it).
+Phonotactics is language-specific knowledge, which is why
+<code>phonetics.is_legal_onset</code> is a hand-curated table and not a formula — the
+table encodes SSP <em>plus</em> the exceptions, and it is deliberately
+non-exhaustive: it grows when real lyrics expose a missing cluster (that's
+this unit's exercise).</p>
+<h2>The Maximal Onset Principle: the tiebreaker</h2>
+<p>Now back to "lincoln." Between the two vowels sits the cluster <code>NG K</code>.
+Logically it could split three ways: both consonants left (<code>L IH NG K . AH N</code>),
+both right (<code>L IH . NG K AH N</code>), or one each. Every option puts one nucleus
+in each syllable; phonotactics alone doesn't force a unique answer. The
+field's standard tiebreaker is the <strong>Maximal Onset Principle</strong>: give the
+<em>following</em> syllable the longest onset that is still legal.</p>
+<p>Try it: is <code>NG K</code> a legal onset? No. Is <code>K</code>? Yes. So K goes right, NG stays
+left as coda: <code>L IH1 NG . K AH0 N</code>. That's the whole algorithm, and
+<code>syllabify._split_consonants</code> is exactly this loop — try the longest suffix
+of the cluster as an onset, shrink until <code>is_legal_onset</code> says yes, the
+remainder is coda.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> Syllabify <strong>"hypnotize"</strong> (<code>HH IH1 P N AH0 T AY2 Z</code>) by hand
+before checking below. Two clusters to split: <code>P N</code> and <code>T</code>.</p>
+</blockquote>
+<p><code>P N</code>: is "pn" a legal onset? No (see above). Is "n"? Yes. So: <code>HH IH1 P .
+N AH0 . T AY2 Z</code> — the p stays back as coda, exactly mirroring why English
+speakers can't say "pneumatic" the Greek way. Single consonants like the <code>T</code>
+always go right (a one-consonant onset is always at least as legal as a
+one-consonant coda is mandatory — and MOP says prefer the onset).</p>
+<p>Word edges are the degenerate case: word-initial consonants have no left
+neighbor to compete with, so they are all onset ("sweaty" opens with the
+legal cluster <code>SW</code>); word-final consonants are all coda.</p>
+<p>Open the <strong>Syllabifier widget</strong> and watch the split happen on these words —
+it runs the same table and the same loop.</p>
+<h2>The fine print: MOP is a decision procedure, not a discovered truth</h2>
+<p>Here the course's running honesty policy kicks in. MOP gives a clean,
+deterministic answer everywhere. English itself is not so tidy — and the gap
+matters to this project in a documented, load-bearing way.</p>
+<p>Consider the /t/ in "sweaty" (<code>SW EH1 . T IY0</code> by MOP). Since Kahn (1976),
+phonologists have observed that a consonant in this position — between a
+stressed lax vowel and an unstressed one — behaves as if it belongs to
+<strong>both</strong> syllables at once ("ambisyllabic"). Two facts pull in opposite
+directions:</p>
+<ul>
+<li>That /t/ <strong>flaps</strong> in American English (it comes out as the quick tap in
+  "water"), which a true syllable-initial /t/ never does — compare the
+  crisply aspirated /t/ in "attack." So it isn't purely an onset.</li>
+<li>But <code>SW EH1</code> can't stand alone either: a stressed lax vowel cannot end an
+  English syllable. There is no possible English word "sweh." So the /t/
+  isn't purely the next syllable's property.</li>
+</ul>
+<p>English is genuinely torn; MOP resolves the tie by fiat, wholly in the
+onset's favor. The choice is <em>lossy</em>, and the loss surfaces three units
+later as a measured problem: the rhyme kernel ignores onsets, so a medial
+consonant that MOP hands rightward <strong>vanishes from rhyme scoring
+entirely</strong>. sweaty~heavy scores a perfect 1.0 — indistinguishable from true
+perfect rhyme — even though the learner's ear, when probed, ranked
+sweaty~Betty (matching medial t~t) audibly above sweaty~heavy (t~v). The
+kernel ties them. That gap between the ear and the score is recorded as
+open <strong>tuning-ledger item 7</strong> (Unit 11's walkthrough), with two candidate
+fixes waiting on Unit 14's evaluation harness: copy ambisyllabic consonants
+into the preceding coda so the ordinary coda term prices them, or teach the
+kernel to peek at non-initial onsets.</p>
+<p>The unit-sized lesson inside that story: when a clean algorithm meets a
+messy phenomenon, the algorithm's simplification is a <em>claim</em>, and the
+honest move is to write the claim down where the evidence can eventually
+judge it — a docstring that says "decision procedure," a ledger item with
+probe pairs, an eval that will settle it. Compare <code>syllabify.py</code>'s module
+docstring, which says exactly this in the code's own voice.</p>
+<h2>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Why does one nucleus per syllable make counting
+syllables trivial? (2) Syllabify "hypnotize" from memory. (3) Why is
+"st" on the legal-onset list even though its sonority falls? (4) What is
+ambisyllabicity, and which ledger item does it explain?</p>
+</blockquote>
+<h2>Exercise</h2>
+<p>From the syllabus: find a word the syllabifier currently gets wrong or
+can't handle because its onset cluster is missing from
+<code>phonetics.is_legal_onset</code>'s tables, add the cluster, and pin the fix with
+a new case in <code>tests/test_syllabify.py</code>. The tests assert against the
+human-readable <code>str(Syllable)</code> form — follow the existing examples.</p>
+<h2>Where this is heading</h2>
+<p>The syllable structure you can now build is the <em>input type</em> of everything
+that follows: Unit 5 slices a <code>Pronunciation</code> down to its rhyme-bearing
+tail (a run of syllables), Unit 6 scores tails nucleus-against-nucleus and
+coda-against-coda, and the "onsets are ignored" design — which this unit
+just showed is entangled with a real open problem — becomes the kernel's
+signature move.</p></article>
 </main>
 <footer class="pager">
 <a class="prev" href="unit-03.html">← Unit 3: Consonants: place, manner, voicing, sonority</a><a class="next" href="unit-05.html">Unit 5: The vowel skeleton & the rhyme-bearing tail →</a>

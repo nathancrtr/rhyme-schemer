@@ -24,6 +24,7 @@ learning/
     ├── lessons/               Socratic lesson guides (run with Claude)
     │   ├── unit-01-phonemes-not-spelling.md
     │   ├── unit-02-feature-distance.md
+    │   ├── unit-04-syllables-and-phonotactics.md
     │   ├── unit-07-the-rhyme-kernel.md
     │   ├── unit-08-alignment.md
     │   ├── unit-10-non-transitivity.md
