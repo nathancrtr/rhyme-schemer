@@ -5,43 +5,58 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 1 — Phonemes, ARPAbet & the lexicon</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-0)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 1</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html" aria-current="page"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 1 · The phonetic foundation</p>
-<h1>Unit 1 — Phonemes, ARPAbet & the lexicon</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<div class="masthead">
+<p class="crumb"><b>Unit 1</b><span class="sep">/</span>Phase 1 &middot; The phonetic foundation</p>
+<h1>Phonemes, ARPAbet &amp; the lexicon</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
 <li><strong>Build:</strong> Read <code>phonetics.py</code> (<code>Stress</code>, <code>VOWELS</code>, <code>strip_stress</code>, <code>is_vowel</code>) and the <code>pronouncing</code>/CMUdict layer in <code>syllabify.py</code> (<code>pronunciation_for</code>). Add property-based tests for <code>strip_stress</code>/<code>is_vowel</code>.</li>
-<li><strong>Read:</strong> SLP3 <strong>Phonetics</strong> chapter (phonemes, IPA, ARPAbet); Parrish's CMUdict notes; ARPABET (Wikipedia).</li>
+<li><strong>Read:</strong> SLP3 <strong>Phonetics</strong> chapter (phonemes, IPA, ARPAbet); Parrish&rsquo;s CMUdict notes; ARPABET (Wikipedia).</li>
 <li><strong>Concepts:</strong> phoneme vs grapheme; transcription systems (IPA vs ARPAbet); the pronunciation lexicon; lexical stress (0/1/2); the out-of-vocabulary (OOV) problem; why CMUdict returns <em>variants</em>.</li>
-<li><strong>Exercise:</strong> In a REPL, collect five words CMUdict gets interestingly wrong or lacks (slang, names — <em>"Coogi"</em>). Write tests asserting <code>strip_stress("IH1") == ("IH", PRIMARY)</code> and friends, and that every ARPAbet vowel round-trips.</li>
+<li><strong>Exercise:</strong> In a REPL, collect five words CMUdict gets interestingly wrong or lacks (slang, names — <em>&ldquo;Coogi&rdquo;</em>). Write tests asserting <code>strip_stress("IH1") == ("IH", PRIMARY)</code> and friends, and that every ARPAbet vowel round-trips.</li>
 <li><strong>Milestone:</strong> New passing tests for the phonetics primitives, and a short note listing five OOV words (your future Unit-13 test set).</li>
 <li><strong>Interactive:</strong> <code>interactive/lessons/unit-01-phonemes-not-spelling.md</code>.</li>
 </ul></details>
-<div class="hands-on"><h2>Hands-on</h2><a class="chip companion" href="phonetics-primer.html">📖 How speech works: a phonetics refresher</a></div>
+<div class="hands-on"><h2>Hands-on</h2><div class="chips"><a class="chip" href="phonetics-primer.html" style="--accent:var(--hue-7)"><span>How speech works: a phonetics refresher</span><span class="kind">companion</span></a></div></div>
 <article class="lesson"><p><strong>Objective:</strong> you internalize that rhyme is a relation between <em>sounds</em>, that
 English spelling hides those sounds, and that a pronunciation lexicon —
 CMUdict, in ARPAbet — is therefore the foundation everything else stands on.
 <strong>Prerequisites:</strong> the Phase 0 orientation. <strong>Pairs with:</strong> <code>phonetics.py</code>;
 the <code>pronunciation_for</code> lookup in <code>syllabify.py</code>.</p>
-<h2>Start with your ear</h2>
-<blockquote class="think"><p><span class="think-label">Think first</span> Do "Lincoln" and "reason" rhyme? Say both out loud — actually out
+<h2 id="start-with-your-ear"><a class="anchor" href="#start-with-your-ear" aria-hidden="true" tabindex="-1">#</a>Start with your ear</h2>
+<blockquote class="think"><p><span class="think-label">Think first</span> Do &ldquo;Lincoln&rdquo; and &ldquo;reason&rdquo; rhyme? Say both out loud — actually out
 loud — before you answer.</p>
 </blockquote>
 <p>If you said yes, notice what you had to do to get there: you had to <em>say</em>
 them. On the page they share almost no letters. If you hesitated, that
 hesitation is itself the finding — the eye says no, the ear says yes. Either
-way, you've just run the experiment this whole unit generalizes.</p>
-<p>Here's the mismatch made explicit. The spellings look unrelated, but the
+way, you&rsquo;ve just run the experiment this whole unit generalizes.</p>
+<p>Here&rsquo;s the mismatch made explicit. The spellings look unrelated, but the
 pronunciations —</p>
 <pre><code>lincoln  →  L IH1 NG K AH0 N
 reason   →  R IY1 Z AH0 N
@@ -52,24 +67,24 @@ rhyme was in the sounds all along; the spelling was hiding it.</p>
 the <em>letters</em>. Where does it break first? List three failure cases before
 reading on.</p>
 </blockquote>
-<p>The list writes itself once you start: silent letters ("comb"/"tomb"/"bomb"
-— three spellings of "-omb", three different sounds); the "ough" fiasco
-("through"/"though"/"tough"/"cough" — one spelling, four rhyme classes);
-homophones spelled apart ("their"/"there"); rhymes spelled apart
-("Lincoln"/"reason"). And the classic: "love"/"move"/"prove" — same four
+<p>The list writes itself once you start: silent letters (&ldquo;comb&rdquo;/&rdquo;tomb&rdquo;/&rdquo;bomb&rdquo;
+— three spellings of &ldquo;-omb&rdquo;, three different sounds); the &ldquo;ough&rdquo; fiasco
+(&ldquo;through&rdquo;/&rdquo;though&rdquo;/&rdquo;tough&rdquo;/&rdquo;cough&rdquo; — one spelling, four rhyme classes);
+homophones spelled apart (&ldquo;their&rdquo;/&rdquo;there&rdquo;); rhymes spelled apart
+(&ldquo;Lincoln&rdquo;/&rdquo;reason&rdquo;). And the classic: &ldquo;love&rdquo;/&rdquo;move&rdquo;/&rdquo;prove&rdquo; — same four
 final letters, three different vowels, no two of them perfect rhymes.
 English spelling is a lossy, irregular encoding of sound. Any rhyme engine
 must therefore first <em>recover the sound</em>, and that recovery is what a
 pronunciation lexicon provides.</p>
-<h2>The formal pieces</h2>
+<h2 id="the-formal-pieces"><a class="anchor" href="#the-formal-pieces" aria-hidden="true" tabindex="-1">#</a>The formal pieces</h2>
 <ul>
-<li>A <strong>phoneme</strong> is a contrastive sound unit — the difference between "bat"
-  and "pat" is one phoneme. <strong>Graphemes</strong> (letters) map to phonemes
+<li>A <strong>phoneme</strong> is a contrastive sound unit — the difference between &ldquo;bat&rdquo;
+  and &ldquo;pat&rdquo; is one phoneme. <strong>Graphemes</strong> (letters) map to phonemes
   many-to-many, and in English, irregularly.</li>
 <li><strong>ARPAbet</strong> is an ASCII alphabet for English phonemes — friendlier to code
   than IPA, and what CMUdict uses. Vowels carry a trailing <strong>stress digit</strong>:
   <code>1</code> primary, <code>2</code> secondary, <code>0</code> unstressed. So <code>IH1</code> is a stressed KIT
-  vowel. (<code>phonetics.py</code>'s <code>strip_stress</code> and <code>is_vowel</code> exist so no other
+  vowel. (<code>phonetics.py</code>&rsquo;s <code>strip_stress</code> and <code>is_vowel</code> exist so no other
   code ever parses those digits by hand.)</li>
 <li><strong>CMUdict</strong> maps ~134k words to ARPAbet pronunciations.
   <code>pronouncing.phones_for_word("lincoln")</code> → <code>['L IH1 NG K AH0 N']</code>. That
@@ -79,39 +94,71 @@ pronunciation lexicon provides.</p>
 <p>Two engineering consequences follow, and both become whole units later. The
 lexicon is a <strong>hard dependency with gaps</strong>: try
 <code>phones_for_word("coogi")</code> and watch it return <code>[]</code> — the out-of-vocabulary
-problem, Unit 13's territory. And the lexicon returns a <strong>list</strong>: "read" has
-two pronunciations, "either" has two, and which one a rapper <em>performs</em> is
-not the dictionary's call — variants become Unit 9's territory.</p>
-<h2>Common confusions</h2>
+problem, Unit 13&rsquo;s territory. And the lexicon returns a <strong>list</strong>: &ldquo;read&rdquo; has
+two pronunciations, &ldquo;either&rdquo; has two, and which one a rapper <em>performs</em> is
+not the dictionary&rsquo;s call — variants become Unit 9&rsquo;s territory.</p>
+<h2 id="common-confusions"><a class="anchor" href="#common-confusions" aria-hidden="true" tabindex="-1">#</a>Common confusions</h2>
 <ul>
 <li><strong>Phonemes are not syllables.</strong> <code>IH1</code> is one phoneme; a syllable is a
   <em>structure</em> (onset + nucleus + coda) that we will have to reconstruct,
-  because CMUdict doesn't mark syllable boundaries at all — that's Unit 4.</li>
-<li><strong>CMUdict is not complete, and not neutral.</strong> It's North American citation
+  because CMUdict doesn&rsquo;t mark syllable boundaries at all — that&rsquo;s Unit 4.</li>
+<li><strong>CMUdict is not complete, and not neutral.</strong> It&rsquo;s North American citation
   pronunciation, informally maintained. The README names it as a threat to
   validity; keep that in your peripheral vision from day one.</li>
-<li><strong>"Why not just use a rhyming dictionary?"</strong> Because lookup tables encode
+<li><strong>&ldquo;Why not just use a rhyming dictionary?&rdquo;</strong> Because lookup tables encode
   <em>perfect</em> rhyme, and the entire point of this project is <strong>graded slant
   rhyme</strong> — Lincoln/reason must count, and no table says how much.</li>
 </ul>
-<h2>Check yourself</h2>
+<h2 id="check-yourself"><a class="anchor" href="#check-yourself" aria-hidden="true" tabindex="-1">#</a>Check yourself</h2>
 <blockquote class="think"><p><span class="think-label">Check yourself</span> produce a pair of words that <em>look</em> like they should rhyme
-but don't, and a pair that don't look like they rhyme but do — then say
-how CMUdict reveals each. ("Lessen"/"strengthen" vs "Lincoln"/"reason" is
+but don&rsquo;t, and a pair that don&rsquo;t look like they rhyme but do — then say
+how CMUdict reveals each. (&ldquo;Lessen&rdquo;/&rdquo;strengthen&rdquo; vs &ldquo;Lincoln&rdquo;/&rdquo;reason&rdquo; is
 the canonical answer; find your own pair too.)</p>
 </blockquote>
-<h2>Exercise</h2>
+<h2 id="exercise"><a class="anchor" href="#exercise" aria-hidden="true" tabindex="-1">#</a>Exercise</h2>
 <p>From the syllabus: in a REPL, collect five words CMUdict gets interestingly
-wrong or lacks entirely (slang, names — "Coogi" starts the list). Save them:
+wrong or lacks entirely (slang, names — &ldquo;Coogi&rdquo; starts the list). Save them:
 they become your Unit 13 test set. Then write the property tests for the
 phonetics primitives — <code>strip_stress("IH1") == ("IH", PRIMARY)</code> and friends,
 and that every ARPAbet vowel round-trips.</p>
-<p><strong>Where this is heading:</strong> "recover the sound" sets up Unit 2's question —
+<p><strong>Where this is heading:</strong> &ldquo;recover the sound&rdquo; sets up Unit 2&rsquo;s question —
 <em>how similar</em> are two recovered sounds? That graded question is what makes
 slant rhyme computable.</p></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#start-with-your-ear">Start with your ear</a></li><li><a href="#the-formal-pieces">The formal pieces</a></li><li><a href="#common-confusions">Common confusions</a></li><li><a href="#check-yourself">Check yourself</a></li><li><a href="#exercise">Exercise</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="next" href="unit-02.html">Unit 2: The IPA vowel space & articulatory features →</a>
+<a class="next" href="unit-02.html"><span class="dir">Next</span><span class="ttl">Unit 2: The IPA vowel space &amp; articulatory features</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById("theme-toggle");
+  if(btn) btn.addEventListener("click",function(){
+    var dark=root.dataset.theme
+      ? root.dataset.theme==="dark"
+      : matchMedia("(prefers-color-scheme:dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try{localStorage.setItem("rs-theme",root.dataset.theme);}catch(e){}
+  });
+  var links=[].slice.call(document.querySelectorAll(".rail a"));
+  if(!links.length||!window.IntersectionObserver) return;
+  var byId={};
+  links.forEach(function(a){ byId[a.getAttribute("href").slice(1)]=a; });
+  var visible={};
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ visible[e.target.id]=e.isIntersecting; });
+    var current=null;
+    Object.keys(byId).forEach(function(id){ if(visible[id]&&!current) current=id; });
+    links.forEach(function(a){ a.classList.remove("on"); });
+    if(current&&byId[current]) byId[current].classList.add("on");
+  },{rootMargin:"-88px 0px -70% 0px"});
+  Object.keys(byId).forEach(function(id){
+    var el=document.getElementById(id); if(el) obs.observe(el);
+  });
+})();
+</script>
 </body>
 </html>

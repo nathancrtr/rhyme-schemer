@@ -5,135 +5,182 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 13 — Out-of-vocabulary words & grapheme-to-phoneme</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-4)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 13</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html" aria-current="page"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 4 · Seeing, guessing, measuring</p>
-<h1>Unit 13 — Out-of-vocabulary words & grapheme-to-phoneme</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<div class="masthead">
+<p class="crumb"><b>Unit 13</b><span class="sep">/</span>Phase 4 &middot; Seeing, guessing, measuring</p>
+<h1>Out-of-vocabulary words &amp; grapheme-to-phoneme</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
 <li><strong>Build:</strong> A G2P fallback for words CMUdict lacks (your Unit-1 list): rule-based first; optionally wire in a neural G2P.</li>
 <li><strong>Read:</strong> Epitran; for the neural side, the current baseline is byte-level transformers (ByT5 G2P, CharsiuG2P) benchmarked in the SIGMORPHON 2020–22 shared tasks — <code>g2p_en</code>, once the standard mention, is a 2019 artifact and effectively unmaintained; SLP3 on G2P if present in your draft.</li>
-<li><strong>Concepts:</strong> the OOV problem; <strong>grapheme-to-phoneme</strong> as rule-based vs <strong>neural</strong> (a direct bridge to your transformer knowledge); confidence/flagging of guessed pronunciations; dialect respellings as <em>performance transcriptions</em>, not noise. The dialect rules (g-drop, -a-for-er) encode <strong>documented AAE and vernacular phonology</strong> — velar nasal fronting and non-rhoticity — and each rule now carries its citation in <code>g2p.py</code> (Fischer 1958 and Green 2002 for the (ING) variable; Thomas 2007 for non-rhoticity, whose "most common in unstressed syllables" finding is exactly the -a rule's environment): the citations harden the rules <em>and</em> answer the "why does your tool rewrite Black speech?" question with receipts. (The NLP-on-AAE literature is substantially about systems <em>failing</em> AAE speakers; a tool that takes performed AAE phonology as ground truth is on the right side of that, and should say so deliberately.)</li>
+<li><strong>Concepts:</strong> the OOV problem; <strong>grapheme-to-phoneme</strong> as rule-based vs <strong>neural</strong> (a direct bridge to your transformer knowledge); confidence/flagging of guessed pronunciations; dialect respellings as <em>performance transcriptions</em>, not noise. The dialect rules (g-drop, -a-for-er) encode <strong>documented AAE and vernacular phonology</strong> — velar nasal fronting and non-rhoticity — and each rule now carries its citation in <code>g2p.py</code> (Fischer 1958 and Green 2002 for the (ING) variable; Thomas 2007 for non-rhoticity, whose &ldquo;most common in unstressed syllables&rdquo; finding is exactly the -a rule&rsquo;s environment): the citations harden the rules <em>and</em> answer the &ldquo;why does your tool rewrite Black speech?&rdquo; question with receipts. (The NLP-on-AAE literature is substantially about systems <em>failing</em> AAE speakers; a tool that takes performed AAE phonology as ground truth is on the right side of that, and should say so deliberately.)</li>
 <li><strong>Exercise:</strong> Replace skip-and-flag with a G2P guess for three of your OOV words; mark guesses as lower-confidence so scoring can discount them.</li>
 <li><strong>Milestone:</strong> A previously-skipped word participates in a detected rhyme, flagged as G2P-derived.</li>
 </ul></details>
-<div class="hands-on"><h2>Hands-on</h2><a class="chip quiz" href="../interactive/quizzes/phase-4-checkpoint.html">✅ Phase 4 checkpoint</a> <a class="chip exercise" href="../interactive/exercises/unit-13-g2p-extension/task.md">⌨️ Exercise: unit-13-g2p-extension</a></div>
+<div class="hands-on"><h2>Hands-on</h2><div class="chips"><a class="chip" href="../interactive/quizzes/phase-4-checkpoint.html" style="--accent:var(--hue-2)"><span>Phase 4 checkpoint</span><span class="kind">quiz</span></a><a class="chip" href="../interactive/exercises/unit-13-g2p-extension/task.md" style="--accent:var(--hue-4)"><span>unit-13-g2p-extension</span><span class="kind">exercise</span></a></div></div>
 <article class="lesson"><p><strong>Objective:</strong> you can explain the G2P fallback chain — what each link
 knows, why they run in that order, and why a guess carries a price — and
 you can state the design principle that makes the dialect rules <em>respectful
 recovery</em> rather than normalization. <strong>Prerequisites:</strong> Units 11–12.
 <strong>Pairs with:</strong> <code>rhyme_schemer/g2p.py</code>.</p>
-<h2>The problem, sized honestly</h2>
-<p>Since Unit 1 you've been collecting words CMUdict lacks; since Unit 3 the
+<h2 id="the-problem-sized-honestly"><a class="anchor" href="#the-problem-sized-honestly" aria-hidden="true" tabindex="-1">#</a>The problem, sized honestly</h2>
+<p>Since Unit 1 you&rsquo;ve been collecting words CMUdict lacks; since Unit 3 the
 pipeline has skip-and-flagged them. On real lyrics the skips cluster into
 <em>kinds</em>, and the kinds want different tools:</p>
 <ol>
-<li><strong>Dialect spellings of known words</strong> — "chokin'," "flossin'," "holla."
-   The dictionary <em>knows</em> these words; the spelling encodes how they're
+<li><strong>Dialect spellings of known words</strong> — &ldquo;chokin&rsquo;,&rdquo; &ldquo;flossin&rsquo;,&rdquo; &ldquo;holla.&rdquo;
+   The dictionary <em>knows</em> these words; the spelling encodes how they&rsquo;re
    performed. Recoverable by rules that lean on the dictionary.</li>
-<li><strong>A closed class of slang contractions</strong> — "imma," "finna," "tryna."
-   Not rule-derivable ("imma" is "I'm gonna"; no letter pattern says so).
+<li><strong>A closed class of slang contractions</strong> — &ldquo;imma,&rdquo; &ldquo;finna,&rdquo; &ldquo;tryna.&rdquo;
+   Not rule-derivable (&ldquo;imma&rdquo; is &ldquo;I&rsquo;m gonna&rdquo;; no letter pattern says so).
    A small hand lexicon is the honest tool.</li>
-<li><strong>Genuinely unknown strings</strong> — brands ("Coogi"), onomatopoeia
-   ("blaow"), coinages. Only letter-to-sound rules can say anything, and
+<li><strong>Genuinely unknown strings</strong> — brands (&ldquo;Coogi&rdquo;), onomatopoeia
+   (&ldquo;blaow&rdquo;), coinages. Only letter-to-sound rules can say anything, and
    what they say is a guess.</li>
 </ol>
-<h2>The chain, and why the order matters</h2>
+<h2 id="the-chain-and-why-the-order-matters"><a class="anchor" href="#the-chain-and-why-the-order-matters" aria-hidden="true" tabindex="-1">#</a>The chain, and why the order matters</h2>
 <p><code>pronounce(word)</code> tries: <strong>dictionary → lexicon → rules → letter-to-sound</strong>.</p>
 <blockquote class="think"><p><span class="think-label">Think first</span> Why must the hand lexicon outrank the spelling rules? Find a word
 that would go wrong the other way around.</p>
 </blockquote>
-<p>The recorded example is "shoulda": it <em>pattern-matches</em> the -a-for-er rule
-(via "shoulder") but actually contracts "should have" — only the lexicon
+<p>The recorded example is &ldquo;shoulda&rdquo;: it <em>pattern-matches</em> the -a-for-er rule
+(via &ldquo;shoulder&rdquo;) but actually contracts &ldquo;should have&rdquo; — only the lexicon
 knows that. Curated truth outranks pattern-matching wherever both claim a
-word. Dictionary-first-with-fallbacks is also the field's consensus
+word. Dictionary-first-with-fallbacks is also the field&rsquo;s consensus
 architecture (Epitran leans on a lexicon for English; neural G2P slots in
-behind the same interface) — Unit 1's founding lesson about English
+behind the same interface) — Unit 1&rsquo;s founding lesson about English
 spelling, now load-bearing.</p>
-<h2>The design principle: dialect spellings are performance transcriptions</h2>
-<p>The obvious normalization — "chokin'" <em>is</em> "choking," so look it up, done —
+<h2 id="the-design-principle-dialect-spellings-are-performance-transcriptions"><a class="anchor" href="#the-design-principle-dialect-spellings-are-performance-transcriptions" aria-hidden="true" tabindex="-1">#</a>The design principle: dialect spellings are performance transcriptions</h2>
+<p>The obvious normalization — &ldquo;chokin&rsquo;&rdquo; <em>is</em> &ldquo;choking,&rdquo; so look it up, done —
 is subtly wrong. The apostrophe is the lyricist <strong>transcribing what they
 say</strong>: coda N rather than NG. And N-vs-NG is precisely the kind of coda
 difference the kernel scores. So every rule recovers the dictionary <em>stem</em>,
-then <strong>keeps the spelled surface phonology</strong>: look up "choking," rewrite
-the final NG to the N the lyricist wrote. Likewise "holla"/"gangsta" spell
-a performed non-rhotic final vowel — <code>AH0</code>, which rhymes with "follow" —
-where dictionary "holler" ends in <code>ER0</code>, which doesn't.</p>
-<p>This is Unit 11's move one layer down: the dictionary records citation
+then <strong>keeps the spelled surface phonology</strong>: look up &ldquo;choking,&rdquo; rewrite
+the final NG to the N the lyricist wrote. Likewise &ldquo;holla&rdquo;/&rdquo;gangsta&rdquo; spell
+a performed non-rhotic final vowel — <code>AH0</code>, which rhymes with &ldquo;follow&rdquo; —
+where dictionary &ldquo;holler&rdquo; ends in <code>ER0</code>, which doesn&rsquo;t.</p>
+<p>This is Unit 11&rsquo;s move one layer down: the dictionary records citation
 facts, the performance overrides them, and the performed form is minted as
 data.</p>
-<h2>The rules are documented phonology, cited</h2>
+<h2 id="the-rules-are-documented-phonology-cited"><a class="anchor" href="#the-rules-are-documented-phonology-cited" aria-hidden="true" tabindex="-1">#</a>The rules are documented phonology, cited</h2>
 <p>Neither rule is an invented respelling; each encodes a feature the
 sociolinguistics literature has documented for decades, and each carries
 its citation in the code:</p>
 <ul>
 <li><strong>g-drop</strong> encodes the classic <strong>(ING) variable</strong> — coronal [n] for
   velar [ŋ] in unstressed -ing — the founding variable of variationist
-  sociolinguistics (Fischer 1958) and part of AAE's documented phonology
-  (Green 2002). Pan-vernacular English, not AAE-exclusive; "-in'" is
+  sociolinguistics (Fischer 1958) and part of AAE&rsquo;s documented phonology
+  (Green 2002). Pan-vernacular English, not AAE-exclusive; &ldquo;-in&rsquo;&rdquo; is
   simply its standard written transcription.</li>
 <li><strong>-a-for-er</strong> encodes <strong>AAE non-rhoticity</strong> — coda /r/ vocalizes — and
-  Thomas (2007) records that r-lessness "is most common in unstressed
-  syllables, as in <em>over, brother</em>": exactly this rule's final
+  Thomas (2007) records that r-lessness &ldquo;is most common in unstressed
+  syllables, as in <em>over, brother</em>&rdquo;: exactly this rule&rsquo;s final
   unstressed-ER environment.</li>
 </ul>
-<p>The citations do double duty: they harden the rules, and they answer "why
-does your tool rewrite Black speech?" with receipts — it doesn't. Much of
+<p>The citations do double duty: they harden the rules, and they answer &ldquo;why
+does your tool rewrite Black speech?&rdquo; with receipts — it doesn&rsquo;t. Much of
 the NLP literature on AAE is a literature about systems <em>failing</em> AAE
-speakers by normalizing the performance away. This project's stated
-position (see the README's dialect paragraph) is the opposite: performed
+speakers by normalizing the performance away. This project&rsquo;s stated
+position (see the README&rsquo;s dialect paragraph) is the opposite: performed
 AAE phonology is ground truth here, and the performed form is the one that
 scores.</p>
-<h2>Confidence is priced, not modeled</h2>
+<h2 id="confidence-is-priced-not-modeled"><a class="anchor" href="#confidence-is-priced-not-modeled" aria-hidden="true" tabindex="-1">#</a>Confidence is priced, not modeled</h2>
 <p>A letter-to-sound guess is an unlikely claim of the same species as a
 coerced stress, and it travels the same road: <code>Guess.cost</code> (0 for
 dictionary, lexicon, and rules — the spelling or the lexicon <em>testifies</em> —
-and <code>DEFAULT_LTS_COST = 0.1</code> for letter-to-sound) folds into the reading's
+and <code>DEFAULT_LTS_COST = 0.1</code> for letter-to-sound) folds into the reading&rsquo;s
 cost at candidate minting. A marginal rhyme built on a guess dies; a strong
-one ("Coogi"~"groovy" at 1.0) shrugs the price off. The kernel and
+one (&ldquo;Coogi&rdquo;~&rdquo;groovy&rdquo; at 1.0) shrugs the price off. The kernel and
 <code>models.py</code> stay provenance-free — a guessed <code>Pronunciation</code> is just a
 <code>Pronunciation</code> — while <code>source</code> lets the scanner and renderer <em>say</em> how
 each pronunciation was obtained: guessed words get a dashed underline and a
-provenance tooltip line, distinct from OOV's dotted. And "OOV" now means
+provenance tooltip line, distinct from OOV&rsquo;s dotted. And &ldquo;OOV&rdquo; now means
 something stronger than before: <em>even guessing failed</em> (no vowel to build
-on — "brrr").</p>
-<h2>The bill arrives, on schedule</h2>
+on — &ldquo;brrr&rdquo;).</p>
+<h2 id="the-bill-arrives-on-schedule"><a class="anchor" href="#the-bill-arrives-on-schedule" aria-hidden="true" tabindex="-1">#</a>The bill arrives, on schedule</h2>
 <p>Recall Unit 9: every convenience has a cost, and the cost lands downstream.
-G2P's recall gain arrived married to a precision loss, observed at this
-unit's own end-to-end check: the chain's pronunciations were <em>correct</em>, yet
-"-in'"~"-ing" bridge edges glued chokin'/jokin', Coogi/groovy, and
+G2P&rsquo;s recall gain arrived married to a precision loss, observed at this
+unit&rsquo;s own end-to-end check: the chain&rsquo;s pronunciations were <em>correct</em>, yet
+&ldquo;-in&rsquo;&rdquo;~&rdquo;-ing&rdquo; bridge edges glued chokin&rsquo;/jokin&rsquo;, Coogi/groovy, and
 flowing/going into one OW mega-class — every G2P word is a new <em>node</em>
-feeding Unit 10's percolation-prone grouping. Nothing to fix in <code>g2p.py</code>
+feeding Unit 10&rsquo;s percolation-prone grouping. Nothing to fix in <code>g2p.py</code>
 itself; ledger item 9 routes it to Unit 14 alongside its siblings. Say it
 as a slogan: <strong>new coverage inherits old debt.</strong></p>
-<h2>Check yourself</h2>
+<h2 id="check-yourself"><a class="anchor" href="#check-yourself" aria-hidden="true" tabindex="-1">#</a>Check yourself</h2>
 <blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Order the chain and give the one-word reason each
-link outranks the next. (2) Why does "chokin'" get N-for-NG <em>rather
-than</em> being normalized to "choking"? (3) Which features do the two
+link outranks the next. (2) Why does &ldquo;chokin&rsquo;&rdquo; get N-for-NG <em>rather
+than</em> being normalized to &ldquo;choking&rdquo;? (3) Which features do the two
 dialect rules encode, and roughly who documented them? (4) Why does only
 letter-to-sound carry a cost?</p>
 </blockquote>
-<h2>Exercise</h2>
+<h2 id="exercise"><a class="anchor" href="#exercise" aria-hidden="true" tabindex="-1">#</a>Exercise</h2>
 <p>From the syllabus: replace skip-and-flag with a G2P guess for three of
 your Unit-1 OOV words; confirm a previously-skipped word now participates
 in a detected rhyme, flagged as guessed. Then feed the chain a word it
-<em>should</em> refuse ("brrr") and confirm it stays OOV.</p>
-<p><strong>Where this is heading:</strong> coverage is as wide as it's getting; Unit 14
+<em>should</em> refuse (&ldquo;brrr&rdquo;) and confirm it stays OOV.</p>
+<p><strong>Where this is heading:</strong> coverage is as wide as it&rsquo;s getting; Unit 14
 finally builds the ruler — and ledger item 11 already sketches this
-module's next job (minting non-rhotic readings for <em>standard</em> spellings,
+module&rsquo;s next job (minting non-rhotic readings for <em>standard</em> spellings,
 priced, as performed-phonology variants).</p></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#the-problem-sized-honestly">The problem, sized honestly</a></li><li><a href="#the-chain-and-why-the-order-matters">The chain, and why the order matters</a></li><li><a href="#the-design-principle-dialect-spellings-are-performance-transcriptions">The design principle: dialect spellings are performance transcriptions</a></li><li><a href="#the-rules-are-documented-phonology-cited">The rules are documented phonology, cited</a></li><li><a href="#confidence-is-priced-not-modeled">Confidence is priced, not modeled</a></li><li><a href="#the-bill-arrives-on-schedule">The bill arrives, on schedule</a></li><li><a href="#check-yourself">Check yourself</a></li><li><a href="#exercise">Exercise</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="prev" href="unit-12.html">← Unit 12: Visualizing the scheme</a><a class="next" href="unit-14.html">Unit 14: Evaluation: is it any good? →</a>
+<a class="prev" href="unit-12.html"><span class="dir">Previous</span><span class="ttl">Unit 12: Visualizing the scheme</span></a><a class="next" href="unit-14.html"><span class="dir">Next</span><span class="ttl">Unit 14: Evaluation: is it any good?</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById("theme-toggle");
+  if(btn) btn.addEventListener("click",function(){
+    var dark=root.dataset.theme
+      ? root.dataset.theme==="dark"
+      : matchMedia("(prefers-color-scheme:dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try{localStorage.setItem("rs-theme",root.dataset.theme);}catch(e){}
+  });
+  var links=[].slice.call(document.querySelectorAll(".rail a"));
+  if(!links.length||!window.IntersectionObserver) return;
+  var byId={};
+  links.forEach(function(a){ byId[a.getAttribute("href").slice(1)]=a; });
+  var visible={};
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ visible[e.target.id]=e.isIntersecting; });
+    var current=null;
+    Object.keys(byId).forEach(function(id){ if(visible[id]&&!current) current=id; });
+    links.forEach(function(a){ a.classList.remove("on"); });
+    if(current&&byId[current]) byId[current].classList.add("on");
+  },{rootMargin:"-88px 0px -70% 0px"});
+  Object.keys(byId).forEach(function(id){
+    var el=document.getElementById(id); if(el) obs.observe(el);
+  });
+})();
+</script>
 </body>
 </html>

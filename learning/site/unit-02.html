@@ -5,62 +5,77 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 2 — The IPA vowel space & articulatory features</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-0)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 2</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html" aria-current="page"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 1 · The phonetic foundation</p>
-<h1>Unit 2 — The IPA vowel space & articulatory features</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<div class="masthead">
+<p class="crumb"><b>Unit 2</b><span class="sep">/</span>Phase 1 &middot; The phonetic foundation</p>
+<h1>The IPA vowel space &amp; articulatory features</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
 <li><strong>Build:</strong> Read the vowel half of <code>features.py</code> (<code>VowelPoint</code>, <code>VowelFeatures</code>, <code>VOWEL_FEATURES</code>, <code>vowel_distance</code>). Adjust or justify two coordinate choices without breaking the ordering tests.</li>
 <li><strong>Read:</strong> SLP3 Phonetics (vowels); the interactive IPA chart (make the sounds!); the vowel-quadrilateral references.</li>
 <li><strong>Concepts:</strong> the IPA vowel quadrilateral (height × backness); roundedness; the rhotic <code>ER</code>; tense/lax falling out of position (centralization); <strong>diphthongs as a glide</strong> between two points; distance on a plane as similarity.</li>
-<li><strong>Exercise:</strong> Open <code>interactive/widgets/vowel-explorer.html</code>, click pairs, and confirm by hand that the widget's numbers match <code>vowel_distance</code>. Then change one vowel's coordinates in <code>features.py</code>, predict which ordering tests shift, and check.</li>
-<li><strong>Milestone:</strong> You can explain why <code>IH</code> sits lower and more central than <code>IY</code>, and why a single point can't model <code>AY</code>.</li>
-<li><strong>Key insight:</strong> This table is a tiny, hand-built <strong>embedding</strong>. "Similarity = distance in a feature space" is the same move word2vec makes — you're meeting it in 15 vowels instead of 50,000 words.</li>
-<li><strong>Caveat to carry forward:</strong> articulatory adjacency is not perceptual confusability — the quadrilateral is a tongue-position diagram, not a psychoacoustic space (that would be Bark-scaled formant space). Corpus evidence on which vowel pairs rappers <em>actually</em> treat as rhymable exists — Hirjee &amp; Brown 2009's learned log-odds matrices, transcribed and rank-compared against this very space in <code>learning/audits/</code> (the audit found two systematic biases; tuning-ledger item 11 tells the story, and it's a preview of what Unit 14 does at scale). (Katz 2015 and Kawahara 2007, once cited here for this purpose, turn out on verification to be <em>consonant</em> data — the corrected note in <code>learning-resources.md</code> explains.) Unit 14 makes "refit this space from data" a first-class experiment.</li>
+<li><strong>Exercise:</strong> Open <code>interactive/widgets/vowel-explorer.html</code>, click pairs, and confirm by hand that the widget&rsquo;s numbers match <code>vowel_distance</code>. Then change one vowel&rsquo;s coordinates in <code>features.py</code>, predict which ordering tests shift, and check.</li>
+<li><strong>Milestone:</strong> You can explain why <code>IH</code> sits lower and more central than <code>IY</code>, and why a single point can&rsquo;t model <code>AY</code>.</li>
+<li><strong>Key insight:</strong> This table is a tiny, hand-built <strong>embedding</strong>. &ldquo;Similarity = distance in a feature space&rdquo; is the same move word2vec makes — you&rsquo;re meeting it in 15 vowels instead of 50,000 words.</li>
+<li><strong>Caveat to carry forward:</strong> articulatory adjacency is not perceptual confusability — the quadrilateral is a tongue-position diagram, not a psychoacoustic space (that would be Bark-scaled formant space). Corpus evidence on which vowel pairs rappers <em>actually</em> treat as rhymable exists — Hirjee &amp; Brown 2009&rsquo;s learned log-odds matrices, transcribed and rank-compared against this very space in <code>learning/audits/</code> (the audit found two systematic biases; tuning-ledger item 11 tells the story, and it&rsquo;s a preview of what Unit 14 does at scale). (Katz 2015 and Kawahara 2007, once cited here for this purpose, turn out on verification to be <em>consonant</em> data — the corrected note in <code>learning-resources.md</code> explains.) Unit 14 makes &ldquo;refit this space from data&rdquo; a first-class experiment.</li>
 <li><strong>Interactive:</strong> widget <code>vowel-explorer.html</code>; lesson <code>unit-02-feature-distance.md</code>.</li>
 </ul></details>
-<div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/vowel-explorer.html">🧪 Vowel-Space Explorer</a></div>
+<div class="hands-on"><h2>Hands-on</h2><div class="chips"><a class="chip" href="../interactive/widgets/vowel-explorer.html" style="--accent:var(--hue-0)"><span>Vowel-Space Explorer</span><span class="kind">widget</span></a></div></div>
 <article class="lesson"><p><strong>Objective:</strong> you see <code>vowel_distance</code> not as ad-hoc arithmetic but as
-"distance in a feature space," and recognize it as the same idea behind word
+&ldquo;distance in a feature space,&rdquo; and recognize it as the same idea behind word
 embeddings — scaled down to 15 vowels. <strong>Prerequisites:</strong> Unit 1. <strong>Pairs
 with:</strong> the Vowel-Space Explorer widget; <code>features.py</code> (vowel half).</p>
 <p>Have the widget open in another tab as you read — every claim below is
 clickable there, and the numbers it shows are the exact values
 <code>vowel_distance()</code> computes.</p>
-<h2>The question a number has to answer</h2>
+<h2 id="the-question-a-number-has-to-answer"><a class="anchor" href="#the-question-a-number-has-to-answer" aria-hidden="true" tabindex="-1">#</a>The question a number has to answer</h2>
 <p><code>vowel_distance('IH','IY')</code> is small; <code>vowel_distance('IH','UW')</code> is large.</p>
 <blockquote class="think"><p><span class="think-label">Think first</span> Before looking at any code: what real, physical difference between
 those vowels is the number measuring?</p>
 </blockquote>
-<p>Say the three vowels — "bit," "beat," "boot" — and pay attention to your
-tongue. For the first two it sits high and forward; for "boot" it pulls high
+<p>Say the three vowels — &ldquo;bit,&rdquo; &ldquo;beat,&rdquo; &ldquo;boot&rdquo; — and pay attention to your
+tongue. For the first two it sits high and forward; for &ldquo;boot&rdquo; it pulls high
 and <em>back</em> (and your lips round). The number is measuring articulation:
 where in the mouth the vowel lives. <code>features.py</code> places every vowel on a
 plane — tongue <strong>height</strong> on one axis, <strong>backness</strong> on the other — and
 similarity is simply distance on that plane. IH and IY are neighbors; UW is
 across the map.</p>
-<h2>Diphthongs: a vowel that moves</h2>
-<blockquote class="think"><p><span class="think-label">Think first</span> <code>AY</code> ("bite") is stored as a <em>glide</em> from one point to another,
+<h2 id="diphthongs-a-vowel-that-moves"><a class="anchor" href="#diphthongs-a-vowel-that-moves" aria-hidden="true" tabindex="-1">#</a>Diphthongs: a vowel that moves</h2>
+<blockquote class="think"><p><span class="think-label">Think first</span> <code>AY</code> (&ldquo;bite&rdquo;) is stored as a <em>glide</em> from one point to another,
 not as a single point. Why would one (height, backness) point fail?</p>
 </blockquote>
-<p>Because the vowel's quality <em>changes while you say it</em>: "bite" starts low
+<p>Because the vowel&rsquo;s quality <em>changes while you say it</em>: &ldquo;bite&rdquo; starts low
 and central and ends high and front. A single point would have to average
 away the very motion that makes it AY. Modeling a diphthong as start → end
 is the smallest honest representation. Click <code>AY</code> and <code>OY</code> in the widget:
 their <em>start</em> points are far apart, but the shared offglide (both end near
-ɪ) pulls the pair's distance in. Hold that observation — it returns below
+ɪ) pulls the pair&rsquo;s distance in. Hold that observation — it returns below
 with consequences.</p>
-<h2>The formal pieces</h2>
+<h2 id="the-formal-pieces"><a class="anchor" href="#the-formal-pieces" aria-hidden="true" tabindex="-1">#</a>The formal pieces</h2>
 <ul>
 <li><code>vowel_distance</code> = the mean of the plane-distances between the two
   start points and the two end points, plus small weighted nudges for
@@ -69,14 +84,14 @@ with consequences.</p>
   exactly the <em>structural</em> tests in <code>test_features.py</code> — the house style is
   to pin properties and orderings, not magic numbers.</li>
 <li>You have just met a <strong>4-dimensional embedding built by hand</strong>. word2vec
-  makes the same move — "similar = close in a vector space" — with 300
+  makes the same move — &ldquo;similar = close in a vector space&rdquo; — with 300
   dimensions learned from data instead of 4 placed by ear. When you meet
-  embeddings elsewhere, you'll have already implemented the core idea at a
+  embeddings elsewhere, you&rsquo;ll have already implemented the core idea at a
   size you can see all of.</li>
 </ul>
-<h2>Common confusions</h2>
+<h2 id="common-confusions"><a class="anchor" href="#common-confusions" aria-hidden="true" tabindex="-1">#</a>Common confusions</h2>
 <ul>
-<li><strong>"Where's the tense/lax feature?"</strong> There isn't one — deliberately. <code>IH</code>
+<li><strong>&ldquo;Where&rsquo;s the tense/lax feature?&rdquo;</strong> There isn&rsquo;t one — deliberately. <code>IH</code>
   is <em>placed</em> lower and more central than <code>IY</code> (the standard lax
   centralization), so the tense/lax contrast falls out of position without
   a separate dimension. Look at the coordinates in <code>features.py</code>.</li>
@@ -89,24 +104,24 @@ with consequences.</p>
   practice.</strong> The quadrilateral is a tongue-position diagram, not a
   psychoacoustic space (that would be Bark-scaled formant space), and not a
   record of what rappers actually rhyme. This project <em>checked</em>: the
-  hand-placed space was rank-compared against Hirjee &amp; Brown's rhyme-derived
+  hand-placed space was rank-compared against Hirjee &amp; Brown&rsquo;s rhyme-derived
   log-odds matrix (<code>learning/audits/</code>), and the audit found two systematic
   biases — the diphthong offglides you just clicked park EY and AY on top of
   the front vowels (EY~IH is our closest pair of all 105; the corpus says
   rappers treat it as unrhymable), and rhoticity is overpriced (non-rhotic
   performance rhymes ER against AH-like vowels far more freely than our
   binary flag allows). Tuning-ledger item 11 holds the full findings; Unit
-  14 makes "refit this space from data" a first-class experiment. The space
-  you're learning is a good pedagogical instrument <em>and</em> a measured
+  14 makes &ldquo;refit this space from data&rdquo; a first-class experiment. The space
+  you&rsquo;re learning is a good pedagogical instrument <em>and</em> a measured
   approximation — both true at once.</li>
 </ul>
-<h2>Check yourself</h2>
+<h2 id="check-yourself"><a class="anchor" href="#check-yourself" aria-hidden="true" tabindex="-1">#</a>Check yourself</h2>
 <blockquote class="think"><p><span class="think-label">Check yourself</span> pick two vowels you expect to be middling-close, predict
-the similarity to one decimal, then check in the widget. If you're off,
+the similarity to one decimal, then check in the widget. If you&rsquo;re off,
 which axis fooled you — height or backness? (And for a diphthong pair:
 was it the start or the end doing the work?)</p>
 </blockquote>
-<h2>Exercise</h2>
+<h2 id="exercise"><a class="anchor" href="#exercise" aria-hidden="true" tabindex="-1">#</a>Exercise</h2>
 <p>From the syllabus: adjust or justify two coordinate choices in <code>features.py</code>
 without breaking the ordering tests — predict which tests <em>would</em> shift
 before you touch anything, then verify.</p>
@@ -114,8 +129,40 @@ before you touch anything, then verify.</p>
 the rhyme kernel (Unit 7) weights and combines — and the audit above is your
 first taste of Unit 14, where the whole space goes on trial.</p></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#the-question-a-number-has-to-answer">The question a number has to answer</a></li><li><a href="#diphthongs-a-vowel-that-moves">Diphthongs: a vowel that moves</a></li><li><a href="#the-formal-pieces">The formal pieces</a></li><li><a href="#common-confusions">Common confusions</a></li><li><a href="#check-yourself">Check yourself</a></li><li><a href="#exercise">Exercise</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="prev" href="unit-01.html">← Unit 1: Phonemes, ARPAbet & the lexicon</a><a class="next" href="unit-03.html">Unit 3: Consonants: place, manner, voicing, sonority →</a>
+<a class="prev" href="unit-01.html"><span class="dir">Previous</span><span class="ttl">Unit 1: Phonemes, ARPAbet &amp; the lexicon</span></a><a class="next" href="unit-03.html"><span class="dir">Next</span><span class="ttl">Unit 3: Consonants: place, manner, voicing, sonority</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById("theme-toggle");
+  if(btn) btn.addEventListener("click",function(){
+    var dark=root.dataset.theme
+      ? root.dataset.theme==="dark"
+      : matchMedia("(prefers-color-scheme:dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try{localStorage.setItem("rs-theme",root.dataset.theme);}catch(e){}
+  });
+  var links=[].slice.call(document.querySelectorAll(".rail a"));
+  if(!links.length||!window.IntersectionObserver) return;
+  var byId={};
+  links.forEach(function(a){ byId[a.getAttribute("href").slice(1)]=a; });
+  var visible={};
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ visible[e.target.id]=e.isIntersecting; });
+    var current=null;
+    Object.keys(byId).forEach(function(id){ if(visible[id]&&!current) current=id; });
+    links.forEach(function(a){ a.classList.remove("on"); });
+    if(current&&byId[current]) byId[current].classList.add("on");
+  },{rootMargin:"-88px 0px -70% 0px"});
+  Object.keys(byId).forEach(function(id){
+    var el=document.getElementById(id); if(el) obs.observe(el);
+  });
+})();
+</script>
 </body>
 </html>

@@ -5,21 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 4 — Syllables & phonotactics: the Maximal Onset Principle</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-0)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 4</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html" aria-current="page"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 1 · The phonetic foundation</p>
-<h1>Unit 4 — Syllables & phonotactics: the Maximal Onset Principle</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<div class="masthead">
+<p class="crumb"><b>Unit 4</b><span class="sep">/</span>Phase 1 &middot; The phonetic foundation</p>
+<h1>Syllables &amp; phonotactics: the Maximal Onset Principle</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
 <li><strong>Build:</strong> Read <code>models.py</code> (<code>Syllable</code>, <code>Pronunciation</code>, <code>rime</code>, <code>vowel_skeleton</code>), the onset tables in <code>phonetics.py</code> (<code>is_legal_onset</code>), and <code>syllabify.py</code> (<code>_split_consonants</code>, <code>syllabify</code>). Add an onset cluster a new word needs.</li>
 <li><strong>Read:</strong> SLP3 Phonetics (syllable structure); Phonotactics &amp; Syllable (Wikipedia).</li>
 <li><strong>Concepts:</strong> onset / nucleus / coda / <strong>rime</strong>; phonotactics; the Sonority Sequencing Principle as the rule behind legal onsets (and the /s/-cluster exceptions); the <strong>Maximal Onset Principle</strong>; one nucleus per syllable; word-edge handling.</li>
@@ -27,145 +42,177 @@
 <li><strong>Milestone:</strong> A new word correctly syllabified, gated by a test you wrote.</li>
 <li><strong>Interactive:</strong> widget <code>syllabifier.html</code>; quiz <code>interactive/quizzes/phase-1-checkpoint.html</code>.</li>
 </ul></details>
-<div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/syllabifier.html">🧪 Syllabifier</a> <a class="chip quiz" href="../interactive/quizzes/phase-1-checkpoint.html">✅ Phase 1 checkpoint</a></div>
+<div class="hands-on"><h2>Hands-on</h2><div class="chips"><a class="chip" href="../interactive/widgets/syllabifier.html" style="--accent:var(--hue-0)"><span>Syllabifier</span><span class="kind">widget</span></a><a class="chip" href="../interactive/quizzes/phase-1-checkpoint.html" style="--accent:var(--hue-2)"><span>Phase 1 checkpoint</span><span class="kind">quiz</span></a></div></div>
 <article class="lesson"><p><strong>Objective:</strong> you can explain how a flat phoneme string becomes structured
 syllables — onset, nucleus, coda — and why the boundary the code draws is a
 <em>decision</em>, not a discovery. <strong>Prerequisites:</strong> Units 1–3. <strong>Pairs with:</strong>
 <code>rhyme_schemer/syllabify.py</code>, <code>rhyme_schemer/models.py</code>, the onset tables in
 <code>rhyme_schemer/phonetics.py</code>; the Syllabifier widget.</p>
-<h2>The problem: CMUdict hands us a string, rhyme needs a structure</h2>
-<p>Look up "lincoln" and the dictionary gives you a flat sequence:</p>
+<h2 id="the-problem-cmudict-hands-us-a-string-rhyme-needs-a-structure"><a class="anchor" href="#the-problem-cmudict-hands-us-a-string-rhyme-needs-a-structure" aria-hidden="true" tabindex="-1">#</a>The problem: CMUdict hands us a string, rhyme needs a structure</h2>
+<p>Look up &ldquo;lincoln&rdquo; and the dictionary gives you a flat sequence:</p>
 <pre><code>lincoln  →  L IH1 NG K AH0 N
 </code></pre>
 <p>No boundaries. But everything this project does downstream — the rhyme tail,
-nucleus-versus-coda weighting, "onsets are ignored" — talks about <em>parts of
+nucleus-versus-coda weighting, &ldquo;onsets are ignored&rdquo; — talks about <em>parts of
 syllables</em>. Before any of that vocabulary means anything, six phonemes have
 to become two structured syllables:</p>
 <pre><code>L IH1 NG . K AH0 N
 </code></pre>
 <p>Who decided the NG belongs to the <em>first</em> syllable and the K to the
 <em>second</em>? That decision is this unit.</p>
-<h2>Syllable anatomy: a sonority mountain</h2>
+<h2 id="syllable-anatomy-a-sonority-mountain"><a class="anchor" href="#syllable-anatomy-a-sonority-mountain" aria-hidden="true" tabindex="-1">#</a>Syllable anatomy: a sonority mountain</h2>
 <p>A syllable has three slots. The <strong>nucleus</strong> is its vowel — the peak. The
 <strong>onset</strong> is the consonants that climb up to it; the <strong>coda</strong> is the
 consonants that fall away after it. Nucleus + coda together form the
 <strong>rime</strong> — the part that sounds alike in words that rhyme, which is why the
 data model (<code>models.py</code>) gives <code>Syllable</code> a <code>.rime</code> property while no code
-anywhere asks for "onset + nucleus."</p>
-<p>"Climb" and "fall" are not metaphors here. Phonemes differ in <strong>sonority</strong> —
+anywhere asks for &ldquo;onset + nucleus.&rdquo;</p>
+<p>&ldquo;Climb&rdquo; and &ldquo;fall&rdquo; are not metaphors here. Phonemes differ in <strong>sonority</strong> —
 roughly, how loud and vowel-like they are: stops are the least sonorous,
 then affricates, fricatives, nasals, liquids, glides, and vowels at the top.
 A well-formed syllable rises in sonority to its nucleus and falls after it —
-a mountain with the vowel at the summit. Say "plant" slowly: p (stop) →
+a mountain with the vowel at the summit. Say &ldquo;plant&rdquo; slowly: p (stop) →
 l (liquid) → a (vowel) → n (nasal) → t (stop). Up, peak, down.</p>
 <p>You have already met this hierarchy in the code: <code>features.py</code> orders its
 consonant MANNER axis by sonority. That ordering does double duty — it makes
 sonority-adjacent consonants <em>near</em> in the similarity space (Unit 3), and it
 is the organizing principle behind which onsets English permits at all.</p>
-<h2>Phonotactics: not every consonant string is a legal onset</h2>
-<p><strong>Phonotactics</strong> is a language's rulebook for sound sequences. English
-happily begins a syllable with "pl" (rising sonority: stop → liquid) but
-never with "lp" (falling). The Sonority Sequencing Principle predicts most
+<h2 id="phonotactics-not-every-consonant-string-is-a-legal-onset"><a class="anchor" href="#phonotactics-not-every-consonant-string-is-a-legal-onset" aria-hidden="true" tabindex="-1">#</a>Phonotactics: not every consonant string is a legal onset</h2>
+<p><strong>Phonotactics</strong> is a language&rsquo;s rulebook for sound sequences. English
+happily begins a syllable with &ldquo;pl&rdquo; (rising sonority: stop → liquid) but
+never with &ldquo;lp&rdquo; (falling). The Sonority Sequencing Principle predicts most
 of the rulebook for free.</p>
 <p>Most — not all. English keeps a famous family of exceptions: /s/ + stop
-clusters. "St", "sp", "sk", "str", "spl" all <em>fall</em> or plateau in sonority
+clusters. &ldquo;St&rdquo;, &ldquo;sp&rdquo;, &ldquo;sk&rdquo;, &ldquo;str&rdquo;, &ldquo;spl&rdquo; all <em>fall</em> or plateau in sonority
 on the way in (fricative → stop), and are all perfectly legal. Every
 phonology textbook flags this; the /s/-clusters simply have to be listed.</p>
 <blockquote class="think"><p><span class="think-label">Think first</span> Before reading on: which of these should be legal English onsets?
-<strong>"str"</strong> (as in <em>street</em>), <strong>"ngk"</strong>, <strong>"pn"</strong> (as in... anything?),
-<strong>"sw"</strong> (as in <em>sweaty</em>). Commit to answers.</p>
+<strong>&ldquo;str&rdquo;</strong> (as in <em>street</em>), <strong>&ldquo;ngk&rdquo;</strong>, <strong>&ldquo;pn&rdquo;</strong> (as in&hellip; anything?),
+<strong>&ldquo;sw&rdquo;</strong> (as in <em>sweaty</em>). Commit to answers.</p>
 </blockquote>
-<p>"Str" — legal, an /s/-exception. "Sw" — legal, rising (fricative → glide).
-"Ngk" — illegal; NG can't even <em>start</em> an English syllable alone. "Pn" —
-illegal in English (though fine in Greek, whence "pneumatic"; the p falls
-silent in borrowing precisely because English phonotactics won't seat it).
+<p>&ldquo;Str&rdquo; — legal, an /s/-exception. &ldquo;Sw&rdquo; — legal, rising (fricative → glide).
+&ldquo;Ngk&rdquo; — illegal; NG can&rsquo;t even <em>start</em> an English syllable alone. &ldquo;Pn&rdquo; —
+illegal in English (though fine in Greek, whence &ldquo;pneumatic&rdquo;; the p falls
+silent in borrowing precisely because English phonotactics won&rsquo;t seat it).
 Phonotactics is language-specific knowledge, which is why
 <code>phonetics.is_legal_onset</code> is a hand-curated table and not a formula — the
 table encodes SSP <em>plus</em> the exceptions, and it is deliberately
-non-exhaustive: it grows when real lyrics expose a missing cluster (that's
-this unit's exercise).</p>
-<h2>The Maximal Onset Principle: the tiebreaker</h2>
-<p>Now back to "lincoln." Between the two vowels sits the cluster <code>NG K</code>.
+non-exhaustive: it grows when real lyrics expose a missing cluster (that&rsquo;s
+this unit&rsquo;s exercise).</p>
+<h2 id="the-maximal-onset-principle-the-tiebreaker"><a class="anchor" href="#the-maximal-onset-principle-the-tiebreaker" aria-hidden="true" tabindex="-1">#</a>The Maximal Onset Principle: the tiebreaker</h2>
+<p>Now back to &ldquo;lincoln.&rdquo; Between the two vowels sits the cluster <code>NG K</code>.
 Logically it could split three ways: both consonants left (<code>L IH NG K . AH N</code>),
 both right (<code>L IH . NG K AH N</code>), or one each. Every option puts one nucleus
-in each syllable; phonotactics alone doesn't force a unique answer. The
-field's standard tiebreaker is the <strong>Maximal Onset Principle</strong>: give the
+in each syllable; phonotactics alone doesn&rsquo;t force a unique answer. The
+field&rsquo;s standard tiebreaker is the <strong>Maximal Onset Principle</strong>: give the
 <em>following</em> syllable the longest onset that is still legal.</p>
 <p>Try it: is <code>NG K</code> a legal onset? No. Is <code>K</code>? Yes. So K goes right, NG stays
-left as coda: <code>L IH1 NG . K AH0 N</code>. That's the whole algorithm, and
+left as coda: <code>L IH1 NG . K AH0 N</code>. That&rsquo;s the whole algorithm, and
 <code>syllabify._split_consonants</code> is exactly this loop — try the longest suffix
 of the cluster as an onset, shrink until <code>is_legal_onset</code> says yes, the
 remainder is coda.</p>
-<blockquote class="think"><p><span class="think-label">Think first</span> Syllabify <strong>"hypnotize"</strong> (<code>HH IH1 P N AH0 T AY2 Z</code>) by hand
+<blockquote class="think"><p><span class="think-label">Think first</span> Syllabify <strong>&ldquo;hypnotize&rdquo;</strong> (<code>HH IH1 P N AH0 T AY2 Z</code>) by hand
 before checking below. Two clusters to split: <code>P N</code> and <code>T</code>.</p>
 </blockquote>
-<p><code>P N</code>: is "pn" a legal onset? No (see above). Is "n"? Yes. So: <code>HH IH1 P .
+<p><code>P N</code>: is &ldquo;pn&rdquo; a legal onset? No (see above). Is &ldquo;n&rdquo;? Yes. So: <code>HH IH1 P .
 N AH0 . T AY2 Z</code> — the p stays back as coda, exactly mirroring why English
-speakers can't say "pneumatic" the Greek way. Single consonants like the <code>T</code>
+speakers can&rsquo;t say &ldquo;pneumatic&rdquo; the Greek way. Single consonants like the <code>T</code>
 always go right (a one-consonant onset is always at least as legal as a
 one-consonant coda is mandatory — and MOP says prefer the onset).</p>
 <p>Word edges are the degenerate case: word-initial consonants have no left
-neighbor to compete with, so they are all onset ("sweaty" opens with the
+neighbor to compete with, so they are all onset (&ldquo;sweaty&rdquo; opens with the
 legal cluster <code>SW</code>); word-final consonants are all coda.</p>
 <p>Open the <strong>Syllabifier widget</strong> and watch the split happen on these words —
 it runs the same table and the same loop.</p>
-<h2>The fine print: MOP is a decision procedure, not a discovered truth</h2>
-<p>Here the course's running honesty policy kicks in. MOP gives a clean,
+<h2 id="the-fine-print-mop-is-a-decision-procedure-not-a-discovered-truth"><a class="anchor" href="#the-fine-print-mop-is-a-decision-procedure-not-a-discovered-truth" aria-hidden="true" tabindex="-1">#</a>The fine print: MOP is a decision procedure, not a discovered truth</h2>
+<p>Here the course&rsquo;s running honesty policy kicks in. MOP gives a clean,
 deterministic answer everywhere. English itself is not so tidy — and the gap
 matters to this project in a documented, load-bearing way.</p>
-<p>Consider the /t/ in "sweaty" (<code>SW EH1 . T IY0</code> by MOP). Since Kahn (1976),
+<p>Consider the /t/ in &ldquo;sweaty&rdquo; (<code>SW EH1 . T IY0</code> by MOP). Since Kahn (1976),
 phonologists have observed that a consonant in this position — between a
 stressed lax vowel and an unstressed one — behaves as if it belongs to
-<strong>both</strong> syllables at once ("ambisyllabic"). Two facts pull in opposite
+<strong>both</strong> syllables at once (&ldquo;ambisyllabic&rdquo;). Two facts pull in opposite
 directions:</p>
 <ul>
 <li>That /t/ <strong>flaps</strong> in American English (it comes out as the quick tap in
-  "water"), which a true syllable-initial /t/ never does — compare the
-  crisply aspirated /t/ in "attack." So it isn't purely an onset.</li>
-<li>But <code>SW EH1</code> can't stand alone either: a stressed lax vowel cannot end an
-  English syllable. There is no possible English word "sweh." So the /t/
-  isn't purely the next syllable's property.</li>
+  &ldquo;water&rdquo;), which a true syllable-initial /t/ never does — compare the
+  crisply aspirated /t/ in &ldquo;attack.&rdquo; So it isn&rsquo;t purely an onset.</li>
+<li>But <code>SW EH1</code> can&rsquo;t stand alone either: a stressed lax vowel cannot end an
+  English syllable. There is no possible English word &ldquo;sweh.&rdquo; So the /t/
+  isn&rsquo;t purely the next syllable&rsquo;s property.</li>
 </ul>
 <p>English is genuinely torn; MOP resolves the tie by fiat, wholly in the
-onset's favor. The choice is <em>lossy</em>, and the loss surfaces three units
+onset&rsquo;s favor. The choice is <em>lossy</em>, and the loss surfaces three units
 later as a measured problem: the rhyme kernel ignores onsets, so a medial
 consonant that MOP hands rightward <strong>vanishes from rhyme scoring
 entirely</strong>. sweaty~heavy scores a perfect 1.0 — indistinguishable from true
-perfect rhyme — even though the learner's ear, when probed, ranked
+perfect rhyme — even though the learner&rsquo;s ear, when probed, ranked
 sweaty~Betty (matching medial t~t) audibly above sweaty~heavy (t~v). The
 kernel ties them. That gap between the ear and the score is recorded as
-open <strong>tuning-ledger item 7</strong> (Unit 11's walkthrough), with two candidate
-fixes waiting on Unit 14's evaluation harness: copy ambisyllabic consonants
+open <strong>tuning-ledger item 7</strong> (Unit 11&rsquo;s walkthrough), with two candidate
+fixes waiting on Unit 14&rsquo;s evaluation harness: copy ambisyllabic consonants
 into the preceding coda so the ordinary coda term prices them, or teach the
 kernel to peek at non-initial onsets.</p>
 <p>The unit-sized lesson inside that story: when a clean algorithm meets a
-messy phenomenon, the algorithm's simplification is a <em>claim</em>, and the
+messy phenomenon, the algorithm&rsquo;s simplification is a <em>claim</em>, and the
 honest move is to write the claim down where the evidence can eventually
-judge it — a docstring that says "decision procedure," a ledger item with
-probe pairs, an eval that will settle it. Compare <code>syllabify.py</code>'s module
-docstring, which says exactly this in the code's own voice.</p>
-<h2>Check yourself</h2>
+judge it — a docstring that says &ldquo;decision procedure,&rdquo; a ledger item with
+probe pairs, an eval that will settle it. Compare <code>syllabify.py</code>&rsquo;s module
+docstring, which says exactly this in the code&rsquo;s own voice.</p>
+<h2 id="check-yourself"><a class="anchor" href="#check-yourself" aria-hidden="true" tabindex="-1">#</a>Check yourself</h2>
 <blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Why does one nucleus per syllable make counting
-syllables trivial? (2) Syllabify "hypnotize" from memory. (3) Why is
-"st" on the legal-onset list even though its sonority falls? (4) What is
+syllables trivial? (2) Syllabify &ldquo;hypnotize&rdquo; from memory. (3) Why is
+&ldquo;st&rdquo; on the legal-onset list even though its sonority falls? (4) What is
 ambisyllabicity, and which ledger item does it explain?</p>
 </blockquote>
-<h2>Exercise</h2>
+<h2 id="exercise"><a class="anchor" href="#exercise" aria-hidden="true" tabindex="-1">#</a>Exercise</h2>
 <p>From the syllabus: find a word the syllabifier currently gets wrong or
-can't handle because its onset cluster is missing from
-<code>phonetics.is_legal_onset</code>'s tables, add the cluster, and pin the fix with
+can&rsquo;t handle because its onset cluster is missing from
+<code>phonetics.is_legal_onset</code>&rsquo;s tables, add the cluster, and pin the fix with
 a new case in <code>tests/test_syllabify.py</code>. The tests assert against the
 human-readable <code>str(Syllable)</code> form — follow the existing examples.</p>
-<h2>Where this is heading</h2>
+<h2 id="where-this-is-heading"><a class="anchor" href="#where-this-is-heading" aria-hidden="true" tabindex="-1">#</a>Where this is heading</h2>
 <p>The syllable structure you can now build is the <em>input type</em> of everything
 that follows: Unit 5 slices a <code>Pronunciation</code> down to its rhyme-bearing
 tail (a run of syllables), Unit 6 scores tails nucleus-against-nucleus and
-coda-against-coda, and the "onsets are ignored" design — which this unit
-just showed is entangled with a real open problem — becomes the kernel's
+coda-against-coda, and the &ldquo;onsets are ignored&rdquo; design — which this unit
+just showed is entangled with a real open problem — becomes the kernel&rsquo;s
 signature move.</p></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#the-problem-cmudict-hands-us-a-string-rhyme-needs-a-structure">The problem: CMUdict hands us a string, rhyme needs a structure</a></li><li><a href="#syllable-anatomy-a-sonority-mountain">Syllable anatomy: a sonority mountain</a></li><li><a href="#phonotactics-not-every-consonant-string-is-a-legal-onset">Phonotactics: not every consonant string is a legal onset</a></li><li><a href="#the-maximal-onset-principle-the-tiebreaker">The Maximal Onset Principle: the tiebreaker</a></li><li><a href="#the-fine-print-mop-is-a-decision-procedure-not-a-discovered-truth">The fine print: MOP is a decision procedure, not a discovered truth</a></li><li><a href="#check-yourself">Check yourself</a></li><li><a href="#exercise">Exercise</a></li><li><a href="#where-this-is-heading">Where this is heading</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="prev" href="unit-03.html">← Unit 3: Consonants: place, manner, voicing, sonority</a><a class="next" href="unit-05.html">Unit 5: The vowel skeleton & the rhyme-bearing tail →</a>
+<a class="prev" href="unit-03.html"><span class="dir">Previous</span><span class="ttl">Unit 3: Consonants: place, manner, voicing, sonority</span></a><a class="next" href="unit-05.html"><span class="dir">Next</span><span class="ttl">Unit 5: The vowel skeleton &amp; the rhyme-bearing tail</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById("theme-toggle");
+  if(btn) btn.addEventListener("click",function(){
+    var dark=root.dataset.theme
+      ? root.dataset.theme==="dark"
+      : matchMedia("(prefers-color-scheme:dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try{localStorage.setItem("rs-theme",root.dataset.theme);}catch(e){}
+  });
+  var links=[].slice.call(document.querySelectorAll(".rail a"));
+  if(!links.length||!window.IntersectionObserver) return;
+  var byId={};
+  links.forEach(function(a){ byId[a.getAttribute("href").slice(1)]=a; });
+  var visible={};
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ visible[e.target.id]=e.isIntersecting; });
+    var current=null;
+    Object.keys(byId).forEach(function(id){ if(visible[id]&&!current) current=id; });
+    links.forEach(function(a){ a.classList.remove("on"); });
+    if(current&&byId[current]) byId[current].classList.add("on");
+  },{rootMargin:"-88px 0px -70% 0px"});
+  Object.keys(byId).forEach(function(id){
+    var el=document.getElementById(id); if(el) obs.observe(el);
+  });
+})();
+</script>
 </body>
 </html>

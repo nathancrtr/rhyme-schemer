@@ -5,63 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Syllabus</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Course contents</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html" aria-current="page">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="note">The complete syllabus, one page. Each unit heading here has a matching <a href="index.html">unit page</a> with the lesson and hands-on material.</p><h1>rhyme-schemer: Curriculum</h1>
+<div class="masthead"><p class="crumb">Course reference</p></div><p class="note">The complete syllabus, one page. Each unit heading here has a matching <a href="index.html">unit page</a> with the lesson and hands-on material.</p><h1>rhyme-schemer: Curriculum</h1>
 <p>Learn NLP and computational phonology <strong>by building rhyme-schemer</strong> — from the phonetic foundation already in the repo, through the rhyme-scoring kernel, to a working visualizer of rhyme schemes in hip-hop lyrics. For a senior software engineer at ~3–5 hrs/week; roughly 6 months.</p>
 <hr />
-<h2>How this curriculum works</h2>
-<p><strong>The repo is the spine.</strong> This is a project-driven course: each unit takes rhyme-schemer from one working state to the next. The theory is just-in-time — you read the chapter or paper that unblocks <em>this</em> step, not a survey. Where the code already exists (the whole phonetic foundation), you read it as a worked example and prove your understanding by extending it; where it doesn't (everything from <code>rhyme_score</code> onward), you build it, usually by making a failing test pass.</p>
-<p><strong>Two tracks, interleaved.</strong> Every unit pairs an <strong>implementation</strong> step with the <strong>concept</strong> it embodies. You'll never wire up a function without understanding the phonology or algorithm behind it, and never meet a concept without immediately coding it.</p>
+<h2 id="how-this-curriculum-works"><a class="anchor" href="#how-this-curriculum-works" aria-hidden="true" tabindex="-1">#</a>How this curriculum works</h2>
+<p><strong>The repo is the spine.</strong> This is a project-driven course: each unit takes rhyme-schemer from one working state to the next. The theory is just-in-time — you read the chapter or paper that unblocks <em>this</em> step, not a survey. Where the code already exists (the whole phonetic foundation), you read it as a worked example and prove your understanding by extending it; where it doesn&rsquo;t (everything from <code>rhyme_score</code> onward), you build it, usually by making a failing test pass.</p>
+<p><strong>Two tracks, interleaved.</strong> Every unit pairs an <strong>implementation</strong> step with the <strong>concept</strong> it embodies. You&rsquo;ll never wire up a function without understanding the phonology or algorithm behind it, and never meet a concept without immediately coding it.</p>
 <p><strong>Each unit has:</strong> Build (the implementation step) · Read (precise sources) · Concepts · Exercise · Milestone, and sometimes a Key Insight or an interactive piece in <code>interactive/</code>.</p>
-<p><strong>Pacing.</strong> One unit ≈ one week at 3–5 hrs. Phase 1 moves fast because you're reading existing code; the build phases are slower. Some units run long — Unit 8 (alignment) especially. That's expected.</p>
-<p><strong>The repo's own tests are your grader.</strong> rhyme-schemer's <code>tests/</code> already model the house style: structural property tests (identity, symmetry, range) and ordering assertions you trust over exact numbers. New exercises follow that style, and many ship as failing tests in <code>interactive/exercises/</code>.</p>
-<p><strong>Working with Claude.</strong> This course is built to be worked through with Claude. Triggers like <em>"teach me Unit 5 interactively"</em> run a Socratic lesson guide; <em>"quiz me on Phase 1"</em> draws from the question bank. See the end of this file.</p>
+<p><strong>Pacing.</strong> One unit ≈ one week at 3–5 hrs. Phase 1 moves fast because you&rsquo;re reading existing code; the build phases are slower. Some units run long — Unit 8 (alignment) especially. That&rsquo;s expected.</p>
+<p><strong>The repo&rsquo;s own tests are your grader.</strong> rhyme-schemer&rsquo;s <code>tests/</code> already model the house style: structural property tests (identity, symmetry, range) and ordering assertions you trust over exact numbers. New exercises follow that style, and many ship as failing tests in <code>interactive/exercises/</code>.</p>
+<p><strong>Working with Claude.</strong> This course is built to be worked through with Claude. Triggers like <em>&ldquo;teach me Unit 5 interactively&rdquo;</em> run a Socratic lesson guide; <em>&ldquo;quiz me on Phase 1&rdquo;</em> draws from the question bank. See the end of this file.</p>
 <hr />
-<h2>Phase 0 — Orientation (Week 0)</h2>
-<p><strong>Goal:</strong> Know what you're building and why, and get the foundation running.</p>
+<h2 id="phase-0-orientation-week-0"><a class="anchor" href="#phase-0-orientation-week-0" aria-hidden="true" tabindex="-1">#</a>Phase 0 — Orientation (Week 0)</h2>
+<p><strong>Goal:</strong> Know what you&rsquo;re building and why, and get the foundation running.</p>
 <ul>
 <li><strong>Build:</strong> Nothing yet. <code>pip install -r requirements.txt</code>; <code>python -m unittest discover tests</code> — all green.</li>
-<li><strong>Read:</strong> the repo <code>README.md</code> (including "Where this sits in the field"); the introduction of Hirjee &amp; Brown (2009); one Pudding piece; skim the external research review in <code>REVIEW.md</code> to see how the finished project reads to a researcher. Play in a REPL: <code>pronouncing.phones_for_word("lincoln")</code>, <code>pronouncing.rhymes("cheese")</code>.</li>
-<li><strong>Concepts:</strong> the syllable-first pipeline (look up → syllabify → feature-score → rhyme-kernel → group → visualize); slant rhyme vs perfect rhyme; why "Lincoln/reason" must count.</li>
+<li><strong>Read:</strong> the repo <code>README.md</code> (including &ldquo;Where this sits in the field&rdquo;); the introduction of Hirjee &amp; Brown (2009); one Pudding piece; skim the external research review in <code>REVIEW.md</code> to see how the finished project reads to a researcher. Play in a REPL: <code>pronouncing.phones_for_word("lincoln")</code>, <code>pronouncing.rhymes("cheese")</code>.</li>
+<li><strong>Concepts:</strong> the syllable-first pipeline (look up → syllabify → feature-score → rhyme-kernel → group → visualize); slant rhyme vs perfect rhyme; why &ldquo;Lincoln/reason&rdquo; must count.</li>
 <li><strong>Milestone:</strong> Tests pass locally, and you can describe the pipeline and the north star in your own words.</li>
 </ul>
-<blockquote class="think"><p><span class="think-label">Check yourself</span> Why does the README insist the tool target <em>vowel sounds</em> rather than spelling? If you're not sure, that's exactly what Unit 1's lesson guide opens with.</p>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> Why does the README insist the tool target <em>vowel sounds</em> rather than spelling? If you&rsquo;re not sure, that&rsquo;s exactly what Unit 1&rsquo;s lesson guide opens with.</p>
 </blockquote>
 <hr />
-<h2>Phase 1 — The phonetic foundation already in the repo (Weeks 1–5)</h2>
-<p><strong>Goal:</strong> Master the concepts the existing modules encode, by reading and extending them. By the end you understand every line of <code>phonetics.py</code>, <code>models.py</code>, <code>syllabify.py</code>, and <code>features.py</code>, and you've made each one yours by extending it.</p>
-<h3>Unit 1 — Phonemes, ARPAbet &amp; the lexicon</h3>
+<h2 id="phase-1-the-phonetic-foundation-already-in-the-repo-weeks-1-5"><a class="anchor" href="#phase-1-the-phonetic-foundation-already-in-the-repo-weeks-1-5" aria-hidden="true" tabindex="-1">#</a>Phase 1 — The phonetic foundation already in the repo (Weeks 1–5)</h2>
+<p><strong>Goal:</strong> Master the concepts the existing modules encode, by reading and extending them. By the end you understand every line of <code>phonetics.py</code>, <code>models.py</code>, <code>syllabify.py</code>, and <code>features.py</code>, and you&rsquo;ve made each one yours by extending it.</p>
+<h3 id="unit-1-phonemes-arpabet-the-lexicon"><a class="anchor" href="#unit-1-phonemes-arpabet-the-lexicon" aria-hidden="true" tabindex="-1">#</a>Unit 1 — Phonemes, ARPAbet &amp; the lexicon</h3>
 <ul>
 <li><strong>Build:</strong> Read <code>phonetics.py</code> (<code>Stress</code>, <code>VOWELS</code>, <code>strip_stress</code>, <code>is_vowel</code>) and the <code>pronouncing</code>/CMUdict layer in <code>syllabify.py</code> (<code>pronunciation_for</code>). Add property-based tests for <code>strip_stress</code>/<code>is_vowel</code>.</li>
-<li><strong>Read:</strong> SLP3 <strong>Phonetics</strong> chapter (phonemes, IPA, ARPAbet); Parrish's CMUdict notes; ARPABET (Wikipedia).</li>
+<li><strong>Read:</strong> SLP3 <strong>Phonetics</strong> chapter (phonemes, IPA, ARPAbet); Parrish&rsquo;s CMUdict notes; ARPABET (Wikipedia).</li>
 <li><strong>Concepts:</strong> phoneme vs grapheme; transcription systems (IPA vs ARPAbet); the pronunciation lexicon; lexical stress (0/1/2); the out-of-vocabulary (OOV) problem; why CMUdict returns <em>variants</em>.</li>
-<li><strong>Exercise:</strong> In a REPL, collect five words CMUdict gets interestingly wrong or lacks (slang, names — <em>"Coogi"</em>). Write tests asserting <code>strip_stress("IH1") == ("IH", PRIMARY)</code> and friends, and that every ARPAbet vowel round-trips.</li>
+<li><strong>Exercise:</strong> In a REPL, collect five words CMUdict gets interestingly wrong or lacks (slang, names — <em>&ldquo;Coogi&rdquo;</em>). Write tests asserting <code>strip_stress("IH1") == ("IH", PRIMARY)</code> and friends, and that every ARPAbet vowel round-trips.</li>
 <li><strong>Milestone:</strong> New passing tests for the phonetics primitives, and a short note listing five OOV words (your future Unit-13 test set).</li>
 <li><strong>Interactive:</strong> <code>interactive/lessons/unit-01-phonemes-not-spelling.md</code>.</li>
 </ul>
-<h3>Unit 2 — The IPA vowel space &amp; articulatory features (vowels)</h3>
+<h3 id="unit-2-the-ipa-vowel-space-articulatory-features-vowels"><a class="anchor" href="#unit-2-the-ipa-vowel-space-articulatory-features-vowels" aria-hidden="true" tabindex="-1">#</a>Unit 2 — The IPA vowel space &amp; articulatory features (vowels)</h3>
 <ul>
 <li><strong>Build:</strong> Read the vowel half of <code>features.py</code> (<code>VowelPoint</code>, <code>VowelFeatures</code>, <code>VOWEL_FEATURES</code>, <code>vowel_distance</code>). Adjust or justify two coordinate choices without breaking the ordering tests.</li>
 <li><strong>Read:</strong> SLP3 Phonetics (vowels); the interactive IPA chart (make the sounds!); the vowel-quadrilateral references.</li>
 <li><strong>Concepts:</strong> the IPA vowel quadrilateral (height × backness); roundedness; the rhotic <code>ER</code>; tense/lax falling out of position (centralization); <strong>diphthongs as a glide</strong> between two points; distance on a plane as similarity.</li>
-<li><strong>Exercise:</strong> Open <code>interactive/widgets/vowel-explorer.html</code>, click pairs, and confirm by hand that the widget's numbers match <code>vowel_distance</code>. Then change one vowel's coordinates in <code>features.py</code>, predict which ordering tests shift, and check.</li>
-<li><strong>Milestone:</strong> You can explain why <code>IH</code> sits lower and more central than <code>IY</code>, and why a single point can't model <code>AY</code>.</li>
-<li><strong>Key insight:</strong> This table is a tiny, hand-built <strong>embedding</strong>. "Similarity = distance in a feature space" is the same move word2vec makes — you're meeting it in 15 vowels instead of 50,000 words.</li>
-<li><strong>Caveat to carry forward:</strong> articulatory adjacency is not perceptual confusability — the quadrilateral is a tongue-position diagram, not a psychoacoustic space (that would be Bark-scaled formant space). Corpus evidence on which vowel pairs rappers <em>actually</em> treat as rhymable exists — Hirjee &amp; Brown 2009's learned log-odds matrices, transcribed and rank-compared against this very space in <code>learning/audits/</code> (the audit found two systematic biases; tuning-ledger item 11 tells the story, and it's a preview of what Unit 14 does at scale). (Katz 2015 and Kawahara 2007, once cited here for this purpose, turn out on verification to be <em>consonant</em> data — the corrected note in <code>learning-resources.md</code> explains.) Unit 14 makes "refit this space from data" a first-class experiment.</li>
+<li><strong>Exercise:</strong> Open <code>interactive/widgets/vowel-explorer.html</code>, click pairs, and confirm by hand that the widget&rsquo;s numbers match <code>vowel_distance</code>. Then change one vowel&rsquo;s coordinates in <code>features.py</code>, predict which ordering tests shift, and check.</li>
+<li><strong>Milestone:</strong> You can explain why <code>IH</code> sits lower and more central than <code>IY</code>, and why a single point can&rsquo;t model <code>AY</code>.</li>
+<li><strong>Key insight:</strong> This table is a tiny, hand-built <strong>embedding</strong>. &ldquo;Similarity = distance in a feature space&rdquo; is the same move word2vec makes — you&rsquo;re meeting it in 15 vowels instead of 50,000 words.</li>
+<li><strong>Caveat to carry forward:</strong> articulatory adjacency is not perceptual confusability — the quadrilateral is a tongue-position diagram, not a psychoacoustic space (that would be Bark-scaled formant space). Corpus evidence on which vowel pairs rappers <em>actually</em> treat as rhymable exists — Hirjee &amp; Brown 2009&rsquo;s learned log-odds matrices, transcribed and rank-compared against this very space in <code>learning/audits/</code> (the audit found two systematic biases; tuning-ledger item 11 tells the story, and it&rsquo;s a preview of what Unit 14 does at scale). (Katz 2015 and Kawahara 2007, once cited here for this purpose, turn out on verification to be <em>consonant</em> data — the corrected note in <code>learning-resources.md</code> explains.) Unit 14 makes &ldquo;refit this space from data&rdquo; a first-class experiment.</li>
 <li><strong>Interactive:</strong> widget <code>vowel-explorer.html</code>; lesson <code>unit-02-feature-distance.md</code>.</li>
 </ul>
-<h3>Unit 3 — Consonants: place, manner, voicing, sonority</h3>
+<h3 id="unit-3-consonants-place-manner-voicing-sonority"><a class="anchor" href="#unit-3-consonants-place-manner-voicing-sonority" aria-hidden="true" tabindex="-1">#</a>Unit 3 — Consonants: place, manner, voicing, sonority</h3>
 <ul>
 <li><strong>Build:</strong> Read the consonant half of <code>features.py</code> (<code>CONSONANT_FEATURES</code>, <code>consonant_distance</code>). Add a near-pair ordering assertion of your own.</li>
 <li><strong>Read:</strong> SLP3 Phonetics (consonants); Sonority Sequencing Principle (Wikipedia).</li>
@@ -69,7 +82,7 @@
 <li><strong>Exercise:</strong> Add an assertion that voicing pairs (e.g. <code>S</code>/<code>Z</code>, <code>P</code>/<code>B</code>) are closer than same-manner different-place pairs, and explain the weight that makes it true.</li>
 <li><strong>Milestone:</strong> A passing consonant test you wrote, plus a one-paragraph rationale for the sonority ordering.</li>
 </ul>
-<h3>Unit 4 — Syllables &amp; phonotactics: the Maximal Onset Principle</h3>
+<h3 id="unit-4-syllables-phonotactics-the-maximal-onset-principle"><a class="anchor" href="#unit-4-syllables-phonotactics-the-maximal-onset-principle" aria-hidden="true" tabindex="-1">#</a>Unit 4 — Syllables &amp; phonotactics: the Maximal Onset Principle</h3>
 <ul>
 <li><strong>Build:</strong> Read <code>models.py</code> (<code>Syllable</code>, <code>Pronunciation</code>, <code>rime</code>, <code>vowel_skeleton</code>), the onset tables in <code>phonetics.py</code> (<code>is_legal_onset</code>), and <code>syllabify.py</code> (<code>_split_consonants</code>, <code>syllabify</code>). Add an onset cluster a new word needs.</li>
 <li><strong>Read:</strong> SLP3 Phonetics (syllable structure); Phonotactics &amp; Syllable (Wikipedia).</li>
@@ -78,128 +91,128 @@
 <li><strong>Milestone:</strong> A new word correctly syllabified, gated by a test you wrote.</li>
 <li><strong>Interactive:</strong> widget <code>syllabifier.html</code>; quiz <code>interactive/quizzes/phase-1-checkpoint.html</code>.</li>
 </ul>
-<h3>— Phase 1 Checkpoint —</h3>
-<p>You can read every module in the repo, explain the phonology each encodes, and you've extended all four with tests of your own. You understand that the whole foundation exists to produce one thing: a <code>Pronunciation</code> whose <code>vowel_skeleton</code> you can now reason about. You're ready to build forward.</p>
+<h3 id="phase-1-checkpoint"><a class="anchor" href="#phase-1-checkpoint" aria-hidden="true" tabindex="-1">#</a>— Phase 1 Checkpoint —</h3>
+<p>You can read every module in the repo, explain the phonology each encodes, and you&rsquo;ve extended all four with tests of your own. You understand that the whole foundation exists to produce one thing: a <code>Pronunciation</code> whose <code>vowel_skeleton</code> you can now reason about. You&rsquo;re ready to build forward.</p>
 <hr />
-<h2>Phase 2 — The rhyme kernel (Weeks 6–10)</h2>
-<p><strong>Goal:</strong> Build <code>rhyme_score(a, b) -&gt; float</code>, the piece the README calls "next up." Start from the perceptual definition of rhyme, ship the perfect-rhyme special case first, then loosen to graded slant rhyme, then handle unequal lengths with sequence alignment.</p>
-<h3>Unit 5 — The vowel skeleton &amp; the rhyme-bearing tail</h3>
+<h2 id="phase-2-the-rhyme-kernel-weeks-6-10"><a class="anchor" href="#phase-2-the-rhyme-kernel-weeks-6-10" aria-hidden="true" tabindex="-1">#</a>Phase 2 — The rhyme kernel (Weeks 6–10)</h2>
+<p><strong>Goal:</strong> Build <code>rhyme_score(a, b) -&gt; float</code>, the piece the README calls &ldquo;next up.&rdquo; Start from the perceptual definition of rhyme, ship the perfect-rhyme special case first, then loosen to graded slant rhyme, then handle unequal lengths with sequence alignment.</p>
+<h3 id="unit-5-the-vowel-skeleton-the-rhyme-bearing-tail"><a class="anchor" href="#unit-5-the-vowel-skeleton-the-rhyme-bearing-tail" aria-hidden="true" tabindex="-1">#</a>Unit 5 — The vowel skeleton &amp; the rhyme-bearing tail</h3>
 <ul>
 <li><strong>Build:</strong> A new <code>rhyme_schemer/rhyme.py</code>. Implement <code>rhyme_tail(pron) -&gt; tuple[Syllable, ...]</code> — the syllables from the <strong>last primary-stressed</strong> syllable to the end (the perceptual rhyming part).</li>
-<li><strong>Read:</strong> Parrish's <code>rhyming_part()</code> notes; Hirjee &amp; Brown §2 (what counts as a rhyme).</li>
-<li><strong>Concepts:</strong> why rhyme lives in the tail from the last stress (not the last syllable — "lessen"/"strengthen" share a final syllable but don't rhyme); the rime; stress as the anchor; reusing <code>Pronunciation.vowel_skeleton</code>.</li>
+<li><strong>Read:</strong> Parrish&rsquo;s <code>rhyming_part()</code> notes; Hirjee &amp; Brown §2 (what counts as a rhyme).</li>
+<li><strong>Concepts:</strong> why rhyme lives in the tail from the last stress (not the last syllable — &ldquo;lessen&rdquo;/&rdquo;strengthen&rdquo; share a final syllable but don&rsquo;t rhyme); the rime; stress as the anchor; reusing <code>Pronunciation.vowel_skeleton</code>.</li>
 <li><strong>Exercise:</strong> <code>interactive/exercises/unit-05-rhyme-tail/</code> ships failing tests; make them pass. Edge cases: no primary stress (fall back to last secondary, then last vowel); monosyllables.</li>
-<li><strong>Milestone:</strong> <code>rhyme_tail</code> passes its suite, including the "lessen/strengthen don't rhyme" case.</li>
+<li><strong>Milestone:</strong> <code>rhyme_tail</code> passes its suite, including the &ldquo;lessen/strengthen don&rsquo;t rhyme&rdquo; case.</li>
 </ul>
-<h3>Unit 6 — Perfect rhyme first</h3>
+<h3 id="unit-6-perfect-rhyme-first"><a class="anchor" href="#unit-6-perfect-rhyme-first" aria-hidden="true" tabindex="-1">#</a>Unit 6 — Perfect rhyme first</h3>
 <ul>
 <li><strong>Build:</strong> <code>rhyme_score(a, b)</code> for the <strong>equal-length</strong> case: average <code>vowel_similarity</code> over aligned nuclei in the tail, with <code>consonant_similarity</code> on codas weighted lower and onsets ignored. Calibrate so identical tails score <code>1.0</code>.</li>
-<li><strong>Read:</strong> re-skim Hirjee &amp; Brown's scoring section.</li>
-<li><strong>Concepts:</strong> model the easy case before the hard one; the threshold-<code>1.0</code> special case; weighting nuclei over codas; ignoring onsets (the README's design).</li>
-<li><strong>Exercise:</strong> Failing tests for perfect rhymes (<code>cat</code>/<code>hat</code>, <code>time</code>/<code>rhyme</code>) and clear non-rhymes; make them pass. Assert the score is symmetric and in <code>[0, 1]</code> (the repo's house style).</li>
+<li><strong>Read:</strong> re-skim Hirjee &amp; Brown&rsquo;s scoring section.</li>
+<li><strong>Concepts:</strong> model the easy case before the hard one; the threshold-<code>1.0</code> special case; weighting nuclei over codas; ignoring onsets (the README&rsquo;s design).</li>
+<li><strong>Exercise:</strong> Failing tests for perfect rhymes (<code>cat</code>/<code>hat</code>, <code>time</code>/<code>rhyme</code>) and clear non-rhymes; make them pass. Assert the score is symmetric and in <code>[0, 1]</code> (the repo&rsquo;s house style).</li>
 <li><strong>Milestone:</strong> Perfect rhyme detected at threshold <code>1.0</code>; non-rhymes well below.</li>
 </ul>
-<h3>Unit 7 — Graded slant rhyme &amp; weighting</h3>
+<h3 id="unit-7-graded-slant-rhyme-weighting"><a class="anchor" href="#unit-7-graded-slant-rhyme-weighting" aria-hidden="true" tabindex="-1">#</a>Unit 7 — Graded slant rhyme &amp; weighting</h3>
 <ul>
 <li><strong>Build:</strong> Turn <code>rhyme_score</code> into the graded kernel: expose weights (coda weight, nucleus weight) and a threshold; tune so slant rhymes land between perfect and non-rhyme.</li>
-<li><strong>Read:</strong> the perceptual-similarity phonology paper (why imperfect rhyme tracks perceptual closeness); Hirjee &amp; Brown's imperfect-rhyme results.</li>
+<li><strong>Read:</strong> the perceptual-similarity phonology paper (why imperfect rhyme tracks perceptual closeness); Hirjee &amp; Brown&rsquo;s imperfect-rhyme results.</li>
 <li><strong>Concepts:</strong> rhyme as graded, not binary; the threshold as a tunable knob; <strong>perceptual similarity</strong> as the target your weights approximate; the danger of over-fitting weights to a few examples.</li>
-<li><strong>Exercise:</strong> Make "Lincoln"/"reason" score as a slant rhyme above your chosen threshold while "Lincoln"/"orange" stays below. Encode the <em>ordering</em> (perfect &gt; slant &gt; none) as tests, not exact magnitudes.</li>
+<li><strong>Exercise:</strong> Make &ldquo;Lincoln&rdquo;/&rdquo;reason&rdquo; score as a slant rhyme above your chosen threshold while &ldquo;Lincoln&rdquo;/&rdquo;orange&rdquo; stays below. Encode the <em>ordering</em> (perfect &gt; slant &gt; none) as tests, not exact magnitudes.</li>
 <li><strong>Milestone:</strong> A graded <code>rhyme_score</code> that ranks a small battery of pairs the way your ear does.</li>
-<li><strong>Interactive:</strong> widget <code>interactive/widgets/rhyme-score-sandbox.html</code> — two words in, every receipt out (tails, alignment, per-column blend), exactly <code>rhyme_score()</code>'s numbers; lesson <code>unit-07-the-rhyme-kernel.md</code>.</li>
+<li><strong>Interactive:</strong> widget <code>interactive/widgets/rhyme-score-sandbox.html</code> — two words in, every receipt out (tails, alignment, per-column blend), exactly <code>rhyme_score()</code>&rsquo;s numbers; lesson <code>unit-07-the-rhyme-kernel.md</code>.</li>
 </ul>
-<h3>Unit 8 — Unequal lengths: sequence alignment</h3>
+<h3 id="unit-8-unequal-lengths-sequence-alignment"><a class="anchor" href="#unit-8-unequal-lengths-sequence-alignment" aria-hidden="true" tabindex="-1">#</a>Unit 8 — Unequal lengths: sequence alignment</h3>
 <ul>
 <li><strong>Build:</strong> Generalize <code>rhyme_score</code> to tails of <strong>different lengths</strong> (multisyllabic rhyme) via alignment: implement Needleman–Wunsch over vowel skeletons using <code>vowel_distance</code> as substitution cost and a tuned gap penalty.</li>
-<li><strong>Read:</strong> SLP3 Ch. 2 <strong>Minimum Edit Distance</strong> (the algorithm, the backtrace); panphon's <code>Distance</code> source (feature-weighted edit distance in the wild); afterward, Kondrak (2000) — what you just built is, almost exactly, <strong>ALINE</strong>, the standard phonetic-alignment algorithm for 25 years, and its salience weights, vowel/consonant split, and diphthong expansions answer questions we handle ad hoc.</li>
+<li><strong>Read:</strong> SLP3 Ch. 2 <strong>Minimum Edit Distance</strong> (the algorithm, the backtrace); panphon&rsquo;s <code>Distance</code> source (feature-weighted edit distance in the wild); afterward, Kondrak (2000) — what you just built is, almost exactly, <strong>ALINE</strong>, the standard phonetic-alignment algorithm for 25 years, and its salience weights, vowel/consonant split, and diphthong expansions answer questions we handle ad hoc.</li>
 <li><strong>Concepts:</strong> edit distance / Needleman–Wunsch / DTW; substitution cost from a feature metric; gap penalties; alignment as the general case of which equal-length scoring was a special case.</li>
-<li><strong>Exercise:</strong> <code>interactive/exercises/unit-08-alignment/</code> — implement the DP table and backtrace; make multisyllabic tests pass (e.g. "national"/"rational"; a 3-syllable vs 2-syllable near-rhyme). Verify equal-length inputs still match Unit 6's scores.</li>
+<li><strong>Exercise:</strong> <code>interactive/exercises/unit-08-alignment/</code> — implement the DP table and backtrace; make multisyllabic tests pass (e.g. &ldquo;national&rdquo;/&rdquo;rational&rdquo;; a 3-syllable vs 2-syllable near-rhyme). Verify equal-length inputs still match Unit 6&rsquo;s scores.</li>
 <li><strong>Milestone:</strong> Multisyllabic slant rhymes scored sensibly; the alignment visualized in the lesson.</li>
-<li><strong>Key insight:</strong> This is the same dynamic-programming alignment used for spell-check and DNA — you're applying a workhorse NLP algorithm to vowels.</li>
+<li><strong>Key insight:</strong> This is the same dynamic-programming alignment used for spell-check and DNA — you&rsquo;re applying a workhorse NLP algorithm to vowels.</li>
 <li><strong>Interactive:</strong> lesson <code>unit-08-alignment.md</code>.</li>
 </ul>
-<h3>— Phase 2 Checkpoint —</h3>
-<p><code>rhyme_score</code> exists and works: it detects perfect rhyme exactly, grades slant rhyme by feature distance, and aligns tails of unequal length. You've implemented a feature-weighted alignment from scratch and understand it as classic NLP. The engine is built; the rest is putting it to work.</p>
+<h3 id="phase-2-checkpoint"><a class="anchor" href="#phase-2-checkpoint" aria-hidden="true" tabindex="-1">#</a>— Phase 2 Checkpoint —</h3>
+<p><code>rhyme_score</code> exists and works: it detects perfect rhyme exactly, grades slant rhyme by feature distance, and aligns tails of unequal length. You&rsquo;ve implemented a feature-weighted alignment from scratch and understand it as classic NLP. The engine is built; the rest is putting it to work.</p>
 <hr />
-<h2>Phase 3 — From pair-scores to a rhyme scheme (Weeks 11–15)</h2>
-<p><strong>Goal:</strong> Move from "do these two rhyme?" to "find and group all the rhymes in a verse."</p>
-<h3>Unit 9 — Multi-word spans &amp; pronunciation variants</h3>
+<h2 id="phase-3-from-pair-scores-to-a-rhyme-scheme-weeks-11-15"><a class="anchor" href="#phase-3-from-pair-scores-to-a-rhyme-scheme-weeks-11-15" aria-hidden="true" tabindex="-1">#</a>Phase 3 — From pair-scores to a rhyme scheme (Weeks 11–15)</h2>
+<p><strong>Goal:</strong> Move from &ldquo;do these two rhyme?&rdquo; to &ldquo;find and group all the rhymes in a verse.&rdquo;</p>
+<h3 id="unit-9-multi-word-spans-pronunciation-variants"><a class="anchor" href="#unit-9-multi-word-spans-pronunciation-variants" aria-hidden="true" tabindex="-1">#</a>Unit 9 — Multi-word spans &amp; pronunciation variants</h3>
 <ul>
 <li><strong>Build:</strong> <code>pronunciation_for_span(words)</code> (a span is just a <code>Pronunciation</code>); make scoring <strong>variant-aware</strong> (best score over CMUdict variants), replacing the current first-variant-only behavior.</li>
 <li><strong>Read:</strong> <code>pronouncing</code> API (<code>phones_for_word</code> returns a list); the README note on multi-word spans.</li>
 <li><strong>Concepts:</strong> a multi-word span and a single word are the same downstream object; pronunciation <strong>variants</strong> and why rappers exploit them (coercion); taking the max over variants.</li>
-<li><strong>Exercise:</strong> Score a multisyllabic <em>multi-word</em> rhyme (e.g. "get up"/"setup"). Add a variant case where the rhyme only works under the second pronunciation.</li>
+<li><strong>Exercise:</strong> Score a multisyllabic <em>multi-word</em> rhyme (e.g. &ldquo;get up&rdquo;/&rdquo;setup&rdquo;). Add a variant case where the rhyme only works under the second pronunciation.</li>
 <li><strong>Milestone:</strong> Spans and variants flow through <code>rhyme_score</code> unchanged downstream.</li>
 </ul>
-<h3>Unit 10 — Grouping rhymes: similarity graphs &amp; components</h3>
+<h3 id="unit-10-grouping-rhymes-similarity-graphs-components"><a class="anchor" href="#unit-10-grouping-rhymes-similarity-graphs-components" aria-hidden="true" tabindex="-1">#</a>Unit 10 — Grouping rhymes: similarity graphs &amp; components</h3>
 <ul>
-<li><strong>Build:</strong> <code>group_rhymes(words, threshold)</code> — build a graph where an edge means "score ≥ threshold," then return connected components as rhyme classes.</li>
+<li><strong>Build:</strong> <code>group_rhymes(words, threshold)</code> — build a graph where an edge means &ldquo;score ≥ threshold,&rdquo; then return connected components as rhyme classes.</li>
 <li><strong>Read:</strong> SLP3 on clustering basics; any union-find reference; Reddy &amp; Knight (2011) — the standard-cited paper for this task, which makes the <em>scheme</em> a latent variable to infer rather than a graph to component-ize.</li>
-<li><strong>Concepts:</strong> pairwise scores → groups; thresholding; the <strong>non-transitivity of slant rhyme</strong> (A rhymes with B, B with C, but not A with C) and why connected components is a deliberate (debatable) choice; union-find. Know the debate's names: components over threshold edges is <strong>single-link clustering</strong>, its failure mode is <strong>chaining</strong> (one generous edge glues two good clusters — the oldest known clustering pathology, and it <em>will</em> fire in Unit 11's ledger), and the principled alternatives are correlation clustering on signed weights, community detection penalizing sparse cuts, or Reddy &amp; Knight's scheme-as-inference.</li>
+<li><strong>Concepts:</strong> pairwise scores → groups; thresholding; the <strong>non-transitivity of slant rhyme</strong> (A rhymes with B, B with C, but not A with C) and why connected components is a deliberate (debatable) choice; union-find. Know the debate&rsquo;s names: components over threshold edges is <strong>single-link clustering</strong>, its failure mode is <strong>chaining</strong> (one generous edge glues two good clusters — the oldest known clustering pathology, and it <em>will</em> fire in Unit 11&rsquo;s ledger), and the principled alternatives are correlation clustering on signed weights, community detection penalizing sparse cuts, or Reddy &amp; Knight&rsquo;s scheme-as-inference.</li>
 <li><strong>Exercise:</strong> Group the line-end words of a real verse. Find a real non-transitive triple and decide how your grouping should treat it; encode the decision as a test.</li>
 <li><strong>Milestone:</strong> Line-end words of a verse grouped into colored rhyme classes (data, not yet pixels).</li>
 <li><strong>Interactive:</strong> lesson <code>unit-10-non-transitivity.md</code>; quiz <code>interactive/quizzes/phase-3-checkpoint.html</code> (build here).</li>
-<li><strong>Key insight:</strong> Slant-rhyme grouping isn't an equivalence relation — similarity rarely is. Choosing components vs. stricter clustering <em>is</em> a modeling decision, and naming it is half of computational linguistics.</li>
+<li><strong>Key insight:</strong> Slant-rhyme grouping isn&rsquo;t an equivalence relation — similarity rarely is. Choosing components vs. stricter clustering <em>is</em> a modeling decision, and naming it is half of computational linguistics.</li>
 </ul>
-<h3>Unit 11 — Internal &amp; multisyllabic rhyme: scanning a verse</h3>
+<h3 id="unit-11-internal-multisyllabic-rhyme-scanning-a-verse"><a class="anchor" href="#unit-11-internal-multisyllabic-rhyme-scanning-a-verse" aria-hidden="true" tabindex="-1">#</a>Unit 11 — Internal &amp; multisyllabic rhyme: scanning a verse</h3>
 <ul>
 <li><strong>Build:</strong> A scanner that slides over syllables (not just line ends) to surface internal and multisyllabic rhymes within and across lines.</li>
-<li><strong>Read:</strong> Hirjee &amp; Brown on internal-rhyme detection; the Vox "Rapping, deconstructed" breakdown.</li>
+<li><strong>Read:</strong> Hirjee &amp; Brown on internal-rhyme detection; the Vox &ldquo;Rapping, deconstructed&rdquo; breakdown.</li>
 <li><strong>Concepts:</strong> rhyme is not only line-final; windowing over the syllable stream; ranking candidate matches by score and length (longest/nearest, as Hirjee &amp; Brown do).</li>
 <li><strong>Exercise:</strong> On a verse with known internal rhymes, surface them; tune to suppress spurious low-score matches.</li>
 <li><strong>Milestone:</strong> Internal rhymes in a real verse detected and scored.</li>
 </ul>
-<h3>— Phase 3 Checkpoint —</h3>
+<h3 id="phase-3-checkpoint"><a class="anchor" href="#phase-3-checkpoint" aria-hidden="true" tabindex="-1">#</a>— Phase 3 Checkpoint —</h3>
 <p>Given a verse, rhyme-schemer finds the rhymes — line-final, internal, and multisyllabic — and groups them. Everything needed to <em>show</em> the scheme now exists as data.</p>
 <hr />
-<h2>Phase 4 — Visualization, OOV/G2P, and evaluation (Weeks 16–22)</h2>
-<p><strong>Goal:</strong> Make it visible, make it robust to unknown words, and find out whether it's any good.</p>
-<h3>Unit 12 — Visualizing the scheme</h3>
+<h2 id="phase-4-visualization-oov-g2p-and-evaluation-weeks-16-22"><a class="anchor" href="#phase-4-visualization-oov-g2p-and-evaluation-weeks-16-22" aria-hidden="true" tabindex="-1">#</a>Phase 4 — Visualization, OOV/G2P, and evaluation (Weeks 16–22)</h2>
+<p><strong>Goal:</strong> Make it visible, make it robust to unknown words, and find out whether it&rsquo;s any good.</p>
+<h3 id="unit-12-visualizing-the-scheme"><a class="anchor" href="#unit-12-visualizing-the-scheme" aria-hidden="true" tabindex="-1">#</a>Unit 12 — Visualizing the scheme</h3>
 <ul>
 <li><strong>Build:</strong> A renderer that takes grouped rhymes and emits highlighted output — an HTML page coloring each rhyme class (Pudding/Vox style), plus a terminal fallback.</li>
-<li><strong>Read:</strong> the Pudding pieces; Hirjee &amp; Brown's "Rhyme Analyzer" UI (five formatting styles for overlapping rhymes).</li>
+<li><strong>Read:</strong> the Pudding pieces; Hirjee &amp; Brown&rsquo;s &ldquo;Rhyme Analyzer&rdquo; UI (five formatting styles for overlapping rhymes).</li>
 <li><strong>Concepts:</strong> mapping rhyme classes to colors; handling a word in multiple classes (internal + line-final); designing for the non-specialist reader.</li>
 <li><strong>Exercise:</strong> Render a full verse to a standalone HTML file; handle the overlapping-membership case.</li>
-<li><strong>Milestone:</strong> A shareable HTML visualization of a verse's rhyme scheme — the README's original goal, realized.</li>
+<li><strong>Milestone:</strong> A shareable HTML visualization of a verse&rsquo;s rhyme scheme — the README&rsquo;s original goal, realized.</li>
 </ul>
-<h3>Unit 13 — Out-of-vocabulary words &amp; grapheme-to-phoneme</h3>
+<h3 id="unit-13-out-of-vocabulary-words-grapheme-to-phoneme"><a class="anchor" href="#unit-13-out-of-vocabulary-words-grapheme-to-phoneme" aria-hidden="true" tabindex="-1">#</a>Unit 13 — Out-of-vocabulary words &amp; grapheme-to-phoneme</h3>
 <ul>
 <li><strong>Build:</strong> A G2P fallback for words CMUdict lacks (your Unit-1 list): rule-based first; optionally wire in a neural G2P.</li>
 <li><strong>Read:</strong> Epitran; for the neural side, the current baseline is byte-level transformers (ByT5 G2P, CharsiuG2P) benchmarked in the SIGMORPHON 2020–22 shared tasks — <code>g2p_en</code>, once the standard mention, is a 2019 artifact and effectively unmaintained; SLP3 on G2P if present in your draft.</li>
-<li><strong>Concepts:</strong> the OOV problem; <strong>grapheme-to-phoneme</strong> as rule-based vs <strong>neural</strong> (a direct bridge to your transformer knowledge); confidence/flagging of guessed pronunciations; dialect respellings as <em>performance transcriptions</em>, not noise. The dialect rules (g-drop, -a-for-er) encode <strong>documented AAE and vernacular phonology</strong> — velar nasal fronting and non-rhoticity — and each rule now carries its citation in <code>g2p.py</code> (Fischer 1958 and Green 2002 for the (ING) variable; Thomas 2007 for non-rhoticity, whose "most common in unstressed syllables" finding is exactly the -a rule's environment): the citations harden the rules <em>and</em> answer the "why does your tool rewrite Black speech?" question with receipts. (The NLP-on-AAE literature is substantially about systems <em>failing</em> AAE speakers; a tool that takes performed AAE phonology as ground truth is on the right side of that, and should say so deliberately.)</li>
+<li><strong>Concepts:</strong> the OOV problem; <strong>grapheme-to-phoneme</strong> as rule-based vs <strong>neural</strong> (a direct bridge to your transformer knowledge); confidence/flagging of guessed pronunciations; dialect respellings as <em>performance transcriptions</em>, not noise. The dialect rules (g-drop, -a-for-er) encode <strong>documented AAE and vernacular phonology</strong> — velar nasal fronting and non-rhoticity — and each rule now carries its citation in <code>g2p.py</code> (Fischer 1958 and Green 2002 for the (ING) variable; Thomas 2007 for non-rhoticity, whose &ldquo;most common in unstressed syllables&rdquo; finding is exactly the -a rule&rsquo;s environment): the citations harden the rules <em>and</em> answer the &ldquo;why does your tool rewrite Black speech?&rdquo; question with receipts. (The NLP-on-AAE literature is substantially about systems <em>failing</em> AAE speakers; a tool that takes performed AAE phonology as ground truth is on the right side of that, and should say so deliberately.)</li>
 <li><strong>Exercise:</strong> Replace skip-and-flag with a G2P guess for three of your OOV words; mark guesses as lower-confidence so scoring can discount them.</li>
 <li><strong>Milestone:</strong> A previously-skipped word participates in a detected rhyme, flagged as G2P-derived.</li>
 </ul>
-<h3>Unit 14 — Evaluation: is it any good?</h3>
+<h3 id="unit-14-evaluation-is-it-any-good"><a class="anchor" href="#unit-14-evaluation-is-it-any-good" aria-hidden="true" tabindex="-1">#</a>Unit 14 — Evaluation: is it any good?</h3>
 <ul>
-<li><strong>Build:</strong> An eval harness, then point it at ground truth that mostly <strong>already exists</strong> — don't build gold from scratch when the field has it. Three corpora: <strong>MCFlow</strong> (Condit-Schultz 2016 — 124 rap songs transcribed with rhyme annotations <em>and their metric placement</em>), <strong>Haider &amp; Kuhn's</strong> hip-hop set (annotated for rhyme <em>and assonance</em> — exactly the north star), and <strong>Hirjee &amp; Brown's own annotated lyrics</strong> (thesis — makes results directly comparable to the named prior art). In-house annotation only fills gaps, and then with a <strong>second annotator and a reported agreement figure</strong> — otherwise the tuning sweep optimizes toward one person's ear. Content safety: evaluate locally against downloaded corpora; store song IDs + offsets in the repo, never lyric text.</li>
-<li><strong>Read:</strong> SLP3 Ch. 2 on <strong>precision / recall / F-score</strong>; Hirjee &amp; Brown's evaluation methodology; the MCFlow paper; Haider &amp; Kuhn (2018) on their annotation.</li>
-<li><strong>Concepts:</strong> annotate <em>groups</em>, score <em>pairs</em> (groups impose transitivity gold shouldn't); <strong>two metric families answering different questions</strong> — pairwise link P/R/F vs class-level clustering metrics (B-cubed, adjusted Rand) — the mega-class pathologies (ledger items 1, 9) only show up in the latter, so report both; inter-annotator agreement as the <em>ceiling</em> any scanner score is read against (annotator disagreement on slant rhyme is Katz's finding, not an annoyance); error analysis as the real payoff.</li>
-<li><strong>Exercise:</strong> Run the harness on external gold plus your own double-annotated verses; do the error analysis: are misses threshold problems, feature-coordinate problems, or OOV problems? Route each to its ledger item. Then design the sweep as <strong>conditions, not just dials</strong>: alongside thresholds/weights/chaining-gate values, include (a) <em>refit the vowel space from rhyme-pair data</em> — Hirjee &amp; Brown's central BLOSUM-style move; the quick pre-check already ran as <code>learning/audits/</code> (rank comparison against their published matrices; ledger items 11–12 — Katz's and Kawahara's tables, once slated for this role, are consonantal and audit the consonant space instead) — and (b) <em>one edge-weight-aware clustering condition</em> (correlation clustering or similar) to measure what the connected-components choice actually costs.</li>
+<li><strong>Build:</strong> An eval harness, then point it at ground truth that mostly <strong>already exists</strong> — don&rsquo;t build gold from scratch when the field has it. Three corpora: <strong>MCFlow</strong> (Condit-Schultz 2016 — 124 rap songs transcribed with rhyme annotations <em>and their metric placement</em>), <strong>Haider &amp; Kuhn&rsquo;s</strong> hip-hop set (annotated for rhyme <em>and assonance</em> — exactly the north star), and <strong>Hirjee &amp; Brown&rsquo;s own annotated lyrics</strong> (thesis — makes results directly comparable to the named prior art). In-house annotation only fills gaps, and then with a <strong>second annotator and a reported agreement figure</strong> — otherwise the tuning sweep optimizes toward one person&rsquo;s ear. Content safety: evaluate locally against downloaded corpora; store song IDs + offsets in the repo, never lyric text.</li>
+<li><strong>Read:</strong> SLP3 Ch. 2 on <strong>precision / recall / F-score</strong>; Hirjee &amp; Brown&rsquo;s evaluation methodology; the MCFlow paper; Haider &amp; Kuhn (2018) on their annotation.</li>
+<li><strong>Concepts:</strong> annotate <em>groups</em>, score <em>pairs</em> (groups impose transitivity gold shouldn&rsquo;t); <strong>two metric families answering different questions</strong> — pairwise link P/R/F vs class-level clustering metrics (B-cubed, adjusted Rand) — the mega-class pathologies (ledger items 1, 9) only show up in the latter, so report both; inter-annotator agreement as the <em>ceiling</em> any scanner score is read against (annotator disagreement on slant rhyme is Katz&rsquo;s finding, not an annoyance); error analysis as the real payoff.</li>
+<li><strong>Exercise:</strong> Run the harness on external gold plus your own double-annotated verses; do the error analysis: are misses threshold problems, feature-coordinate problems, or OOV problems? Route each to its ledger item. Then design the sweep as <strong>conditions, not just dials</strong>: alongside thresholds/weights/chaining-gate values, include (a) <em>refit the vowel space from rhyme-pair data</em> — Hirjee &amp; Brown&rsquo;s central BLOSUM-style move; the quick pre-check already ran as <code>learning/audits/</code> (rank comparison against their published matrices; ledger items 11–12 — Katz&rsquo;s and Kawahara&rsquo;s tables, once slated for this role, are consonantal and audit the consonant space instead) — and (b) <em>one edge-weight-aware clustering condition</em> (correlation clustering or similar) to measure what the connected-components choice actually costs.</li>
 <li><strong>Milestone:</strong> P/R/F <em>and</em> clustering numbers against external gold, an agreement ceiling to read them against, and a prioritized list of what to fix — measured, not guessed.</li>
-<li><strong>Key insight:</strong> You can't improve what you can't measure, and rhyme has no perfect ground truth — agreement is partial, <em>and that is a fact about the task</em>. Building the ruler is as much the work as building the tool; borrowing the field's rulers is how your numbers mean something to anyone else.</li>
+<li><strong>Key insight:</strong> You can&rsquo;t improve what you can&rsquo;t measure, and rhyme has no perfect ground truth — agreement is partial, <em>and that is a fact about the task</em>. Building the ruler is as much the work as building the tool; borrowing the field&rsquo;s rulers is how your numbers mean something to anyone else.</li>
 </ul>
-<h3>— Phase 4 Checkpoint —</h3>
+<h3 id="phase-4-checkpoint"><a class="anchor" href="#phase-4-checkpoint" aria-hidden="true" tabindex="-1">#</a>— Phase 4 Checkpoint —</h3>
 <p>rhyme-schemer is end-to-end: text in, highlighted rhyme scheme out, unknown words handled, with a number that says how well it works and a roadmap for improving it.</p>
 <hr />
-<h2>Phase 5 — Capstone &amp; frontiers (Weeks 23+)</h2>
-<h3>Unit 15 — Capstone: the finished tool + the written understanding</h3>
+<h2 id="phase-5-capstone-frontiers-weeks-23"><a class="anchor" href="#phase-5-capstone-frontiers-weeks-23" aria-hidden="true" tabindex="-1">#</a>Phase 5 — Capstone &amp; frontiers (Weeks 23+)</h2>
+<h3 id="unit-15-capstone-the-finished-tool-the-written-understanding"><a class="anchor" href="#unit-15-capstone-the-finished-tool-the-written-understanding" aria-hidden="true" tabindex="-1">#</a>Unit 15 — Capstone: the finished tool + the written understanding</h3>
 <ul>
 <li><strong>Build:</strong> Polish the pipeline into one entry point: paste a verse → an HTML visualization of its rhyme scheme, OOV handled, score reported. Then write a 2–3 page articulation of the phonology and NLP you now understand — phonemes and features, syllabification, the rhyme kernel, alignment, grouping, G2P, evaluation — and where each lives in the code.</li>
-<li><strong>Milestone:</strong> A demo you'd show someone, plus the writeup that proves the learning, not just the code.</li>
+<li><strong>Milestone:</strong> A demo you&rsquo;d show someone, plus the writeup that proves the learning, not just the code.</li>
 </ul>
 <p><strong>Frontiers (pick your own path):</strong></p>
 <ul>
 <li><strong>Swap in panphon</strong> for the hand-built feature tables; compare detections and re-run your eval.</li>
 <li><strong>Phonetic word embeddings</strong> (Parrish 2017): represent whole lines as vectors for fast candidate retrieval before exact scoring.</li>
-<li><strong>Unsupervised rhyme-scheme discovery</strong> (Reddy &amp; Knight 2011; also Addanki &amp; Wu 2013): the scheme as a latent variable inferred by EM, no pronunciation dictionary at all — the principled alternative to Unit 10's components, and a different answer to the mega-class problem.</li>
-<li><strong>Prosody &amp; flow:</strong> bring stress/meter into scoring, not just segments. This frontier has a literature — Adams (2009) on the metrical techniques of flow, MCFlow's beat-grid encoding, Ohriner's <em>Flow</em> (2019) — and one concrete experiment: validate the scanner's <em>inferred</em> performed-stress anchors against MCFlow's <em>observed</em> placements.</li>
+<li><strong>Unsupervised rhyme-scheme discovery</strong> (Reddy &amp; Knight 2011; also Addanki &amp; Wu 2013): the scheme as a latent variable inferred by EM, no pronunciation dictionary at all — the principled alternative to Unit 10&rsquo;s components, and a different answer to the mega-class problem.</li>
+<li><strong>Prosody &amp; flow:</strong> bring stress/meter into scoring, not just segments. This frontier has a literature — Adams (2009) on the metrical techniques of flow, MCFlow&rsquo;s beat-grid encoding, Ohriner&rsquo;s <em>Flow</em> (2019) — and one concrete experiment: validate the scanner&rsquo;s <em>inferred</em> performed-stress anchors against MCFlow&rsquo;s <em>observed</em> placements.</li>
 <li><strong>Variant disambiguation:</strong> pick the pronunciation that maximizes <em>whole-verse</em> rhyme, not per-pair.</li>
-<li><strong>The workshop paper.</strong> Per the external review (<code>REVIEW.md</code> §5), three of the scanner's ideas are genuinely fresh: performed stress as an enumerable, <em>priced</em> reading; the average-raising extension rule (with chain auto-splitting as a corollary); and "dialect spellings are performance transcriptions." Alone none is a paper; together — the scanner with priced performed-stress inference, evaluated on MCFlow against Hirjee &amp; Brown and a Haider &amp; Kuhn-style neural baseline — they plausibly clear the bar at the NLP4MusA / Computational Humanities / ML4Audio workshop tier. Unit 14's numbers are the missing ingredient.</li>
+<li><strong>The workshop paper.</strong> Per the external review (<code>REVIEW.md</code> §5), three of the scanner&rsquo;s ideas are genuinely fresh: performed stress as an enumerable, <em>priced</em> reading; the average-raising extension rule (with chain auto-splitting as a corollary); and &ldquo;dialect spellings are performance transcriptions.&rdquo; Alone none is a paper; together — the scanner with priced performed-stress inference, evaluated on MCFlow against Hirjee &amp; Brown and a Haider &amp; Kuhn-style neural baseline — they plausibly clear the bar at the NLP4MusA / Computational Humanities / ML4Audio workshop tier. Unit 14&rsquo;s numbers are the missing ingredient.</li>
 </ul>
 <hr />
-<h2>Concept dependency map</h2>
-<p>Arrows mean "understand before." The left column is phonetics/phonology; the right is algorithms.</p>
+<h2 id="concept-dependency-map"><a class="anchor" href="#concept-dependency-map" aria-hidden="true" tabindex="-1">#</a>Concept dependency map</h2>
+<p>Arrows mean &ldquo;understand before.&rdquo; The left column is phonetics/phonology; the right is algorithms.</p>
 <pre><code>ARPAbet &amp; the lexicon (U1)
         │
         ▼
@@ -237,21 +250,53 @@ Spans &amp; variants (U9)  Grouping = graph components (U10) ◄── non-trans
 </code></pre>
 <p><strong>Load-bearing (do not skip):</strong> U1 → U2 → U4 → U5 → U6 → U7 → U8 → U10. <strong>Safe to skim if it clicks:</strong> U3 (read), U9, U11. <strong>Can defer:</strong> U13, parts of U11.</p>
 <hr />
-<h2>How to use this curriculum with Claude</h2>
+<h2 id="how-to-use-this-curriculum-with-claude"><a class="anchor" href="#how-to-use-this-curriculum-with-claude" aria-hidden="true" tabindex="-1">#</a>How to use this curriculum with Claude</h2>
 <ul>
-<li><em>"Teach me Unit N interactively."</em> → runs the unit's Socratic lesson guide in <code>interactive/lessons/</code>.</li>
-<li><em>"Quiz me on Phase N."</em> → draws from <code>interactive/quizzes/question-bank.md</code>.</li>
-<li><em>"I wrote my <code>rhyme_tail</code> for Unit 5 — review it."</em> → paste the code for feedback against the unit's intent.</li>
-<li><em>"The alignment in Unit 8 isn't clicking — explain it on our actual vowel skeletons."</em> → a different angle on your own data.</li>
-<li><em>"Give me a harder exercise for Unit 7."</em> → an extra problem scoped to the unit.</li>
-<li><em>"Connect Unit 8 to something I already know."</em> → bridges to spell-check, diff, DNA alignment.</li>
+<li><em>&ldquo;Teach me Unit N interactively.&rdquo;</em> → runs the unit&rsquo;s Socratic lesson guide in <code>interactive/lessons/</code>.</li>
+<li><em>&ldquo;Quiz me on Phase N.&rdquo;</em> → draws from <code>interactive/quizzes/question-bank.md</code>.</li>
+<li><em>&ldquo;I wrote my <code>rhyme_tail</code> for Unit 5 — review it.&rdquo;</em> → paste the code for feedback against the unit&rsquo;s intent.</li>
+<li><em>&ldquo;The alignment in Unit 8 isn&rsquo;t clicking — explain it on our actual vowel skeletons.&rdquo;</em> → a different angle on your own data.</li>
+<li><em>&ldquo;Give me a harder exercise for Unit 7.&rdquo;</em> → an extra problem scoped to the unit.</li>
+<li><em>&ldquo;Connect Unit 8 to something I already know.&rdquo;</em> → bridges to spell-check, diff, DNA alignment.</li>
 </ul>
-<p>The curriculum is a guide, not a cage. The dependency map shows what's load-bearing and what you can skim if it clicks. If a unit runs long, let it — Unit 8 usually does.</p>
+<p>The curriculum is a guide, not a cage. The dependency map shows what&rsquo;s load-bearing and what you can skim if it clicks. If a unit runs long, let it — Unit 8 usually does.</p>
 <p><em>Curriculum v1.1 — July 2026: Units 2, 8, 10, 13, 14 and the frontiers revised to fold in the external research review (<code>REVIEW.md</code>) — corpora-first evaluation, the post-2010 detection literature, ALINE, and the workshop-paper path. Project-driven; revise as the repo and your understanding evolve.</em></p>
-<p><em>Curriculum v1.2 — August 2026: corrected the Katz/Kawahara-as-vowel-data claim in Units 2 and 14 (verified against the papers: both are consonant data; the vowel audit ran against Hirjee &amp; Brown's matrices instead — see <code>learning/audits/</code> and tuning-ledger items 11–12); Unit 13's dialect rules now carry their sociolinguistic citations in <code>g2p.py</code>.</em></p>
+<p><em>Curriculum v1.2 — August 2026: corrected the Katz/Kawahara-as-vowel-data claim in Units 2 and 14 (verified against the papers: both are consonant data; the vowel audit ran against Hirjee &amp; Brown&rsquo;s matrices instead — see <code>learning/audits/</code> and tuning-ledger items 11–12); Unit 13&rsquo;s dialect rules now carry their sociolinguistic citations in <code>g2p.py</code>.</em></p>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#how-this-curriculum-works">How this curriculum works</a></li><li><a href="#phase-0-orientation-week-0">Phase 0 — Orientation (Week 0)</a></li><li><a href="#phase-1-the-phonetic-foundation-already-in-the-repo-weeks-1-5">Phase 1 — The phonetic foundation already in the repo (Weeks 1–5)</a></li><li class="sub"><a href="#unit-1-phonemes-arpabet-the-lexicon">Unit 1 — Phonemes, ARPAbet &amp; the lexicon</a></li><li class="sub"><a href="#unit-2-the-ipa-vowel-space-articulatory-features-vowels">Unit 2 — The IPA vowel space &amp; articulatory features (vowels)</a></li><li class="sub"><a href="#unit-3-consonants-place-manner-voicing-sonority">Unit 3 — Consonants: place, manner, voicing, sonority</a></li><li class="sub"><a href="#unit-4-syllables-phonotactics-the-maximal-onset-principle">Unit 4 — Syllables &amp; phonotactics: the Maximal Onset Principle</a></li><li class="sub"><a href="#phase-1-checkpoint">— Phase 1 Checkpoint —</a></li><li><a href="#phase-2-the-rhyme-kernel-weeks-6-10">Phase 2 — The rhyme kernel (Weeks 6–10)</a></li><li class="sub"><a href="#unit-5-the-vowel-skeleton-the-rhyme-bearing-tail">Unit 5 — The vowel skeleton &amp; the rhyme-bearing tail</a></li><li class="sub"><a href="#unit-6-perfect-rhyme-first">Unit 6 — Perfect rhyme first</a></li><li class="sub"><a href="#unit-7-graded-slant-rhyme-weighting">Unit 7 — Graded slant rhyme &amp; weighting</a></li><li class="sub"><a href="#unit-8-unequal-lengths-sequence-alignment">Unit 8 — Unequal lengths: sequence alignment</a></li><li class="sub"><a href="#phase-2-checkpoint">— Phase 2 Checkpoint —</a></li><li><a href="#phase-3-from-pair-scores-to-a-rhyme-scheme-weeks-11-15">Phase 3 — From pair-scores to a rhyme scheme (Weeks 11–15)</a></li><li class="sub"><a href="#unit-9-multi-word-spans-pronunciation-variants">Unit 9 — Multi-word spans &amp; pronunciation variants</a></li><li class="sub"><a href="#unit-10-grouping-rhymes-similarity-graphs-components">Unit 10 — Grouping rhymes: similarity graphs &amp; components</a></li><li class="sub"><a href="#unit-11-internal-multisyllabic-rhyme-scanning-a-verse">Unit 11 — Internal &amp; multisyllabic rhyme: scanning a verse</a></li><li class="sub"><a href="#phase-3-checkpoint">— Phase 3 Checkpoint —</a></li><li><a href="#phase-4-visualization-oov-g2p-and-evaluation-weeks-16-22">Phase 4 — Visualization, OOV/G2P, and evaluation (Weeks 16–22)</a></li><li class="sub"><a href="#unit-12-visualizing-the-scheme">Unit 12 — Visualizing the scheme</a></li><li class="sub"><a href="#unit-13-out-of-vocabulary-words-grapheme-to-phoneme">Unit 13 — Out-of-vocabulary words &amp; grapheme-to-phoneme</a></li><li class="sub"><a href="#unit-14-evaluation-is-it-any-good">Unit 14 — Evaluation: is it any good?</a></li><li class="sub"><a href="#phase-4-checkpoint">— Phase 4 Checkpoint —</a></li><li><a href="#phase-5-capstone-frontiers-weeks-23">Phase 5 — Capstone &amp; frontiers (Weeks 23+)</a></li><li class="sub"><a href="#unit-15-capstone-the-finished-tool-the-written-understanding">Unit 15 — Capstone: the finished tool + the written understanding</a></li><li><a href="#concept-dependency-map">Concept dependency map</a></li><li><a href="#how-to-use-this-curriculum-with-claude">How to use this curriculum with Claude</a></li></ol></aside>
+</div>
 <footer class="pager">
 
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById("theme-toggle");
+  if(btn) btn.addEventListener("click",function(){
+    var dark=root.dataset.theme
+      ? root.dataset.theme==="dark"
+      : matchMedia("(prefers-color-scheme:dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try{localStorage.setItem("rs-theme",root.dataset.theme);}catch(e){}
+  });
+  var links=[].slice.call(document.querySelectorAll(".rail a"));
+  if(!links.length||!window.IntersectionObserver) return;
+  var byId={};
+  links.forEach(function(a){ byId[a.getAttribute("href").slice(1)]=a; });
+  var visible={};
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ visible[e.target.id]=e.isIntersecting; });
+    var current=null;
+    Object.keys(byId).forEach(function(id){ if(visible[id]&&!current) current=id; });
+    links.forEach(function(a){ a.classList.remove("on"); });
+    if(current&&byId[current]) byId[current].classList.add("on");
+  },{rootMargin:"-88px 0px -70% 0px"});
+  Object.keys(byId).forEach(function(id){
+    var el=document.getElementById(id); if(el) obs.observe(el);
+  });
+})();
+</script>
 </body>
 </html>
