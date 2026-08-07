@@ -230,6 +230,106 @@ def anchor_headings(html: str) -> tuple[str, list[tuple[str, str, str]]]:
     return _HEADING.sub(replace, html), toc
 
 
+# ---------------------------------------------------------------------------
+# Purpose-built layouts for the two reference documents
+# ---------------------------------------------------------------------------
+# The syllabus and the resources list are not prose -- they are records, and
+# almost every line of both is a "**Label:** value" bullet. Rendered as
+# bullets they are a wall: fifteen units whose Build/Read/Concepts/Exercise
+# fields all look alike, and nothing to scan by. Nobody reads a syllabus; they
+# look things up in one. So the labels get a column of their own, units become
+# numbered entries that link to their pages (the old syllabus said every unit
+# had a page but linked to none of them), and resource type tags stop being
+# inline code and become badges.
+
+_INNER_UL = re.compile(r"<ul>((?:(?!</?ul>).)*?)</ul>", re.S)
+_FIELD_LI = re.compile(r"<li>\s*<strong>([^<:]{2,30}):</strong>\s*(.*?)</li>", re.S)
+
+
+def field_lists(html: str) -> str:
+    """A bullet list whose every item opens '**Label:**' is a definition list."""
+    def convert(match: re.Match[str]) -> str:
+        block = match.group(1)
+        fields = _FIELD_LI.findall(block)
+        # Only convert when *every* item fits the shape; a mixed list stays a list.
+        if len(fields) < 2 or len(fields) != block.count("<li>"):
+            return match.group(0)
+        rows = "".join(f"<dt>{html_mod.escape(key)}</dt><dd>{value.strip()}</dd>"
+                       for key, value in fields)
+        return f'<dl class="fields">{rows}</dl>'
+    return _INNER_UL.sub(convert, html)
+
+
+UNIT_PHASE = {unit["num"]: unit["phase"] for unit in UNITS}
+
+_SYL_UNIT = re.compile(
+    r"<h3>Unit (\d+) &mdash; (.*?)</h3>\s*(<dl class=\"fields\">.*?</dl>)"
+    r"|<h3>Unit (\d+) — (.*?)</h3>\s*(<dl class=\"fields\">.*?</dl>)", re.S)
+_SYL_CHECKPOINT = re.compile(r"<h3>—\s*(Phase \d+ Checkpoint)\s*—</h3>")
+
+
+def syllabus_layout(html: str) -> str:
+    html = field_lists(html)
+
+    def unit(match: re.Match[str]) -> str:
+        groups = [g for g in match.groups() if g is not None]
+        num, title, fields = int(groups[0]), groups[1], groups[2]
+        hue = PHASE_HUE[UNIT_PHASE.get(num, 1)]
+        return (f'<section class="uentry" style="--accent:var(--hue-{hue})">'
+                f'<div class="ue-num">{num}</div><div class="ue-body">'
+                f"<h3>{title}</h3>{fields}"
+                f'<a class="ue-go" href="unit-{num:02d}.html">Open Unit {num}</a>'
+                f"</div></section>")
+
+    html = _SYL_UNIT.sub(unit, html)
+    return _SYL_CHECKPOINT.sub(r'<p class="checkpoint">\1</p>', html)
+
+
+# Resource type -> hue slot, so the badges stay categorical rather than decorative.
+RESOURCE_HUE = {"TEXT": 0, "PAPER": 4, "CODE": 1, "TOOL": 2,
+                "INTERACTIVE": 7, "VIDEO": 5}
+_RES_TAGS = re.compile(r"\s*<code>((?:\[[A-Z]+\])+)</code>")
+# Everything from an h3 up to the next heading is that resource's entry.
+# Matching the *body* rather than a specific list shape matters: only about a
+# third of the entries are pure "**Label:** value" lists. The rest mix those
+# with citation lines ("**Kondrak (2000),** *A New Algorithm...*"), which are
+# genuinely a list and should stay one. Every entry still becomes a card.
+_RES_ENTRY = re.compile(r"<h3>(.*?)</h3>(.*?)(?=<h[123]|\Z)", re.S)
+
+
+_RES_LEGEND = re.compile(r"<p>Tags:\s*<code>((?:\[[A-Z]+\]\s*)+)</code>\.?</p>")
+
+
+def resources_layout(html: str) -> str:
+    html = field_lists(html)
+
+    # The "Tags: [TEXT] [CODE] ..." legend is the key to the badges, so it
+    # should be made of badges rather than of inline code.
+    def legend(match: re.Match[str]) -> str:
+        badges = "".join(
+            f'<span class="rtag" style="--accent:var(--hue-'
+            f'{RESOURCE_HUE.get(tag, 3)})">{tag}</span>'
+            for tag in re.findall(r"[A-Z]+", match.group(1)))
+        return f'<p class="legend-row">Tags <span class="rtags">{badges}</span></p>'
+
+    html = _RES_LEGEND.sub(legend, html)
+
+    def entry(match: re.Match[str]) -> str:
+        title, body = match.group(1), match.group(2)
+        found: list[str] = []
+        title = _RES_TAGS.sub(
+            lambda m: found.extend(re.findall(r"[A-Z]+", m.group(1))) or "", title)
+        hue = RESOURCE_HUE.get(found[0], 3) if found else 3
+        badges = "".join(
+            f'<span class="rtag" style="--accent:var(--hue-'
+            f'{RESOURCE_HUE.get(tag, 3)})">{tag}</span>' for tag in found)
+        head = f'<div class="rtags">{badges}</div>' if badges else ""
+        return (f'<section class="res" style="--accent:var(--hue-{hue})">'
+                f"{head}<h3>{title.strip()}</h3>{body.strip()}</section>")
+
+    return _RES_ENTRY.sub(entry, html)
+
+
 def rail_html(toc: list[tuple[str, str, str]]) -> str:
     """The sticky "on this page" rail. Omitted when there is nothing to steer by."""
     if len([t for t in toc if t[0] == "h2"]) < 2:
@@ -551,18 +651,16 @@ class="rw" style="--accent:var(--hue-1)">steady</span></p>
 
 def build_document_pages(curriculum: str) -> None:
     resources = (LEARNING / "learning-resources.md").read_text()
-    body, toc = anchor_headings(md_to_html(resources))
+    body, toc = anchor_headings(resources_layout(md_to_html(resources)))
     write_page("resources.html", "Resources",
-               '<div class="masthead"><p class="crumb">Course reference</p>'
-               '<h1>Resources</h1></div>' + body,
-               rail=rail_html(toc))
+               '<div class="masthead"><p class="crumb">Course reference</p></div>'
+               + body, rail=rail_html(toc))
 
-    body, toc = anchor_headings(md_to_html(curriculum))
+    body, toc = anchor_headings(syllabus_layout(md_to_html(curriculum)))
     write_page("syllabus.html", "Syllabus",
                '<div class="masthead"><p class="crumb">Course reference</p></div>'
-               '<p class="note">The complete syllabus, one page. Each unit heading here has a '
-               'matching <a href="index.html">unit page</a> with the lesson and hands-on '
-               'material.</p>' + body,
+               '<p class="note">The complete syllabus, one page &mdash; every unit here '
+               'links to its own page, with the lesson and hands-on material.</p>' + body,
                rail=rail_html(toc))
 
     seq = (LESSONS / "sequence-alignment-family.md").read_text()

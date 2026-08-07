@@ -33,10 +33,10 @@
   --sans:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 
-  --measure:39rem;        /* ~66 characters at the body size */
+  --measure:37.5rem;      /* ~66 characters at the body size */
   --rail:13.5rem;
   --gutter:2.75rem;
-  --text:1.1875rem;       /* 19px: a reading size, not a UI size */
+  --text:1.125rem;        /* 18px: a reading size, not a UI size */
   --leading:1.68;
   --radius:10px;
   --radius-sm:6px;
@@ -448,6 +448,72 @@ ul.units .utitle{flex:1;min-width:0;font-size:1.02rem;line-height:1.35;}
   background:color-mix(in srgb,var(--accent) 15%,transparent);}
 @media (max-width:34rem){.badges .badge span{display:none;}
   .badge{width:.5rem;height:.5rem;padding:0;border-radius:50%;background:var(--accent);}}
+
+/* ------------------------------------------------------------------
+   Reference-document layouts: the syllabus and the resources list.
+   Neither is prose. Both are records built almost entirely out of
+   "Label: value" rows, and as bullets they read as one undifferentiated
+   wall -- fifteen units whose Build/Read/Concepts/Exercise fields all
+   look alike. Nobody reads a syllabus; they look things up in one. So
+   the labels get a column, and the units get numbers you can aim at.
+   ------------------------------------------------------------------ */
+dl.fields{display:grid;grid-template-columns:7rem 1fr;gap:0 1.1rem;
+  margin:.7rem 0 0;}
+.fields dt{font-family:var(--sans);font-size:.66rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);
+  padding-top:.55em;}
+.fields dd{margin:0 0 .55rem;font-size:.96rem;line-height:1.58;}
+.fields dd:last-child{margin-bottom:0;}
+@media (max-width:36rem){
+  dl.fields{grid-template-columns:1fr;gap:0;}
+  .fields dt{padding-top:.7em;}
+  .fields dd{margin-bottom:.8rem;}}
+
+/* One syllabus unit. */
+.uentry{display:flex;gap:1rem;margin:1.3rem 0;padding:1.05rem 1.2rem 1.15rem;
+  background:var(--surface-raised);border:1px solid var(--rule);
+  border-left:3px solid var(--accent);
+  border-radius:0 var(--radius) var(--radius) 0;}
+.ue-num{font-family:var(--sans);font-size:1.45rem;font-weight:800;
+  font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.04em;
+  color:var(--accent);line-height:1.05;flex:none;min-width:1.5em;}
+.ue-body{flex:1;min-width:0;}
+.ue-body h3{margin:0;font-size:1.12rem;line-height:1.3;}
+.ue-go{display:inline-block;margin-top:.75rem;font-family:var(--sans);
+  font-size:.74rem;font-weight:700;letter-spacing:.03em;
+  color:var(--accent);text-decoration:none;}
+.ue-go::after{content:" \2192";}
+.ue-go:hover{text-decoration:underline;}
+
+/* The phase checkpoints, as a ruled divider rather than a heading. */
+.checkpoint{font-family:var(--sans);font-size:.68rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.16em;color:var(--ink-faint);
+  text-align:center;margin:2.4rem 0;position:relative;}
+.checkpoint::before,.checkpoint::after{content:"";position:absolute;top:50%;
+  width:calc(50% - 8rem);height:1px;background:var(--rule);}
+.checkpoint::before{left:0;}
+.checkpoint::after{right:0;}
+
+/* One resource. The type tags were inline code; they are categorical
+   metadata, so they get the badge treatment and a hue slot. */
+.res{margin:1.1rem 0;padding:1rem 1.2rem 1.1rem;background:var(--surface-raised);
+  border:1px solid var(--rule);border-radius:var(--radius);}
+.res h3{margin:0;font-size:1.06rem;line-height:1.35;}
+.res>ul{margin:.7rem 0 0;padding-left:1.1em;font-size:.96rem;}
+.res>ul>li{margin:.4em 0;line-height:1.55;}
+.res>ul>li::marker{color:var(--accent);}
+.res>p{margin:.7rem 0 0;font-size:.96rem;}
+.res>*:last-child{margin-bottom:0;}
+.rtags{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem;}
+.legend-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  font-family:var(--sans);font-size:.7rem;font-weight:650;
+  text-transform:uppercase;letter-spacing:.12em;color:var(--ink-faint);}
+.legend-row .rtags{margin-bottom:0;}
+.rtag{font-family:var(--sans);font-size:.6rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;padding:.16rem .45rem;
+  border-radius:4px;
+  color:color-mix(in srgb,var(--accent) 58%,var(--ink));
+  background:color-mix(in srgb,var(--accent) 15%,transparent);}
 
 /* The lesson body, set off from the syllabus material above it. */
 article.lesson{margin-top:2.6rem;padding-top:2rem;border-top:1px solid var(--rule);}
