@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graphs, components, and union-find from zero</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">Companion reading · Unit 10</p><h1>Graphs, Components, and Union-Find from Zero</h1>
+<p><em>A companion essay for Unit 10. No graph theory or algorithms background
+assumed — by the end you can read <code>connected_components(count, edges)</code> in
+<code>rhyme.py</code> line by line and explain why grouping rhymes was secretly a
+graph problem all along. If you already know union-find from interview
+prep, skim §4 for the repo specifics and go back to Unit 10.</em></p>
+<hr />
+<h2>1. A graph is a set of claims</h2>
+<p>Strip away the textbook formality and a <strong>graph</strong> is just: some things
+(<strong>nodes</strong>), and some pairwise claims about them (<strong>edges</strong>). Nothing more.
+The things here are the words of a verse; the claim is <em>"these two rhyme"</em>
+— an edge appears between two words exactly when <code>best_is_rhyme</code> says yes.</p>
+<pre><code>  cake ─── shake        debate ─── great        one
+    │       │
+    └─ state┘                                   feeling
+</code></pre>
+<p>Six words, four claims. Drawing it makes the structure jump out: cake,
+shake, and state form one cluster; debate and great another; "one" and
+"feeling" sit alone. Those clusters are what Unit 10 calls <strong>rhyme
+classes</strong>, and the graph vocabulary for them is <strong>connected components</strong>: a
+component is a maximal set of nodes where every node can reach every other
+by walking edges. "Maximal" carries weight — you can't extend the
+cake-cluster by even one node without breaking reachability, and a node
+with no edges is a component of size one, all by itself.</p>
+<p>Notice what reachability quietly permits: cake and state are in one
+component <em>even if the cake~state edge were missing</em>, as long as both
+connect to shake. The walk is allowed to go <strong>through</strong> intermediate nodes.
+Hold that thought; it is the entire drama of Unit 10.</p>
+<h2>2. Finding components the obvious way: spreading paint</h2>
+<p>Here's an algorithm you already believe in. Pour paint on any node. Paint
+flows along edges. When it stops spreading, everything wet is one
+component; pour a fresh color on any dry node and repeat.</p>
+<p>That's <strong>flood fill</strong> (as breadth-first or depth-first search), and it's a
+perfectly good way to compute components: visit a node, visit its
+neighbors, their neighbors, until nothing new appears. Linear time,
+easy to write. If the project only ever needed "given this finished graph,
+list the components once," flood fill would be the end of the story.</p>
+<h2>3. The other way: answer without walking</h2>
+<p><strong>Union-find</strong> (also "disjoint-set union," DSU) attacks the same problem
+from a different angle. Instead of exploring a finished graph, it
+<em>maintains</em> the component structure while edges arrive one at a time,
+answering two questions at any moment:</p>
+<ul>
+<li><code>find(x)</code> — which component is x in? (Answered by a representative
+  member — an arbitrary "captain" of the component.)</li>
+<li><code>union(x, y)</code> — an edge arrived; merge x's and y's components if they
+  differ.</li>
+</ul>
+<p>The data structure is almost embarrassingly small: one array, <code>parent</code>,
+where each node points at some node in its own component, and captains
+point at themselves. <code>find</code> follows parent pointers up to the captain;
+<code>union</code> makes one captain point at the other. That's it — component
+membership stored as a forest of pointer-trails.</p>
+<h2>4. Walk it by hand, on the repo's own function</h2>
+<p><code>rhyme.py</code> exposes exactly this as <code>connected_components(count, edges)</code>:
+nodes are the integers <code>0..count-1</code> (indices into whatever list you're
+grouping — words, matches), and each edge is a pair of indices. Take five
+nodes and three edges — <code>(0,1)</code>, <code>(3,4)</code>, <code>(1,2)</code>:</p>
+<pre><code>start:      parent = [0, 1, 2, 3, 4]     five captains, five solo components
+union(0,1): parent = [0, 0, 2, 3, 4]     1's captain is now 0
+union(3,4): parent = [0, 0, 2, 3, 3]     4's captain is now 3
+union(1,2): find(1) walks 1 → 0.         2 joins 0's component:
+            parent = [0, 0, 0, 3, 3]
+result:     components {0,1,2} and {3,4}
+</code></pre>
+<blockquote class="think"><p><span class="think-label">Think first</span> Before reading on: add <code>union(2, 4)</code> to the trace yourself.
+Which captain wins, and what does <code>parent</code> look like after? Then predict
+what <code>connected_components(5, [(0,1),(3,4),(1,2),(2,4)])</code> returns.</p>
+</blockquote>
+<p>(One component containing everything — 4's trail leads to captain 3, 2's
+to captain 0, and one of the two captains bows to the other. Five nodes,
+four edges, one class.)</p>
+<p>Real implementations add two easy accelerations you'll see in the repo's
+<code>_UnionFind</code>: <strong>path compression</strong> (while walking to the captain, repoint
+everything you passed directly at the captain, flattening the trail for
+next time) and merging small-into-large. With both, each operation is
+<em>effectively constant time</em> — the true bound involves a function (inverse
+Ackermann) that grows so slowly it never exceeds 4 for any input that fits
+in the universe. For verse-sized inputs none of this matters for speed; it
+matters that you recognize the names.</p>
+<h2>5. Why union-find here, when flood fill would do?</h2>
+<p>Three honest reasons, in descending weight:</p>
+<ol>
+<li><strong>Shape fit.</strong> The scanner produces matches as a <em>list of pairs</em> — the
+   edges arrive already in union-find's native format, and the nodes are
+   just indices. <code>connected_components(count, edges)</code> is ten lines.</li>
+<li><strong>Reuse.</strong> The same helper groups words (Unit 10) and, later, selected
+   matches (Unit 11) and abutting compound beats (Unit 12's chaining is
+   "union-find over an abuts relation"). One tiny structure, three
+   callers.</li>
+<li><strong>The incremental frame is the <em>conceptually</em> right one.</strong> Each edge is
+   an independent claim ("these two rhyme"), and the component structure
+   is the <em>accumulated consequence</em> of all claims so far. Union-find makes
+   that reading literal: classes are what you get by merging one claim at
+   a time — which sets up the unit's real question.</li>
+</ol>
+<h2>6. The setup for the trap</h2>
+<p>Look again at what <code>union</code> does: it merges whole components on the
+strength of a <em>single</em> edge. No second opinion, no vote, no undo. One
+claim, and two entire clusters become one forever.</p>
+<p>For truly transitive relations ("same birthday," "same connected circuit")
+that's just correct. But Unit 10's punchline is that slant rhyme is <strong>not
+transitive</strong> — A~B and B~C can both be true while A~C is false — and
+union-find <em>imposes</em> transitivity structurally, by construction, with no
+way to express dissent. The clustering literature calls components over
+threshold edges <strong>single-link clustering</strong>, and its signature failure —
+one generous edge gluing two good clusters into a mega-class — is
+<strong>chaining</strong>. When the tuning ledger's items 1 and 9 report "mush twin"
+classes and an OW mega-class, the mechanism is exactly the pointer-merge
+you traced in §4: some single borderline edge fired, and union did what
+union does.</p>
+<p>None of that makes union-find the wrong tool — it makes it an <em>honest</em>
+implementation of a debatable modeling choice. The choice, its rivals
+(cliques, correlation clustering, scheme inference), and the plan to
+price it are Unit 10's subject. Go back there carrying this: <strong>the
+algorithm is innocent; the modeling decision is load-bearing.</strong></p>
+<h3>If you want to go deeper</h3>
+<ul>
+<li>Union-find is a staple of interview prep and competitive programming
+  (Kruskal's minimum-spanning-tree algorithm is its most famous client) —
+  any algorithms text covers it under "disjoint sets."</li>
+<li>Flood fill / BFS / DFS: the same texts, one chapter earlier; also the
+  algorithm behind the paint bucket in every image editor.</li>
+<li>The inverse-Ackermann analysis (Tarjan 1975) is a celebrated result —
+  not needed here, delightful if you like that sort of thing.</li>
+</ul>
+</main>
+<footer class="pager">
+<a class="next" href="unit-10.html">Unit 10: Grouping rhymes →</a>
+</footer>
+</body>
+</html>

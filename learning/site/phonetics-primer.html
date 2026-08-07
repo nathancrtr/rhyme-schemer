@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How speech works: a phonetics refresher</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
+  <nav>
+    <a href="index.html">Units</a>
+    <a href="syllabus.html">Syllabus</a>
+    <a href="resources.html">Resources</a>
+    <a href="about.html">About</a>
+  </nav>
+</header>
+<main>
+<p class="crumb">On-ramp · before Unit 1</p><h1>How Speech Works: a Phonetics Refresher</h1>
+<p><em>A pre-Unit-1 primer for rhyme-schemer. If your linguistics is fresh, skim
+the ARPAbet table at the end and skip ahead; if it's fifteen years cold — or
+you never took the course — this rebuilds everything the project assumes, in
+about twenty minutes, mostly by having you make sounds at your desk. Nobody
+is watching. Make the sounds.</em></p>
+<hr />
+<h2>1. The instrument</h2>
+<p>Every speech sound is shaped breath. Air leaves the lungs, passes through
+the <strong>larynx</strong> (the voice box), and exits through the <strong>vocal tract</strong> — the
+throat, mouth, and sometimes nose. Two decisions along the way define almost
+everything:</p>
+<ul>
+<li><strong>At the larynx: do the vocal folds vibrate?</strong> Rest a finger on your
+  throat and sustain "ssssss," then "zzzzzz." Same mouth shape, same
+  hiss — but the buzz under your finger switches on for the z. That buzz is
+  <strong>voicing</strong>, and s/z, f/v, t/d, p/b, k/g are all the <em>same gesture</em> with
+  voicing off vs on.</li>
+<li><strong>In the mouth: is the airflow obstructed?</strong> Obstruct it somewhere and
+  you get a <strong>consonant</strong>; let it flow freely and shape it with the tongue
+  body and you get a <strong>vowel</strong>. That single distinction organizes the whole
+  inventory.</li>
+</ul>
+<h2>2. Consonants: where and how you block the air</h2>
+<p>Two coordinates locate every consonant:</p>
+<p><strong>Place</strong> — <em>where</em> the blockage happens. Say "p… t… k" slowly and feel the
+closure walk backwards: lips (bilabial), tongue-tip at the ridge behind
+your teeth (alveolar), tongue-back at the soft palate (velar). English uses
+about eight stations front-to-back; "f" (lip against teeth), "th" (tongue
+between teeth), "sh" (just behind the ridge), and "h" (all the way back at
+the glottis) fill in the map.</p>
+<p><strong>Manner</strong> — <em>how</em> the blockage shapes the air. A complete stop-and-release
+("p," "t"): a <strong>stop</strong>. A tight channel that makes turbulence ("s," "f"): a
+<strong>fricative</strong>. A stop released into a fricative ("ch"): an <strong>affricate</strong>.
+Air rerouted through the nose ("m," "n," "ng"): a <strong>nasal</strong>. Nearly-open,
+vowel-ish obstructions: <strong>liquids</strong> ("l," "r") and <strong>glides</strong> ("w," "y").</p>
+<p>That ordering — stop, affricate, fricative, nasal, liquid, glide — runs from
+least to most vowel-like, and it has a name you'll meet repeatedly:
+<strong>sonority</strong>. Add voicing as a third coordinate and you can uniquely
+describe every English consonant: "z" is a voiced alveolar fricative; "ng"
+is a velar nasal. The project's <code>features.py</code> is literally this
+three-coordinate description turned into numbers.</p>
+<h2>3. Vowels: shaping an open tube</h2>
+<blockquote class="think"><p><span class="think-label">Think first</span> Sustain "eeee" and slide slowly to "aaaah" (as in <em>father</em>).
+Then sustain "eeee" and slide to "oooo." What is physically moving in
+each slide?</p>
+</blockquote>
+<p>In the first slide your tongue body <em>drops</em> — that's the <strong>height</strong> axis
+(close/high for "ee," open/low for "ah"). In the second it pulls <em>back</em>,
+and your lips <strong>round</strong> — the <strong>backness</strong> axis plus <strong>roundedness</strong>. Those
+three parameters are nearly the whole story of vowels, and the classic IPA
+<strong>vowel quadrilateral</strong> is just a map of the first two: height on the
+vertical, backness on the horizontal. The project places its fifteen vowels
+on exactly this map.</p>
+<p>Two English specialties to have back on the shelf:</p>
+<ul>
+<li><strong>Diphthongs.</strong> Some vowels <em>move while you say them</em>: "bite" starts low
+  and central, ends high and front. Say it in slow motion and feel the
+  glide. A diphthong is honestly modeled as a start point and an end point
+  — which is precisely how <code>features.py</code> stores AY, EY, OY, AW, OW.</li>
+<li><strong>The r-colored vowel.</strong> "Bird" has no separate r-consonant in most
+  American speech — the vowel itself is <strong>rhotic</strong>, said with a curled or
+  bunched tongue. ARPAbet calls it <code>ER</code>, and its r-ness is a feature flag,
+  not a following consonant. (Whether that r-color survives in <em>performed</em>
+  hip-hop is a live question in this project — you'll meet non-rhotic AAE
+  in Unit 13 and in the tuning ledger.)</li>
+</ul>
+<h2>4. Phonemes, phones, and why "the same sound" is subtle</h2>
+<p>Say "water" naturally. That middle consonant — the quick tap most
+Americans produce — is physically nothing like the crisp, puffed "t" of
+"top." (Hold your palm before your mouth: "top" puffs, "water" doesn't.)
+Yet every English speaker files both under "t."</p>
+<p>The mental category is a <strong>phoneme</strong> (written /t/); its physical
+realizations — aspirated [tʰ], the tap [ɾ] — are <strong>phones</strong>, and
+context-dependent variants of one phoneme are <strong>allophones</strong>. The test for
+phoneme-hood is <strong>contrast</strong>: "bat" vs "pat" differ in exactly one sound
+and mean different things, so /b/ and /p/ are different phonemes. No pair
+of English words is distinguished by puffed-vs-tapped t, so those are one
+phoneme wearing two costumes.</p>
+<p>Why this matters here: CMUdict transcribes <em>phonemes</em> — the categories, not
+the costumes. That's usually what rhyme wants. But the costumes sometimes
+carry information the categories erase (that tapped t is part of why the
+syllable boundary in "sweaty" is genuinely ambiguous — a story Unit 4 tells
+properly), and performance can override citation categories entirely. The
+project's recurring theme of <em>dictionary form vs performed form</em> is this
+distinction, industrialized.</p>
+<h2>5. Stress, and the vowel that isn't there</h2>
+<blockquote class="think"><p><span class="think-label">Think first</span> Say "PHOtograph," then "phoTOgraphy." Beyond the beat moving,
+what happens to the <em>vowels</em> in the unstressed syllables?</p>
+</blockquote>
+<p>They collapse — toward the featureless mid-central vowel called <strong>schwa</strong>
+(the "uh" in "about," IPA ə). English does this systematically: unstressed
+syllables reduce, stressed ones keep full vowel quality. This is why stress
+is not decoration for a rhyme engine but <em>structure</em>: the stressed syllable
+is where vowel identity is reliable, which is why rhyme anchors there
+(Unit 5's whole argument). CMUdict marks three levels on every vowel:
+primary (1), secondary (2), unstressed (0).</p>
+<h2>6. Writing sound down: IPA and ARPAbet</h2>
+<p>The <strong>IPA</strong> gives every sound one unambiguous symbol (/ɪ/, /ŋ/, /ə/). It's
+the field's standard and worth recognizing on sight — the
+<a href="https://www.ipachart.com/">interactive IPA chart</a> plays every symbol
+aloud and is worth ten minutes of clicking.</p>
+<p>For code, the project uses <strong>ARPAbet</strong>: ASCII names, vowels carrying a
+stress digit. The fifteen vowels, with a keyword each — this table is worth
+bookmarking for the whole course:</p>
+<table>
+<thead>
+<tr>
+<th>ARPAbet</th>
+<th>as in</th>
+<th></th>
+<th>ARPAbet</th>
+<th>as in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IY</td>
+<td>b<strong>ea</strong>t</td>
+<td></td>
+<td>AA</td>
+<td>f<strong>a</strong>ther</td>
+</tr>
+<tr>
+<td>IH</td>
+<td>b<strong>i</strong>t</td>
+<td></td>
+<td>AO</td>
+<td>th<strong>ough</strong>t</td>
+</tr>
+<tr>
+<td>EY</td>
+<td>b<strong>ai</strong>t</td>
+<td></td>
+<td>OW</td>
+<td>b<strong>oa</strong>t</td>
+</tr>
+<tr>
+<td>EH</td>
+<td>b<strong>e</strong>t</td>
+<td></td>
+<td>UH</td>
+<td>b<strong>oo</strong>k</td>
+</tr>
+<tr>
+<td>AE</td>
+<td>b<strong>a</strong>t</td>
+<td></td>
+<td>UW</td>
+<td>b<strong>oo</strong>t</td>
+</tr>
+<tr>
+<td>AH</td>
+<td>b<strong>u</strong>t</td>
+<td></td>
+<td>AY</td>
+<td>b<strong>i</strong>te</td>
+</tr>
+<tr>
+<td>ER</td>
+<td>b<strong>ir</strong>d</td>
+<td></td>
+<td>AW</td>
+<td>b<strong>ou</strong>t</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>OY</td>
+<td>b<strong>oy</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Consonants are mostly what they look like (P B T D K G, F V S Z, M N L R
+W), plus: <strong>CH</strong>/<strong>JH</strong> ("church"/"judge"), <strong>SH</strong>/<strong>ZH</strong> ("shoe"/
+"measure"), <strong>TH</strong>/<strong>DH</strong> ("thin"/"then" — voiceless and voiced), <strong>NG</strong>
+("sing"), <strong>HH</strong> ("hat"), <strong>Y</strong> ("yes"). So <code>S W EH1 T IY0</code> is "sweaty":
+s + w + stressed EH + t + unstressed IY.</p>
+<h2>7. Where each idea lands in the course</h2>
+<p>Phonemes, ARPAbet, and the dictionary → <strong>Unit 1</strong>. The vowel map as a
+similarity space → <strong>Unit 2</strong>. Place/manner/voicing as consonant
+coordinates, and sonority → <strong>Unit 3</strong>. Syllables, and what sonority has to
+do with their shape → <strong>Unit 4</strong>. Stress as the anchor of rhyme →
+<strong>Unit 5</strong>. The dictionary-vs-performance gap → Units 9, 11, and 13,
+repeatedly, because it turns out to be the project's most productive
+tension.</p>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> describe "z" and "ng" in three coordinates each; explain
+to an imaginary colleague why "water"'s middle consonant is /t/ at all;
+and transcribe "reason" into ARPAbet with stress digits before looking
+it up.</p>
+</blockquote>
+</main>
+<footer class="pager">
+<a class="next" href="unit-01.html">Unit 1: Phonemes, ARPAbet & the lexicon →</a>
+</footer>
+</body>
+</html>

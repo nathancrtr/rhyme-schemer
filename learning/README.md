@@ -24,6 +24,8 @@ learning/
     ├── lessons/               Socratic lesson guides (run with Claude)
     │   ├── unit-01 … unit-13 lesson guides  (all units except 14–15, one file each)
     │   ├── unit-11-scanner-walkthrough.md   + the open tuning ledger
+    │   ├── phonetics-primer.md              on-ramp: how speech works, from zero
+    │   ├── graphs-and-union-find.md         on-ramp: components without prerequisites
     │   └── sequence-alignment-family.md     diff/DNA/rhyme, one algorithm
     ├── widgets/               open these in a browser
     │   ├── vowel-explorer.html    click two vowels → the exact vowel_distance()

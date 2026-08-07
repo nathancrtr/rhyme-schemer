@@ -50,7 +50,8 @@ PHASES = {
 # lesson (if written) plus hands-on links. Paths are relative to learning/.
 UNITS = [
     dict(num=1, phase=1, title="Phonemes, ARPAbet & the lexicon",
-         lesson="unit-01-phonemes-not-spelling.md"),
+         lesson="unit-01-phonemes-not-spelling.md",
+         companion=("How speech works: a phonetics refresher", "phonetics-primer.md")),
     dict(num=2, phase=1, title="The IPA vowel space & articulatory features",
          lesson="unit-02-feature-distance.md",
          widgets=[("Vowel-Space Explorer", "interactive/widgets/vowel-explorer.html")]),
@@ -78,7 +79,8 @@ UNITS = [
          widgets=[("Rhyme-Score Sandbox", "interactive/widgets/rhyme-score-sandbox.html")]),
     dict(num=10, phase=3, title="Grouping rhymes: similarity graphs & components",
          lesson="unit-10-non-transitivity.md",
-         quiz=("Phase 3 checkpoint", "interactive/quizzes/phase-3-checkpoint.html")),
+         quiz=("Phase 3 checkpoint", "interactive/quizzes/phase-3-checkpoint.html"),
+         companion=("Graphs, components, and union-find from zero", "graphs-and-union-find.md")),
     dict(num=11, phase=3, title="Internal & multisyllabic rhyme: scanning a verse",
          lesson="unit-11-scanner-walkthrough.md",
          lesson_note=(
@@ -111,6 +113,8 @@ LINK_MAP = {
     "unit-10-non-transitivity.md": "unit-10.html",
     "unit-11-scanner-walkthrough.md": "unit-11.html",
     "sequence-alignment-family.md": "sequence-alignment-family.html",
+    "phonetics-primer.md": "phonetics-primer.html",
+    "graphs-and-union-find.md": "graphs-and-union-find.html",
     "learning-resources.md": "resources.html",
     "curriculum.md": "syllabus.html",
 }
@@ -286,8 +290,10 @@ def build_index() -> None:
         "code that uses it.</p>"
         '<p class="lede muted">For the linguistics-curious programmer: the phonology is taught '
         "from the ground up; the algorithms assume fluency in code but not a background in "
-        'algorithm design. Start with <a href="about.html">how this course works</a>, or jump '
-        "into Phase 1.</p>"
+        'algorithm design. Start with <a href="about.html">how this course works</a> — and if '
+        'your phonetics is cold (or was never warm), <a href="phonetics-primer.html">the sounds '
+        "refresher</a> rebuilds it in twenty minutes, mostly by making you make sounds at your "
+        "desk.</p>"
         + "".join(cards))
     write_page("index.html", "rhyme-schemer: the course", content)
 
@@ -303,6 +309,14 @@ def build_document_pages(curriculum: str) -> None:
     write_page("sequence-alignment-family.html", "The sequence-alignment family",
                '<p class="crumb">Companion reading · Unit 8</p>' + md_to_html(seq),
                '<a class="next" href="unit-08.html">Unit 8: Unequal lengths: sequence alignment →</a>')
+    primer = (LESSONS / "phonetics-primer.md").read_text()
+    write_page("phonetics-primer.html", "How speech works: a phonetics refresher",
+               '<p class="crumb">On-ramp · before Unit 1</p>' + md_to_html(primer),
+               '<a class="next" href="unit-01.html">Unit 1: Phonemes, ARPAbet & the lexicon →</a>')
+    dsu = (LESSONS / "graphs-and-union-find.md").read_text()
+    write_page("graphs-and-union-find.html", "Graphs, components, and union-find from zero",
+               '<p class="crumb">Companion reading · Unit 10</p>' + md_to_html(dsu),
+               '<a class="next" href="unit-10.html">Unit 10: Grouping rhymes →</a>')
 
     about = """
 # How this course works
