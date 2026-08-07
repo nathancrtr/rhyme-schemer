@@ -234,14 +234,21 @@ here already; the review's contribution is that they have names.)*
 2. **wake/give at 0.904** survives: our vowel space rates EY/IH at 0.95 (the
    diphthong's glide passes near [ɪ]). Tightening is endorsed — but measured
    against Unit 14's eval, with lincoln/reason protected by dialect
-   *variants*, not metric generosity. Two review updates: (a) the EY/IH
-   question is answerable *today* — Katz 2015's correspondence counts and
-   Kawahara 2007's half-rhyme statistics are corpus evidence on which vowel
-   pairs rappers treat as rhymable, no sweep required; (b) the promised
+   *variants*, not metric generosity. Two review updates: (a) the review
+   claimed the EY/IH question was answerable today from Katz 2015's
+   correspondence counts and Kawahara 2007's half-rhyme statistics —
+   **verified against the papers (2026-08-07), that claim is wrong**: both
+   datasets are *consonantal* (Katz keys rhyme detection on matched vowel
+   quality, so vowels are fixed by construction; Kawahara's pairs are
+   Japanese consonants). Those tables audit our *consonant* space instead;
+   corpus-derived vowel evidence must come from Hirjee & Brown's learned
+   similarity matrix or Bark-scaled formant data; (b) the promised
    dialect variants currently have **no identified source** — CMUdict has no
    dialect coverage, and WikiPron (Wiktionary-scraped lexicons) is the
    field's candidate answer. This item cannot execute until a source is
-   named. More broadly, "refit the vowel space from rhyme-pair data"
+   named. *The audit ran 2026-08-07: findings in items 11–12 and
+   `learning/audits/` (this item's EY/IH suspicion is superseded by item
+   11's broader diagnosis).* More broadly, "refit the vowel space from rhyme-pair data"
    (Hirjee & Brown's BLOSUM-style move) should be a Unit 14 *condition*,
    not just weight-tuning of the hand space.
 3. **EH/EY assonance chains** ("Every ~ shake the" 0.880) selected with mushy
@@ -362,6 +369,58 @@ here already; the review's contribution is that they have names.)*
     flat. Compression is not generosity — it is a different alignment
     move — but it reshapes every unequal-length comparison, so like item
     7(a) it is a Unit 14 sweep *condition*, not a patch.
+
+11. **The vowel space has two systematic, opposite-signed biases** (audit
+    finding, 2026-08-07; `learning/audits/audit_feature_space.py`, rank
+    comparison against Hirjee & Brown 2009's rap-corpus log-odds matrix;
+    Spearman ρ = +0.51 overall). Supersedes item 2's narrower EY/IH note.
+    (a) **Front-glide generosity**: EY~IH is the closest pair in our whole
+    space (0.950, rank 1 of 105) but corpus-negative (−3.4); AY~EY ranks
+    9th for us and **102nd of 105** in the corpus (−7.0); AY~EH, EH~IY,
+    IY~AY, EY~EH all likewise. Mechanism: our diphthong glide endpoints
+    (EY and AY both end near ɪ) park the front glides on top of the front
+    vowels — rappers evidently rhyme the whole vowel, not its endpoint.
+    Any fix must be surgical, not blanket: EH~IH is corpus-*endorsed*
+    (+0.2) and we price it high (0.836) — blanket front-vowel tightening
+    would kill a protected pair — and AA~AO (+1.6, the cot–caught pair)
+    could stand to be *more* generous.
+    (b) **Rhoticity overpriced**: the corpus rates AA~ER (−0.6, rank 13),
+    AO~ER, ER~UH, and ER~OW far more rhymable than we do — four of our
+    ten largest disagreements, all in the stingy direction. Reading: much
+    of the genre is delivered in non-rhotic AAE, where coda /r/
+    vocalizes, so these correspondences were plausibly *performed as*
+    [ə]-like vowels; the right model is "what was said was AH," not "ER
+    is perceptually close to everything." Decision (2026-08-07):
+    **variant-first** — mint non-rhotic readings as priced data (a
+    performed-phonology factory, the exact architecture of
+    `coerce_performed_stress`: a claim about performance, priced and
+    enumerated), with a lowered `_W_RHOTIC` as the sweep's cheap
+    comparison condition. Testimony note: g2p.py currently licenses
+    surface phonology from *spelling* testimony ("playa"); universal
+    non-rhotic variants would claim it from genre priors alone, so they
+    should carry a small sweepable cost, as testimony-free stress
+    promotion does.
+
+12. **Consonant-space audit findings** (2026-08-07, same audit; ρ = +0.41
+    against H&B's coda-consonant log-odds). (a) **Stop-place mismatches
+    are overpriced**: B~G (+1.9) and K~P (+1.7) are solidly
+    corpus-positive — H&B note exactly these pairs "validate Holtman's
+    hierarchy" — yet they rank ~184th of 210 in our space; rap freely
+    rhymes coda stop place. Bears on item 4: down~crowd's N~D penalty
+    lives on this same too-expensive axis. (b) **The DH row is
+    spuriously generous** on our side (DH~N 0.819 vs corpus −7.5),
+    though DH codas are rare and the corpus side may be frequency noise.
+    (c) **The nasal-place discount (Katz 2015, table 7) is
+    unrepresentable in our geometry**: the parallel place×manner planes
+    price nasal and oral-stop place moves identically (0.649 = 0.649, by
+    construction), so Katz's strongest asymmetry (b = −2.51) cannot be
+    expressed. Honest complication: *pooled* H&B log-odds also show no
+    discount (+1.2 both) — Katz measures perceived distance controlling
+    for context, and pooled corpus counts don't reproduce the asymmetry.
+    A real tension between the two best sources, not an oversight in
+    either. (d) **Kawahara 2007's qualitative ordering: we pass** — his
+    often-rhyme pairs (M~N, T~S, R~N: 0.75–0.85 for us) all outrank his
+    rarely-rhyme pairs (M~SH, N~P: 0.46–0.50).
 
 Items 5 and 6 share a diagnosis: **performance context (line position, beat
 grid) carries information a segment-only scanner cannot see** — the
