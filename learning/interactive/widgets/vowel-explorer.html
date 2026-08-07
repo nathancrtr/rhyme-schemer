@@ -18,42 +18,77 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vowel-Space Explorer</title>
+<link rel="stylesheet" href="../../site/style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");
+if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 <style>
-  :root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--line:#2a2f3a;
-        --mono:#6ea8fe;--diph:#f0a868;--sel:#2ecc71;--rhotic:#c678dd;}
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--ink);
-       font:15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;}
-  .wrap{max-width:760px;margin:0 auto;padding:24px 18px 56px;}
-  h1{font-size:1.3rem;margin:0 0 2px;}
-  .sub{color:var(--muted);margin:0 0 18px;font-size:.92rem;}
-  .stage{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
-  svg{background:var(--card);border:1px solid var(--line);border-radius:14px;touch-action:manipulation;}
-  .panel{flex:1;min-width:220px;}
-  .readout{background:var(--card);border:1px solid var(--line);border-radius:14px;
-           padding:16px 18px;min-height:140px;}
-  .readout h2{font-size:1rem;margin:0 0 10px;}
-  .pair{font-size:1.5rem;font-weight:700;letter-spacing:.5px;}
-  .pair small{font-size:.8rem;color:var(--muted);font-weight:400;}
-  .metric{margin:10px 0 0;}
-  .bar{height:10px;border-radius:6px;background:#222833;overflow:hidden;margin:4px 0 2px;}
-  .bar>i{display:block;height:100%;background:linear-gradient(90deg,#2ecc71,#6ea8fe);}
-  .metric span{font-variant-numeric:tabular-nums;}
-  .hint{color:var(--muted);font-size:.85rem;margin-top:12px;}
-  .legend{display:flex;gap:14px;font-size:.8rem;color:var(--muted);margin-top:10px;flex-wrap:wrap;}
-  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin-right:4px;}
-  .vlabel{font-size:13px;font-weight:600;fill:var(--ink);cursor:pointer;}
-  .vex{font-size:9px;fill:var(--muted);cursor:pointer;}
-  .axis{font-size:10px;fill:var(--muted);letter-spacing:1px;}
+  /* Palette, faces, and type ramp come from ../../site/style.css. What is
+     left here is this widget's own mechanics, in those tokens -- so the
+     chart follows light/dark and matches the lesson that links to it.
+     Note --vmono, not --mono: the shared sheet uses --mono for the
+     monospace family, and the old name for "monophthong" would have shot
+     the code font out from under every widget on the page. */
+  :root{--vmono:var(--hue-0);--diph:var(--hue-7);
+        --sel:var(--hue-1);--rhotic:var(--hue-4);}
+  .wrap{max-width:60rem;margin:0 auto;padding:2rem 1.25rem 4rem;}
+  h1{font-size:1.65rem;margin:0 0 .2rem;letter-spacing:-.022em;}
+  .sub{color:var(--ink-muted);margin:0 0 1.6rem;font-size:1.02rem;line-height:1.5;}
+  .stage{display:flex;gap:1.4rem;flex-wrap:wrap;align-items:flex-start;}
+  svg{background:var(--surface-raised);border:1px solid var(--rule);
+      border-radius:var(--radius);touch-action:manipulation;}
+  .panel{flex:1;min-width:15rem;}
+  .readout{background:var(--surface-raised);border:1px solid var(--rule);
+           border-radius:var(--radius);padding:1.1rem 1.2rem;min-height:9rem;}
+  .readout h2{font-family:var(--sans);font-size:.66rem;font-weight:700;
+              text-transform:uppercase;letter-spacing:.15em;color:var(--ink-faint);
+              margin:0 0 .8rem;}
+  .readout h2::before{display:none;}
+  .pair{font-family:var(--mono);font-size:1.3rem;font-weight:600;
+        letter-spacing:.02em;color:var(--ink);}
+  .pair small{font-family:var(--serif);font-size:.82rem;color:var(--ink-muted);
+              font-weight:400;letter-spacing:0;}
+  .metric{margin:.8rem 0 0;font-family:var(--sans);font-size:.8rem;
+          color:var(--ink-muted);}
+  .bar{height:.5rem;border-radius:999px;background:var(--surface-sunken);
+       overflow:hidden;margin:.3rem 0 .15rem;
+       border:1px solid var(--rule);}
+  .bar>i{display:block;height:100%;
+         background:linear-gradient(90deg,var(--hue-1),var(--hue-0));}
+  .metric span{font-variant-numeric:tabular-nums lining-nums;color:var(--ink);
+               font-weight:650;}
+  .hint{color:var(--ink-muted);font-size:.92rem;margin-top:.9rem;line-height:1.5;}
+  .legend{display:flex;gap:1rem;font-family:var(--sans);font-size:.76rem;
+          color:var(--ink-muted);margin-top:.8rem;flex-wrap:wrap;}
+  .dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;
+       vertical-align:middle;margin-right:.3rem;}
+  .vlabel{font-family:var(--mono);font-size:12px;font-weight:600;
+          fill:var(--ink);cursor:pointer;}
+  .vex{font-family:var(--serif);font-size:9.5px;fill:var(--ink-muted);cursor:pointer;}
+  .axis{font-family:var(--sans);font-size:9px;font-weight:650;
+        fill:var(--ink-faint);letter-spacing:.12em;}
   circle.node{cursor:pointer;transition:r .1s;}
 </style>
 </head>
 <body>
+<div class="toolbar"><div class="toolbar-in">
+    <a class="back" href="../../site/unit-02.html">Unit 2</a>
+    <a class="brand" href="../../site/index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <button class="theme" type="button" id="theme-toggle"
+      aria-label="Switch between light and dark">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2.2v2M12 19.8v2M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4
+        M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.2 8.2 0 1 0 10.5 10.5z"/></svg>
+    </button>
+</div></div>
 <div class="wrap">
   <h1>Vowel-Space Explorer</h1>
   <p class="sub">Click two vowels. The distance shown is exactly what <code>vowel_distance()</code> returns in <code>features.py</code>.</p>
   <div class="stage">
-    <svg id="chart" width="420" height="380" viewBox="0 0 420 380" aria-label="Vowel chart"></svg>
+    <svg id="chart" width="460" height="380" viewBox="0 0 460 380" aria-label="Vowel chart"></svg>
     <div class="panel">
       <div class="readout">
         <h2>Selected pair</h2>
@@ -67,7 +102,7 @@
         <div class="hint" id="hint">Pick a first vowel…</div>
       </div>
       <div class="legend">
-        <span><span class="dot" style="background:var(--mono)"></span>monophthong</span>
+        <span><span class="dot" style="background:var(--vmono)"></span>monophthong</span>
         <span><span class="dot" style="background:var(--diph)"></span>diphthong (glide →)</span>
         <span><span class="dot" style="background:var(--rhotic)"></span>rhotic (ER)</span>
       </div>
@@ -109,17 +144,38 @@ const vowelSimilarity=(a,b)=>1-vowelDistance(a,b);
 
 const svg=document.getElementById('chart');
 const NS="http://www.w3.org/2000/svg";
-const PAD=46, W=420, H=380, PW=W-2*PAD, PH=H-2*PAD;
-const X=back=>PAD+back*PW;
-const Y=height=>PAD+(1-height)*PH;   // height 1 (close) at top
+// Asymmetric padding: the left gutter has to hold CLOSE/OPEN, which used to
+// be drawn at PAD-30 with a start anchor and so ran straight into the plane.
+const PAD_L=62, PAD_R=34, PAD_T=44, PAD_B=34, W=460, H=380;
+const PW=W-PAD_L-PAD_R, PH=H-PAD_T-PAD_B;
+const X=back=>PAD_L+back*PW;
+const Y=height=>PAD_T+(1-height)*PH;   // height 1 (close) at top
 function el(n,a){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;}
 
+// Where each vowel's label sits relative to its node: [dx, dy, anchor].
+// Three pairs share a coordinate exactly -- AH/ER are 0.05 apart, and the
+// diphthongs AY/AW and AO/OY are plotted at their *start* points, which are
+// identical to each other's. Nudging the nodes apart would misreport the
+// data the widget exists to show, so the nodes stay coincident and the
+// labels stack instead: one above the point, one below.
+const LABEL={
+  ER:[10,-7,'start'],   AH:[10, 15,'start'],
+  AY:[10,-7,'start'],   AW:[10, 15,'start'],
+  AO:[-10,-7,'end'],    OY:[-10, 15,'end'],
+  AA:[-10,-2,'end'],    UW:[-10,-2,'end'],    OW:[-10,-2,'end'],
+};
+const LABEL_DEFAULT=[10,-2,'start'];
+
 // frame + axis labels
-svg.appendChild(el('rect',{x:PAD,y:PAD,width:PW,height:PH,fill:'none',stroke:'#2a2f3a',rx:8}));
-svg.appendChild(el('text',{x:PAD,y:PAD-16,class:'axis'})).textContent='FRONT';
-const tr=el('text',{x:W-PAD,y:PAD-16,class:'axis','text-anchor':'end'});tr.textContent='BACK';svg.appendChild(tr);
-const cl=el('text',{x:PAD-30,y:PAD+4,class:'axis'});cl.textContent='CLOSE';svg.appendChild(cl);
-const op=el('text',{x:PAD-30,y:H-PAD+4,class:'axis'});op.textContent='OPEN';svg.appendChild(op);
+svg.appendChild(el('rect',{x:PAD_L,y:PAD_T,width:PW,height:PH,fill:'none',
+  stroke:'var(--rule-strong)',rx:8}));
+svg.appendChild(el('text',{x:PAD_L,y:PAD_T-14,class:'axis'})).textContent='FRONT';
+const tr=el('text',{x:W-PAD_R,y:PAD_T-14,class:'axis','text-anchor':'end'});
+tr.textContent='BACK';svg.appendChild(tr);
+const cl=el('text',{x:PAD_L-12,y:PAD_T+4,class:'axis','text-anchor':'end'});
+cl.textContent='CLOSE';svg.appendChild(cl);
+const op=el('text',{x:PAD_L-12,y:H-PAD_B+4,class:'axis','text-anchor':'end'});
+op.textContent='OPEN';svg.appendChild(op);
 
 const selLine=el('line',{stroke:'var(--sel)','stroke-width':2,'stroke-dasharray':'4 3',opacity:0});
 svg.appendChild(selLine);
@@ -128,18 +184,21 @@ let selection=[];
 const nodes={};
 
 for(const [name,d] of Object.entries(V)){
-  const color=d.rho?'var(--rhotic)':(d.s[0]!==d.e[0]||d.s[1]!==d.e[1]?'var(--diph)':'var(--mono)');
+  const color=d.rho?'var(--rhotic)':(d.s[0]!==d.e[0]||d.s[1]!==d.e[1]?'var(--diph)':'var(--vmono)');
   // diphthong glide arrow
   if(d.s[0]!==d.e[0]||d.s[1]!==d.e[1]){
     svg.appendChild(el('line',{x1:X(d.s[0]),y1:Y(d.s[1]),x2:X(d.e[0]),y2:Y(d.e[1]),
-      stroke:'var(--diph)','stroke-width':1.5,opacity:0.55}));
-    svg.appendChild(el('circle',{cx:X(d.e[0]),cy:Y(d.e[1]),r:2.5,fill:'var(--diph)',opacity:0.7}));
+      stroke:'var(--diph)','stroke-width':1.25,opacity:0.4}));
+    svg.appendChild(el('circle',{cx:X(d.e[0]),cy:Y(d.e[1]),r:2.5,fill:'var(--diph)',opacity:0.65}));
   }
   const cx=X(d.s[0]), cy=Y(d.s[1]);
   const node=el('circle',{cx,cy,r:6,fill:color,class:'node','data-v':name});
   svg.appendChild(node); nodes[name]=node;
-  const lbl=el('text',{x:cx+9,y:cy-2,class:'vlabel','data-v':name});lbl.textContent=name;svg.appendChild(lbl);
-  const ex=el('text',{x:cx+9,y:cy+9,class:'vex','data-v':name});ex.textContent=d.ex;svg.appendChild(ex);
+  const [dx,dy,anchor]=LABEL[name]||LABEL_DEFAULT;
+  const lbl=el('text',{x:cx+dx,y:cy+dy,class:'vlabel','text-anchor':anchor,'data-v':name});
+  lbl.textContent=name;svg.appendChild(lbl);
+  const ex=el('text',{x:cx+dx,y:cy+dy+11,class:'vex','text-anchor':anchor,'data-v':name});
+  ex.textContent=d.ex;svg.appendChild(ex);
 }
 
 function clearHighlights(){for(const n of Object.values(nodes)){n.setAttribute('r',6);n.setAttribute('stroke','none');}}
@@ -177,5 +236,6 @@ function setBars(m){
 }
 svg.addEventListener('click',e=>{const v=e.target.getAttribute&&e.target.getAttribute('data-v');if(v)pick(v);});
 </script>
+<script src="../../site/course.js"></script>
 </body>
 </html>

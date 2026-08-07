@@ -5,29 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 7 — Graded slant rhyme & weighting</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-1)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 7</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html" aria-current="page"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 2 · The rhyme kernel</p>
-<h1>Unit 7 — Graded slant rhyme & weighting</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<div class="masthead">
+<p class="crumb"><b>Unit 7</b><span class="sep">/</span>Phase 2 &middot; The rhyme kernel</p>
+<h1>Graded slant rhyme &amp; weighting</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
 <li><strong>Build:</strong> Turn <code>rhyme_score</code> into the graded kernel: expose weights (coda weight, nucleus weight) and a threshold; tune so slant rhymes land between perfect and non-rhyme.</li>
-<li><strong>Read:</strong> the perceptual-similarity phonology paper (why imperfect rhyme tracks perceptual closeness); Hirjee &amp; Brown's imperfect-rhyme results.</li>
+<li><strong>Read:</strong> the perceptual-similarity phonology paper (why imperfect rhyme tracks perceptual closeness); Hirjee &amp; Brown&rsquo;s imperfect-rhyme results.</li>
 <li><strong>Concepts:</strong> rhyme as graded, not binary; the threshold as a tunable knob; <strong>perceptual similarity</strong> as the target your weights approximate; the danger of over-fitting weights to a few examples.</li>
-<li><strong>Exercise:</strong> Make "Lincoln"/"reason" score as a slant rhyme above your chosen threshold while "Lincoln"/"orange" stays below. Encode the <em>ordering</em> (perfect &gt; slant &gt; none) as tests, not exact magnitudes.</li>
+<li><strong>Exercise:</strong> Make &ldquo;Lincoln&rdquo;/&rdquo;reason&rdquo; score as a slant rhyme above your chosen threshold while &ldquo;Lincoln&rdquo;/&rdquo;orange&rdquo; stays below. Encode the <em>ordering</em> (perfect &gt; slant &gt; none) as tests, not exact magnitudes.</li>
 <li><strong>Milestone:</strong> A graded <code>rhyme_score</code> that ranks a small battery of pairs the way your ear does.</li>
-<li><strong>Interactive:</strong> widget <code>interactive/widgets/rhyme-score-sandbox.html</code> — two words in, every receipt out (tails, alignment, per-column blend), exactly <code>rhyme_score()</code>'s numbers; lesson <code>unit-07-the-rhyme-kernel.md</code>.</li>
+<li><strong>Interactive:</strong> widget <code>interactive/widgets/rhyme-score-sandbox.html</code> — two words in, every receipt out (tails, alignment, per-column blend), exactly <code>rhyme_score()</code>&rsquo;s numbers; lesson <code>unit-07-the-rhyme-kernel.md</code>.</li>
 </ul></details>
-<div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/rhyme-score-sandbox.html">🧪 Rhyme-Score Sandbox</a></div>
+<div class="hands-on"><h2>Hands-on</h2><div class="chips"><a class="chip" href="../interactive/widgets/rhyme-score-sandbox.html" style="--accent:var(--hue-0)"><span>Rhyme-Score Sandbox</span><span class="kind">widget</span></a></div></div>
 <article class="lesson"><p><strong>Objective:</strong> you can explain and implement <code>rhyme_score</code> as a <em>graded</em>
 function — perfect rhyme as the special case at the top of a continuum, slant
 rhyme as everything tunable below it — and you understand the weights as
@@ -35,38 +50,38 @@ approximations of perceptual similarity. <strong>Prerequisites:</strong> Units 5
 tail) and 6 (perfect-rhyme scoring); <code>vowel_similarity</code> /
 <code>consonant_similarity</code> understood. <strong>Pairs with:</strong> <code>rhyme_schemer/rhyme.py</code>;
 the Rhyme-Score Sandbox widget; the perceptual-similarity reading.</p>
-<h2>The problem your Unit 6 scorer has</h2>
+<h2 id="the-problem-your-unit-6-scorer-has"><a class="anchor" href="#the-problem-your-unit-6-scorer-has" aria-hidden="true" tabindex="-1">#</a>The problem your Unit 6 scorer has</h2>
 <p>Your scorer returns 1.0 for cat/hat and something suitably low for cat/dog.</p>
 <blockquote class="think"><p><span class="think-label">Think first</span> What does it return for Lincoln/reason — and is that what you want?
 Run it before reading on.</p>
 </blockquote>
-<p>If you've run it, you've seen the gap: the codas match but <code>IH</code> and <code>IY</code>
-aren't <em>identical</em>, so an equal-or-not treatment of vowels scores the pair
+<p>If you&rsquo;ve run it, you&rsquo;ve seen the gap: the codas match but <code>IH</code> and <code>IY</code>
+aren&rsquo;t <em>identical</em>, so an equal-or-not treatment of vowels scores the pair
 far below where your ear puts it. That gap between the number and your ear
 is this unit. Unit 2 built graded vowel similarity precisely so that
-near-vowels can earn near-full credit — the kernel's job is to let them.</p>
-<h2>Deriving the shape</h2>
+near-vowels can earn near-full credit — the kernel&rsquo;s job is to let them.</p>
+<h2 id="deriving-the-shape"><a class="anchor" href="#deriving-the-shape" aria-hidden="true" tabindex="-1">#</a>Deriving the shape</h2>
 <blockquote class="think"><p><span class="think-label">Think first</span> In the rhyming tail, which carries more rhyme weight — the nucleus
 (the vowel) or the coda (the consonants after it)? And should the onset
 count at all?</p>
 </blockquote>
-<p>Work from cases. Cat/hat rhyme <em>despite</em> different onsets — that's not an
-exception to rhyme, it's practically the definition: what comes before the
+<p>Work from cases. Cat/hat rhyme <em>despite</em> different onsets — that&rsquo;s not an
+exception to rhyme, it&rsquo;s practically the definition: what comes before the
 stressed vowel is free. So the onset contributes nothing. Between nucleus
-and coda: say "read"/"seed" (nuclei differ, codas match) against
-"read"/"red" (nucleus matches... in one pronunciation — more on that in
+and coda: say &ldquo;read&rdquo;/&rdquo;seed&rdquo; (nuclei differ, codas match) against
+&ldquo;read&rdquo;/&rdquo;red&rdquo; (nucleus matches&hellip; in one pronunciation — more on that in
 Unit 9). Hip-hop practice settles it emphatically: the north star is
 vowel-led rhyme, consonants as flexible texture. So: <strong>nuclei dominate,
 codas matter less, onsets are ignored.</strong></p>
-<blockquote class="think"><p><span class="think-label">Think first</span> If you're averaging similarities over the tail, how do you express
-"codas count, but less" in arithmetic?</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> If you&rsquo;re averaging similarities over the tail, how do you express
+&ldquo;codas count, but less&rdquo; in arithmetic?</p>
 </blockquote>
 <p>A weighted average per syllable position: a full weight on nucleus
 similarity, a smaller weight on coda similarity, onset absent — then
 normalize by the total weight so that an identical syllable scores exactly
-1.0 <em>whatever</em> the weights are. That normalization is what keeps "perfect
-rhyme = 1.0" true while you tune.</p>
-<h2>The formal pieces</h2>
+1.0 <em>whatever</em> the weights are. That normalization is what keeps &ldquo;perfect
+rhyme = 1.0&rdquo; true while you tune.</p>
+<h2 id="the-formal-pieces"><a class="anchor" href="#the-formal-pieces" aria-hidden="true" tabindex="-1">#</a>The formal pieces</h2>
 <ul>
 <li><code>rhyme_score</code> over the tail = per-position weighted blends of
   <code>vowel_similarity</code> (nuclei) and <code>consonant_similarity</code> (codas), averaged.
@@ -75,9 +90,9 @@ rhyme = 1.0" true while you tune.</p>
   is needed (<code>is_rhyme</code>, default 0.75); threshold 1.0 recovers perfect
   rhyme exactly. Weights shape the <em>ranking</em>; the threshold only decides
   where to cut. Keep those two knobs separate in your head — most
-  "looseness" questions are threshold questions.</li>
+  &ldquo;looseness&rdquo; questions are threshold questions.</li>
 <li>The weights are not arbitrary: they approximate <strong>perceptual similarity</strong>
-  — the empirical finding (Steriade's P-map; Hirjee &amp; Brown; the Katz and
+  — the empirical finding (Steriade&rsquo;s P-map; Hirjee &amp; Brown; the Katz and
   Kawahara line of work) that the imperfect rhymes people actually accept
   track how confusable the sounds are. Your weighted feature combination is
   ordinary scoring-model machinery; only the features are articulatory.</li>
@@ -87,7 +102,7 @@ tails, every per-column nucleus/coda receipt, and the final score — the
 exact numbers your <code>rhyme_score</code> produces. Try cat/hat, Lincoln/reason,
 Lincoln/listen, read/seed. The receipts are the fastest way to see <em>which
 term</em> is responsible for any score that surprises you.</p>
-<h2>Common confusions</h2>
+<h2 id="common-confusions"><a class="anchor" href="#common-confusions" aria-hidden="true" tabindex="-1">#</a>Common confusions</h2>
 <ul>
 <li><strong>Overfitting to one pair.</strong> If you tune weights until Lincoln/reason is
   perfect, check what happened to cat/cot. One pair is one datapoint;
@@ -95,23 +110,23 @@ term</em> is responsible for any score that surprises you.</p>
   none) as tests rather than exact magnitudes — the house test style
   exists for exactly this reason.</li>
 <li><strong>Fixing threshold problems with weights</strong> (or vice versa). If the
-  ranking is right but the yes/no is wrong, it's the threshold. If the
-  ranking itself is wrong, no threshold can save it — that's weights, or
+  ranking is right but the yes/no is wrong, it&rsquo;s the threshold. If the
+  ranking itself is wrong, no threshold can save it — that&rsquo;s weights, or
   the feature space underneath them (see the audit trail from Unit 2).</li>
 <li><strong>Codas overpowering.</strong> If a matched coda rescues a bad vowel pair, the
-  coda weight is too high — rhyme is vowel-led. (The repo's history has a
+  coda weight is too high — rhyme is vowel-led. (The repo&rsquo;s history has a
   recorded instance: read/seed scoring above threshold traces to generous
-  vowel similarity <em>plus</em> the matched D, and it's logged as a known
+  vowel similarity <em>plus</em> the matched D, and it&rsquo;s logged as a known
   precision risk, not tuned away — the tuning freeze says knobs move only
-  under Unit 14's evaluation.)</li>
+  under Unit 14&rsquo;s evaluation.)</li>
 </ul>
-<h2>Check yourself</h2>
+<h2 id="check-yourself"><a class="anchor" href="#check-yourself" aria-hidden="true" tabindex="-1">#</a>Check yourself</h2>
 <blockquote class="think"><p><span class="think-label">Check yourself</span> predict the <em>ordering</em> your score gives these, then run
 them — time/rhyme, time/tone, Lincoln/reason, Lincoln/orange. If your
-ranking disagrees with the code's, diagnose before fixing: weight
+ranking disagrees with the code&rsquo;s, diagnose before fixing: weight
 problem, threshold problem, or feature-space problem?</p>
 </blockquote>
-<h2>Exercise</h2>
+<h2 id="exercise"><a class="anchor" href="#exercise" aria-hidden="true" tabindex="-1">#</a>Exercise</h2>
 <p>From the syllabus: make Lincoln/reason score as a slant rhyme above your
 chosen threshold while Lincoln/orange stays below — and encode the ordering
 (perfect &gt; slant &gt; none) as tests, not magnitudes.</p>
@@ -119,8 +134,14 @@ chosen threshold while Lincoln/orange stays below — and encode the ordering
 the same number of syllables. Unit 8 breaks that assumption — multisyllabic
 rhyme needs alignment.</p></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#the-problem-your-unit-6-scorer-has">The problem your Unit 6 scorer has</a></li><li><a href="#deriving-the-shape">Deriving the shape</a></li><li><a href="#the-formal-pieces">The formal pieces</a></li><li><a href="#common-confusions">Common confusions</a></li><li><a href="#check-yourself">Check yourself</a></li><li><a href="#exercise">Exercise</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="prev" href="unit-06.html">← Unit 6: Perfect rhyme first</a><a class="next" href="unit-08.html">Unit 8: Unequal lengths: sequence alignment →</a>
+<a class="prev" href="unit-06.html"><span class="dir">Previous</span><span class="ttl">Unit 6: Perfect rhyme first</span></a><a class="next" href="unit-08.html"><span class="dir">Next</span><span class="ttl">Unit 8: Unequal lengths: sequence alignment</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script src="course.js"></script>
 </body>
 </html>

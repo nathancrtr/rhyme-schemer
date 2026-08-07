@@ -1,10 +1,21 @@
 # rhyme-schemer: the course
 
 **Open [`site/index.html`](site/index.html) in a browser — that's the course.**
-Every page is static and self-contained (no server needed); the site is
-generated from the Markdown sources here by `build_site.py`, so edit the
-Markdown, not the HTML, and rebuild with
+Every page is static and self-contained (no server needed, no network); the
+site is generated from the Markdown sources here by `build_site.py`, so edit
+the Markdown, not the HTML, and rebuild with
 `pip install markdown && python learning/build_site.py`.
+
+The design system lives in [`style_source.py`](style_source.py) — palette,
+type ramp, and the reasoning behind both — and is emitted as `site/style.css`
+by the same build. The four typefaces are SIL-OFL and ship subset under
+`site/fonts/` (~270 KB total); they only need regenerating if the character
+coverage changes:
+`pip install "fonttools[woff]" brotli && python learning/build_fonts.py`.
+
+The eleven interactive pages under `interactive/` link that same stylesheet,
+so widgets, quizzes, and lessons share one palette and one type ramp, and
+each carries a bar back into the course.
 
 A complete, interactive course for learning **NLP and computational phonology by finishing this repo**. You'll work from the phonetic foundation already in `rhyme_schemer/` — phonemes, articulatory features, syllabification — forward through the rhyme-scoring kernel, sequence alignment, rhyme-scheme grouping, visualization, grapheme-to-phoneme, and evaluation, until the tool described in the top-level README actually exists.
 
@@ -17,6 +28,10 @@ learning/
 ├── README.md                 ← you are here
 ├── learning-resources.md      tiered, verified resources ("why this one")
 ├── curriculum.md              the 15-unit, project-driven syllabus + dependency map
+├── build_site.py              Markdown -> site/ (the whole build system)
+├── style_source.py            the design system, and why it is what it is
+├── build_fonts.py             fetch + subset the OFL webfonts into site/fonts/
+├── site/                      the generated course site (committed; open index.html)
 ├── audits/                    corpus-evidence checks on the feature spaces
 │   ├── hirjee_brown_2009.py     H&B's learned rhyme matrices, as data
 │   └── audit_feature_space.py   rank-compare them against features.py

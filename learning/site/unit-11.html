@@ -5,35 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 11 — Internal & multisyllabic rhyme: scanning a verse</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-2)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 11</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html" aria-current="page"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 3 · From pairs to a scheme</p>
-<h1>Unit 11 — Internal & multisyllabic rhyme: scanning a verse</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<div class="masthead">
+<p class="crumb"><b>Unit 11</b><span class="sep">/</span>Phase 3 &middot; From pairs to a scheme</p>
+<h1>Internal &amp; multisyllabic rhyme: scanning a verse</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
 <li><strong>Build:</strong> A scanner that slides over syllables (not just line ends) to surface internal and multisyllabic rhymes within and across lines.</li>
-<li><strong>Read:</strong> Hirjee &amp; Brown on internal-rhyme detection; the Vox "Rapping, deconstructed" breakdown.</li>
+<li><strong>Read:</strong> Hirjee &amp; Brown on internal-rhyme detection; the Vox &ldquo;Rapping, deconstructed&rdquo; breakdown.</li>
 <li><strong>Concepts:</strong> rhyme is not only line-final; windowing over the syllable stream; ranking candidate matches by score and length (longest/nearest, as Hirjee &amp; Brown do).</li>
 <li><strong>Exercise:</strong> On a verse with known internal rhymes, surface them; tune to suppress spurious low-score matches.</li>
 <li><strong>Milestone:</strong> Internal rhymes in a real verse detected and scored.</li>
 </ul></details>
-<div class="note">This unit's guide is the scanner walkthrough — written <strong>during</strong> the collaborative build, warts and wrong turns included, and it contains the project's living <em>open tuning ledger</em>. The Markdown file in <code>interactive/lessons/</code> remains the engineering-canonical copy that code comments cite; this page is its rendering.</div>
+<div class="note">This unit&rsquo;s guide is the scanner walkthrough — written <strong>during</strong> the collaborative build, warts and wrong turns included, and it contains the project&rsquo;s living <em>open tuning ledger</em>. The Markdown file in <code>interactive/lessons/</code> remains the engineering-canonical copy that code comments cite; this page is its rendering.</div>
 <article class="lesson"><p><strong>What this is:</strong> a guided trace of one verse through the complete Unit 11
 pipeline (<code>rhyme_schemer/scan.py</code>), written as the unit was built. Unlike the
 other lesson guides, this one was produced <em>during</em> the collaborative
 implementation, so it documents the design as actually decided — including the
 discoveries that forced changes and the warts that remain.</p>
 <p><strong>Pairs with:</strong> <code>rhyme_schemer/scan.py</code>, <code>tests/test_scan.py</code>.</p>
-<h2>The demo verse</h2>
+<h2 id="the-demo-verse"><a class="anchor" href="#the-demo-verse" aria-hidden="true" tabindex="-1">#</a>The demo verse</h2>
 <pre><code>Every day I wake up, take a cake and shake the state up
 Feeling great, no debate, I'm the one who ate the cake up
 </code></pre>
@@ -47,9 +62,9 @@ matches = find_matches(candidates)
 selected = select_matches(matches)
 scan = scan_verse(VERSE)   # runs all of the above + grouping
 </code></pre>
-<h2>The one-paragraph story</h2>
-<p>Everything before Unit 11 answers <em>"do these two things rhyme?"</em>; nothing
-answers <em>"which things should we even ask about?"</em> The scanner is candidate
+<h2 id="the-one-paragraph-story"><a class="anchor" href="#the-one-paragraph-story" aria-hidden="true" tabindex="-1">#</a>The one-paragraph story</h2>
+<p>Everything before Unit 11 answers <em>&ldquo;do these two things rhyme?&rdquo;</em>; nothing
+answers <em>&ldquo;which things should we even ask about?&rdquo;</em> The scanner is candidate
 generation plus the judgment layers that keep enumeration honest. Its core
 maneuver: when the text underdetermines the reading, <strong>enumerate the readings
 and let the score decide</strong> — applied here to <em>performed stress</em> (the anchor),
@@ -57,10 +72,10 @@ exactly as Unit 9 applied it to pronunciation variants. The rest of the unit
 is precision engineering: gates, prices, and selection rules that keep
 enumerate-everything from meaning report-everything.</p>
 <hr />
-<h2>Stage 0 — the verse</h2>
+<h2 id="stage-0-the-verse"><a class="anchor" href="#stage-0-the-verse" aria-hidden="true" tabindex="-1">#</a>Stage 0 — the verse</h2>
 <p>Plain text in. No markup, no annotation. Every downstream position refers back
-to this text, because Unit 12's renderer must highlight <em>the verse as typed</em>.</p>
-<h2>Stage 1 — <code>tokenize_verse</code>: positioned words</h2>
+to this text, because Unit 12&rsquo;s renderer must highlight <em>the verse as typed</em>.</p>
+<h2 id="stage-1-tokenize-verse-positioned-words"><a class="anchor" href="#stage-1-tokenize-verse-positioned-words" aria-hidden="true" tabindex="-1">#</a>Stage 1 — <code>tokenize_verse</code>: positioned words</h2>
 <pre><code>line 0: ['Every', 'day', 'I', 'wake', 'up', 'take', 'a', 'cake', 'and', 'shake', 'the', 'state', 'up']
 line 1: ['Feeling', 'great', 'no', 'debate', &quot;I'm&quot;, 'the', 'one', 'who', 'ate', 'the', 'cake', 'up']
 </code></pre>
@@ -73,9 +88,9 @@ line 1: ['Feeling', 'great', 'no', 'debate', &quot;I'm&quot;, 'the', 'one', 'who
   kept for display (CMUdict lookup lowercases on its own). Punctuation and
   digits separate words and vanish.</li>
 </ul>
-<h2>Stage 2 — <code>enumerate_candidates</code>: (span, anchor) pairs with priced readings</h2>
+<h2 id="stage-2-enumerate-candidates-span-anchor-pairs-with-priced-readings"><a class="anchor" href="#stage-2-enumerate-candidates-span-anchor-pairs-with-priced-readings" aria-hidden="true" tabindex="-1">#</a>Stage 2 — <code>enumerate_candidates</code>: (span, anchor) pairs with priced readings</h2>
 <p>82 candidates for this verse. Anatomy of one sample (candidates starting at
-"who", line 1 word 7):</p>
+&ldquo;who&rdquo;, line 1 word 7):</p>
 <pre><code>who @L1:W7+0          -&gt;  tail=HH UW1                          cost=0.0
 who ate @L1:W7+0      -&gt;  tail=HH UW1 . EY0 T                  cost=0.0
 who ate the @L1:W7+0  -&gt;  tail=HH UW1 . EY0 T . DH AH0  cost=0.0   (x2)
@@ -85,18 +100,18 @@ who ate the @L1:W7+0  -&gt;  tail=HH UW1 . EY0 T . DH AH0  cost=0.0   (x2)
 <ul>
 <li><code>@L1:W7+0</code> = line 1, starting at word 7, anchored at syllable 0 of the
   first word. <strong>A candidate is a (word span, anchor) pair</strong> — the anchor is
-  part of its identity, because "spaghetti" anchored at -GHET- and at -TI are
+  part of its identity, because &ldquo;spaghetti&rdquo; anchored at -GHET- and at -TI are
   different rhyme structures.</li>
-<li>The tail is the <strong>performed-stress claim made data</strong>: "who" keeps a
-  promoted primary; "ate" shows <code>EY0</code> — citation <code>EY1</code>, <em>demoted</em> by
+<li>The tail is the <strong>performed-stress claim made data</strong>: &ldquo;who&rdquo; keeps a
+  promoted primary; &ldquo;ate&rdquo; shows <code>EY0</code> — citation <code>EY1</code>, <em>demoted</em> by
   <code>coerce_performed_stress</code> so it cannot steal the tail back (<code>rhyme_tail</code>
   anchors on the <em>last</em> primary).</li>
-<li><strong>Variants multiply readings</strong>: three readings of "who ate the" because
-  "the" has three CMUdict variants. Two collapse to the same tail (<code>DH AH0</code>
+<li><strong>Variants multiply readings</strong>: three readings of &ldquo;who ate the&rdquo; because
+  &ldquo;the&rdquo; has three CMUdict variants. Two collapse to the same tail (<code>DH AH0</code>
   twice — citation <code>DH AH0</code> and <code>DH AH1</code> converge once demotion strips the
   digit). Harmless.</li>
-<li><strong>Every reading is priced.</strong> All <code>cost=0.0</code> here: "who" carries citation
-  stress and isn't a function word (interrogatives genuinely take beats).
+<li><strong>Every reading is priced.</strong> All <code>cost=0.0</code> here: &ldquo;who&rdquo; carries citation
+  stress and isn&rsquo;t a function word (interrogatives genuinely take beats).
   Compare <code>up</code> (<code>cost=0.15</code>: coercible particle) and <code>spaghetti@-TI</code>
   (<code>cost=0.15</code>: promoted citation-unstressed syllable).</li>
 </ul>
@@ -106,15 +121,15 @@ who ate the @L1:W7+0  -&gt;  tail=HH UW1 . EY0 T . DH AH0  cost=0.0   (x2)
   phonologically bear stress, so it never anchors.</li>
 <li><strong><code>NEVER_ANCHOR</code></strong> (per span): articles/conjunctions are proclitics and are
   barred outright — necessary because CMUdict lists <em>emphatic</em> variants
-  ("the" → <code>DH IY0</code> "thee", "a" → letter-name <code>EY1</code>) that would otherwise let
-  every article rhyme with "free" and "day". Coercible function words
-  ("up", "I", "me") anchor for a price instead. That's the prosodic
+  (&ldquo;the&rdquo; → <code>DH IY0</code> &ldquo;thee&rdquo;, &ldquo;a&rdquo; → letter-name <code>EY1</code>) that would otherwise let
+  every article rhyme with &ldquo;free&rdquo; and &ldquo;day&rdquo;. Coercible function words
+  (&ldquo;up&rdquo;, &ldquo;I&rdquo;, &ldquo;me&rdquo;) anchor for a price instead. That&rsquo;s the prosodic
   three-way split: content words free, clitic-ish function words priced,
   proclitics never.</li>
 </ul>
-<h2>Stage 3 — <code>find_matches</code>: gated, priced, thresholded pairs</h2>
+<h2 id="stage-3-find-matches-gated-priced-thresholded-pairs"><a class="anchor" href="#stage-3-find-matches-gated-priced-thresholded-pairs" aria-hidden="true" tabindex="-1">#</a>Stage 3 — <code>find_matches</code>: gated, priced, thresholded pairs</h2>
 <p>121 matches — <strong>redundancy is the design</strong>, not a failure. One perceptual
-fact ("line 1's back half rhymes with line 0") appears as ~40 overlapping
+fact (&ldquo;line 1&rsquo;s back half rhymes with line 0&rdquo;) appears as ~40 overlapping
 descriptions, from <code>wake up ~ cake up (1.000, 2 syl)</code> up through the genuine
 4-syllable cross-line compound:</p>
 <pre><code>shake the state up @L0:W9+0 ~ ate the cake up @L1:W8+0 (0.964, 4 syl)
@@ -126,28 +141,28 @@ adjudication:</p>
    components chain further).</li>
 <li><strong>Disjoint extents</strong> — positional, not lexical: candidates sharing word
    <em>positions</em> are competing descriptions of one stretch of audio, never
-   partners; sharing word <em>types</em> ("plane, man" / "sane, man") is fine.</li>
+   partners; sharing word <em>types</em> (&ldquo;plane, man&rdquo; / &ldquo;sane, man&rdquo;) is fine.</li>
 <li><strong>Seed gate</strong>, per reading pair inside the max: the anchor pair must open
    the rhyme on its own. Two clauses: no rime riche (identical anchor
-   syllable — "up"/"up" is repetition, not rhyme; identity is welcome only in
+   syllable — &ldquo;up&rdquo;/&rdquo;up&rdquo; is repetition, not rhyme; identity is welcome only in
    the <em>extension</em>), and anchor <strong>nuclei</strong> within <code>seed_threshold</code>.
    Nucleus-only, by necessity: any blended bar strict enough to kill
    wake/give (0.808) also kills lincoln/reason (0.657) — it would punish the
    coda flexibility slant rhyme licenses. This is the mean-vs-gate lesson:
-   <code>rhyme_score</code>'s average lets a perfect trailing column subsidize a failing
+   <code>rhyme_score</code>&rsquo;s average lets a perfect trailing column subsidize a failing
    anchor; the ear treats the anchor as a gate.</li>
 <li><strong>Coercion cost</strong> subtracted per side: an unlikely performed-stress claim
    buys its way in. see~me survives one discount (0.85); you~to pays two and
    dies (a provisional call — see ledger item 5). Demotions are deliberately
-   <em>free</em> — pricing them killed "plane man / sane man" and get up / "setup"
+   <em>free</em> — pricing them killed &ldquo;plane man / sane man&rdquo; and get up / &ldquo;setup&rdquo;
    when tried.</li>
 </ol>
-<h2>Stage 4 — <code>select_matches</code>: one description per rhyme event</h2>
+<h2 id="stage-4-select-matches-one-description-per-rhyme-event"><a class="anchor" href="#stage-4-select-matches-one-description-per-rhyme-event" aria-hidden="true" tabindex="-1">#</a>Stage 4 — <code>select_matches</code>: one description per rhyme event</h2>
 <p>121 → 44. Greedy best-first with <strong>same-event suppression</strong>: accept a match
 unless an accepted one overlaps it on <em>both</em> sides. Overlap on one side only
-means different events — that's how "wake" (partnering "take") and "wake up"
-(partnering "state up") both survive: same text, two structures.</p>
-<p><strong>Score comes first — a deliberate inversion of Hirjee &amp; Brown's
+means different events — that&rsquo;s how &ldquo;wake&rdquo; (partnering &ldquo;take&rdquo;) and &ldquo;wake up&rdquo;
+(partnering &ldquo;state up&rdquo;) both survive: same text, two structures.</p>
+<p><strong>Score comes first — a deliberate inversion of Hirjee &amp; Brown&rsquo;s
 longest-first ranking.</strong> Their scores are per-syllable log-odds <em>sums</em>, where
 longer matches accumulate evidence; ours are <em>averages</em>, which makes the
 average itself the arbiter:</p>
@@ -164,16 +179,16 @@ average itself the arbiter:</p>
 </ul>
 <p>Tiebreaks: <strong>informative length</strong> descending (columns carrying real rhyme
 information — a schwa~schwa column with no codas scores a vacuous 1.0, since
-every schwa matches every schwa, and must not let "take a ~ shake the"
-out-length its core; a schwa column <em>with</em> codas, like lincoln/reason's
+every schwa matches every schwa, and must not let &ldquo;take a ~ shake the&rdquo;
+out-length its core; a schwa column <em>with</em> codas, like lincoln/reason&rsquo;s
 -coln/-son, still counts), then total length ascending (tightest
 description), then nearest. Longest/nearest survive only as tiebreakers.</p>
 <p>Note the epistemic status of the tight-extent preference: it is a claim about
-<em>segmental</em> evidence only. In delivery, flow can bind "take <strong>a</strong>" / "shake
-<strong>the</strong>" into the performed rhyme unit — but no segment can show that, so the
+<em>segmental</em> evidence only. In delivery, flow can bind &ldquo;take <strong>a</strong>&rdquo; / &ldquo;shake
+<strong>the</strong>&rdquo; into the performed rhyme unit — but no segment can show that, so the
 tight extent is the honest default under the evidence we have (see ledger
 item 6).</p>
-<h2>Stage 5 — <code>scan_verse</code>: components over the match graph</h2>
+<h2 id="stage-5-scan-verse-components-over-the-match-graph"><a class="anchor" href="#stage-5-scan-verse-components-over-the-match-graph" aria-hidden="true" tabindex="-1">#</a>Stage 5 — <code>scan_verse</code>: components over the match graph</h2>
 <pre><code>class 0: 'Every'@L0:W0, 'day I'@L0:W1, 'take a'@L0:W5, 'shake the'@L0:W9, 'I'm the'@L1:W4, 'ate the'@L1:W8
 class 1: 'wake'@L0:W3, 'take'@L0:W5, 'cake'@L0:W7, 'shake'@L0:W9, 'state'@L0:W11, 'great'@L1:W1, 'debate'@L1:W3, 'ate'@L1:W8, 'cake'@L1:W10
 class 2: 'wake up'@L0:W3, 'state up'@L0:W11, 'cake up'@L1:W10
@@ -182,30 +197,30 @@ OOV: (none)
 <p>Two wiring decisions to understand:</p>
 <ul>
 <li><strong>The edges are the selected matches themselves</strong> — <em>not</em> recomputed
-  <code>best_is_rhyme</code> calls. The scanner's edge test is stricter than the bare
-  kernel's (seed-gated, coercion-priced, event-deduplicated); rescoring pairs
+  <code>best_is_rhyme</code> calls. The scanner&rsquo;s edge test is stricter than the bare
+  kernel&rsquo;s (seed-gated, coercion-priced, event-deduplicated); rescoring pairs
   with the plain kernel would readmit everything those layers rejected. The
-  original milestone said "feed the same <code>group_rhymes</code> unchanged"; the
+  original milestone said &ldquo;feed the same <code>group_rhymes</code> unchanged&rdquo;; the
   <em>letter</em> of that would undo the unit, so the <em>spirit</em> is honored instead:
-  Unit 10's graph engine was extracted as <code>rhyme.connected_components(count,
+  Unit 10&rsquo;s graph engine was extracted as <code>rhyme.connected_components(count,
   edges)</code>, <code>group_rhymes</code> now delegates to it (behavior identical — the Unit
-  10 test file is the proof), and <code>scan_verse</code> feeds it the scanner's own
+  10 test file is the proof), and <code>scan_verse</code> feeds it the scanner&rsquo;s own
   edges. Judgment and machinery, separated. Components still impose
-  transitivity on a non-transitive relation — Unit 10's modeling choice,
+  transitivity on a non-transitive relation — Unit 10&rsquo;s modeling choice,
   inherited knowingly.</li>
 <li><strong>Only matched candidates become nodes.</strong> A candidate was an enumerated
-  <em>possibility</em>, not an observation — no singleton "rhyme classes" of things
-  that never rhymed. But an unmatched <em>word CMUdict doesn't know</em> is real
-  information: surfaced in <code>VerseScan.oov</code> so a renderer says "unknown word"
-  rather than letting it read as "doesn't rhyme".</li>
+  <em>possibility</em>, not an observation — no singleton &ldquo;rhyme classes&rdquo; of things
+  that never rhymed. But an unmatched <em>word CMUdict doesn&rsquo;t know</em> is real
+  information: surfaced in <code>VerseScan.oov</code> so a renderer says &ldquo;unknown word&rdquo;
+  rather than letting it read as &ldquo;doesn&rsquo;t rhyme&rdquo;.</li>
 </ul>
 <p>The result: <strong>class 1</strong> is the full EY chain across both lines; <strong>class 2</strong>
 is the <code>-ake up</code> multisyllabic family, <em>textually overlapping</em> class 1 — the
 overlapping-rhyme-structures observation from the start of the unit,
 now the literal output of the program.</p>
-<h2>The wart: class 0, the "mush twin"</h2>
-<p>Class 0 needs a hard look. Some membership is defensible assonance ("EV-ery
-DAY" plausibly joins the flow's EY chain). But <code>take a</code> sits in class 0 while
+<h2 id="the-wart-class-0-the-mush-twin"><a class="anchor" href="#the-wart-class-0-the-mush-twin" aria-hidden="true" tabindex="-1">#</a>The wart: class 0, the &ldquo;mush twin&rdquo;</h2>
+<p>Class 0 needs a hard look. Some membership is defensible assonance (&ldquo;EV-ery
+DAY&rdquo; plausibly joins the flow&rsquo;s EY chain). But <code>take a</code> sits in class 0 while
 <code>take</code> sits in class 1 — the same beat, split across classes. Mechanism:
 <code>informative_length</code> withholds <em>length</em> credit from vacuous schwa columns,
 but they still count in the <em>score average</em> — a~the contributes a free 1.0
@@ -213,122 +228,122 @@ column, so <code>take a ~ ate the</code> (0.964) outbids the honest <code>take ~
 (0.928) for the event, and being a different node, the winner lands in a
 separate component. The clean fix — excluding vacuous columns from the score
 itself — would move scanner scoring further from bare <code>rhyme_score</code>; whether
-that's worth it is a question for the closing exercise to answer on real
+that&rsquo;s worth it is a question for the closing exercise to answer on real
 data.</p>
-<h2>Open tuning ledger (for the closing exercise and Unit 14)</h2>
+<h2 id="open-tuning-ledger-for-the-closing-exercise-and-unit-14"><a class="anchor" href="#open-tuning-ledger-for-the-closing-exercise-and-unit-14" aria-hidden="true" tabindex="-1">#</a>Open tuning ledger (for the closing exercise and Unit 14)</h2>
 <p><em>(The July 2026 external review — top-level <code>REVIEW.md</code> — put names and
 literatures on several of these; those pointers are folded in below. Its
-summary judgment stands: several of these problems were "half-diagnosed"
-here already; the review's contribution is that they have names.)</em></p>
+summary judgment stands: several of these problems were &ldquo;half-diagnosed&rdquo;
+here already; the review&rsquo;s contribution is that they have names.)</em></p>
 <ol>
 <li><strong>Vacuous-column score inflation</strong> → mush-twin classes (above). One face
    of the <em>chaining</em> pathology named at item 9.</li>
 <li><strong>wake/give at 0.904</strong> survives: our vowel space rates EY/IH at 0.95 (the
-   diphthong's glide passes near [ɪ]). Tightening is endorsed — but measured
-   against Unit 14's eval, with lincoln/reason protected by dialect
+   diphthong&rsquo;s glide passes near [ɪ]). Tightening is endorsed — but measured
+   against Unit 14&rsquo;s eval, with lincoln/reason protected by dialect
    <em>variants</em>, not metric generosity. Two review updates: (a) the review
-   claimed the EY/IH question was answerable today from Katz 2015's
-   correspondence counts and Kawahara 2007's half-rhyme statistics —
+   claimed the EY/IH question was answerable today from Katz 2015&rsquo;s
+   correspondence counts and Kawahara 2007&rsquo;s half-rhyme statistics —
    <strong>verified against the papers (2026-08-07), that claim is wrong</strong>: both
    datasets are <em>consonantal</em> (Katz keys rhyme detection on matched vowel
-   quality, so vowels are fixed by construction; Kawahara's pairs are
+   quality, so vowels are fixed by construction; Kawahara&rsquo;s pairs are
    Japanese consonants). Those tables audit our <em>consonant</em> space instead;
-   corpus-derived vowel evidence must come from Hirjee &amp; Brown's learned
+   corpus-derived vowel evidence must come from Hirjee &amp; Brown&rsquo;s learned
    similarity matrix or Bark-scaled formant data; (b) the promised
    dialect variants currently have <strong>no identified source</strong> — CMUdict has no
    dialect coverage, and WikiPron (Wiktionary-scraped lexicons) is the
-   field's candidate answer. This item cannot execute until a source is
+   field&rsquo;s candidate answer. This item cannot execute until a source is
    named. <em>The audit ran 2026-08-07: findings in items 11–12 and
-   <code>learning/audits/</code> (this item's EY/IH suspicion is superseded by item
-   11's broader diagnosis).</em> <strong>WikiPron probe verdict (2026-08-07)</strong>: the
-   eng_latn_us data does carry useful common-word variants — "higher" has
-   non-rhotic [haɪə] alongside rhotic readings, "fire" has monosyllabic
-   [faɪɹ] (item 10's smoothing!), even "holla" has an entry — but <strong>no
-   proper nouns</strong>: "lincoln" is absent from both US and UK data, so the
+   <code>learning/audits/</code> (this item&rsquo;s EY/IH suspicion is superseded by item
+   11&rsquo;s broader diagnosis).</em> <strong>WikiPron probe verdict (2026-08-07)</strong>: the
+   eng_latn_us data does carry useful common-word variants — &ldquo;higher&rdquo; has
+   non-rhotic [haɪə] alongside rhotic readings, &ldquo;fire&rdquo; has monosyllabic
+   [faɪɹ] (item 10&rsquo;s smoothing!), even &ldquo;holla&rdquo; has an entry — but <strong>no
+   proper nouns</strong>: &ldquo;lincoln&rdquo; is absent from both US and UK data, so the
    lincoln-IY idiolect variant still has no external source (a small hand
    lexicon of gold-annotation-driven variants may be the honest answer).
    UK data is systematically non-rhotic but carries RP vowels, not AAE —
    usable as an existence proof, not as a variant source. Net: WikiPron =
-   worthwhile <em>secondary</em> source for common-word variants; item 11's
-   rule-generated performed-phonology readings remain the primary plan. More broadly, "refit the vowel space from rhyme-pair data"
-   (Hirjee &amp; Brown's BLOSUM-style move) should be a Unit 14 <em>condition</em>,
+   worthwhile <em>secondary</em> source for common-word variants; item 11&rsquo;s
+   rule-generated performed-phonology readings remain the primary plan. More broadly, &ldquo;refit the vowel space from rhyme-pair data&rdquo;
+   (Hirjee &amp; Brown&rsquo;s BLOSUM-style move) should be a Unit 14 <em>condition</em>,
    not just weight-tuning of the hand space.</li>
-<li><strong>EH/EY assonance chains</strong> ("Every ~ shake the" 0.880) selected with mushy
+<li><strong>EH/EY assonance chains</strong> (&ldquo;Every ~ shake the&rdquo; 0.880) selected with mushy
    extents — possibly real percepts, sloppily delimited.</li>
 <li>day~wake alone scores 0.741 (missing coda zeroes the coda term) — one hair
    under threshold; the coda-weight question.</li>
-<li><strong>you~to dies, and shouldn't always</strong> (flagged by the learner: these are
+<li><strong>you~to dies, and shouldn&rsquo;t always</strong> (flagged by the learner: these are
    clear, common rhymes in their everyday pronunciations). The coercion cost
    is a context-free prior, but beat placement is positional: English nuclear
-   stress falls at the phrase's right edge, so a <em>line-final</em> "to"/"you"
+   stress falls at the phrase&rsquo;s right edge, so a <em>line-final</em> &ldquo;to&rdquo;/&rdquo;you&rdquo;
    takes the beat for free — no coercion is actually being claimed there.
    Candidate fix: make the cost <strong>position-sensitive</strong> (waived/reduced for
    line-final candidates, full price mid-line). Requires candidates to know
-   their line-final status — the one positional fact they don't yet carry.
+   their line-final status — the one positional fact they don&rsquo;t yet carry.
    <code>test_cost_kills_function_word_junk_matches</code> pins the current behavior and
    must change with this.</li>
 <li>
 <p><strong>Tight vs padded extents are flow-dependent</strong> (flagged by the learner):
-   "take a ~ shake the" can genuinely be the delivered rhyme unit under the
+   &ldquo;take a ~ shake the&rdquo; can genuinely be the delivered rhyme unit under the
    right cadence. Segments alone cannot see that — it needs a beat grid (the
-   curriculum's prosody &amp; flow frontier). Mitigations: grouping is unaffected
+   curriculum&rsquo;s prosody &amp; flow frontier). Mitigations: grouping is unaffected
    (both extents put the same beat in the same class), and Unit 12 can render
    padded extents when adjacent syllables are class-mates. Becomes load-
    bearing only once a rhythm layer exists to adjudicate.</p>
 </li>
 <li>
 <p><strong>Tail-internal onsets are invisible</strong>: MOP syllabification hands medial
-   consonants to the next syllable's onset, and the kernel ignores onsets in
+   consonants to the next syllable&rsquo;s onset, and the kernel ignores onsets in
    every column — so sweaty~heavy scores 1.0, indistinguishable from true
    perfect rhyme (identity from the stressed vowel onward). North-star
-   consistent, but the top of the scale is overcrowded — and the learner's
+   consistent, but the top of the scale is overcrowded — and the learner&rsquo;s
    ear confirms the overclaim (probe pair, 2026-08-07): sweaty~Betty
    (medial t~t) audibly outranks sweaty~heavy (t~v), yet the kernel ties
    them at 1.0. Diagnosis, promoted from footnote to root cause after the
    review: since Kahn 1976, a consonant between a stressed lax vowel and an
-   unstressed one is analyzed as <em>ambisyllabic</em> — "sweaty" shares its /t/
-   (it flaps like no true onset /t/, yet <code>SW EH1</code> can't close an English
-   syllable either). The medial consonant isn't invisible because the
-   kernel is vowels-first; it's invisible because <strong>any hard syllable
+   unstressed one is analyzed as <em>ambisyllabic</em> — &ldquo;sweaty&rdquo; shares its /t/
+   (it flaps like no true onset /t/, yet <code>SW EH1</code> can&rsquo;t close an English
+   syllable either). The medial consonant isn&rsquo;t invisible because the
+   kernel is vowels-first; it&rsquo;s invisible because <strong>any hard syllable
    boundary is a lossy discretization of a shared consonant</strong>, and MOP
    resolves the tie wholly in favor of the one constituent the kernel
    discards. Candidate fixes, one per layer: (a) <em>syllabifier-side</em> — mark
    or copy ambisyllabic consonants into the preceding coda, so the tail
    keeps them and the ordinary coda term prices them (restores the
    sweaty~Betty &gt; sweaty~heavy ranking with zero kernel changes);
-   (b) <em>kernel-side</em> — keep MOP's clean split and add a small
+   (b) <em>kernel-side</em> — keep MOP&rsquo;s clean split and add a small
    onset-similarity term for <em>non-initial</em> tail columns only (the first
-   column's onset must stay ignored — that's what makes cat/hat rhyme).
+   column&rsquo;s onset must stay ignored — that&rsquo;s what makes cat/hat rhyme).
    Both deferred: (a) touches every coda comparison in every multisyllabic
    tail, so it is a Unit 14 sweep <em>condition</em>, not a patch.</p>
 </li>
 <li>
 <p><strong>Chaining has no quality gate, so it amplifies threshold-huggers</strong>
-   (flagged by the learner, with ground truth attached). On Poe's <em>Raven</em>
-   stanza 1, <code>chain_matches</code> fused there~one (0.826) and "came a"~gently
+   (flagged by the learner, with ground truth attached). On Poe&rsquo;s <em>Raven</em>
+   stanza 1, <code>chain_matches</code> fused there~one (0.826) and &ldquo;came a&rdquo;~gently
    (0.825) onto tapping~rapping (1.000) into a three-beat compound — a
-   five-syllable rhyme whose only real beat is the third. The learner's
-   ear is unequivocal: <em>there/one and "came a"/gently do not rhyme at all</em>,
+   five-syllable rhyme whose only real beat is the third. The learner&rsquo;s
+   ear is unequivocal: <em>there/one and &ldquo;came a&rdquo;/gently do not rhyme at all</em>,
    not even as slant — those scores are vowel-space generosity (EH~AH,
-   EY~EH), items 2–3's diagnosis resurfacing one layer up. Structurally:
-   <code>_abuts</code> is purely positional, and selection's
+   EY~EH), items 2–3&rsquo;s diagnosis resurfacing one layer up. Structurally:
+   <code>_abuts</code> is purely positional, and selection&rsquo;s
    extension-must-raise-the-average discipline has no chaining analogue,
    so any two abutting <em>selected</em> matches fuse, and a perfect beat lends
    its credibility to its passengers. Candidate knobs: (a) a per-beat
    score floor for joining a chain, above the bare match threshold;
    (b) an average-score condition on the fused chain, mirroring
-   selection's; (c) fix the underlying vowel generosity (item 2) and
+   selection&rsquo;s; (c) fix the underlying vowel generosity (item 2) and
    remeasure — the passengers may simply die at selection. Decide against
-   Unit 14's eval, not by intuition.</p>
+   Unit 14&rsquo;s eval, not by intuition.</p>
 </li>
 <li>
-<p><strong>G2P feeds the mega-class glue</strong> (observed at Unit 13's end-to-end
-   check). The chain's pronunciations are <em>correct</em>, but they inherit the
-   existing precision debt: on "I was chokin' … jokin' / Coogi … groovy /
-   flowing … going", everything fused into one class — chokin'~jokin'
-   (right), Coogi~groovy (right), but also -in'~-ing bridge edges
+<p><strong>G2P feeds the mega-class glue</strong> (observed at Unit 13&rsquo;s end-to-end
+   check). The chain&rsquo;s pronunciations are <em>correct</em>, but they inherit the
+   existing precision debt: on &ldquo;I was chokin&rsquo; … jokin&rsquo; / Coogi … groovy /
+   flowing … going&rdquo;, everything fused into one class — chokin&rsquo;~jokin&rsquo;
+   (right), Coogi~groovy (right), but also -in&rsquo;~-ing bridge edges
    (flowing/going against the g-dropped forms) gluing all three pairs into
-   one OW mega-class via connected components. Item 1's diagnosis
+   one OW mega-class via connected components. Item 1&rsquo;s diagnosis
    (non-transitivity + generous edges), new edge supply: every G2P word is
    also a new <em>node</em>, so recall gains arrive married to precision losses.
    Nothing to fix in <code>g2p.py</code> itself; measure at Unit 14 alongside items
@@ -340,7 +355,7 @@ here already; the review's contribution is that they have names.)</em></p>
    into a mega-class), is the oldest known problem in clustering. It was
    predictable a priori; the standard remedies are correlation clustering
    on signed edge weights, community detection that penalizes sparse cuts,
-   or Reddy &amp; Knight (2011)'s move of making the <em>scheme</em> the object of
+   or Reddy &amp; Knight (2011)&rsquo;s move of making the <em>scheme</em> the object of
    inference so a prior over schemes regularizes class structure. Unit 14
    should include one edge-weight-aware clustering condition to measure
    what the components choice actually costs, rather than adding more
@@ -350,27 +365,27 @@ here already; the review's contribution is that they have names.)</em></p>
 <p><strong>Syllable-count mismatch is priced flat; smoothing is graded</strong> (minted
     2026-08-07, out of the ALINE deep-fold). ALINE (Kondrak 2000) carries
     compression/expansion ops — one phone may align against <em>two</em>, priced
-    by similarity; our alignment's only tool for a count mismatch is the
+    by similarity; our alignment&rsquo;s only tool for a count mismatch is the
     flat <code>DEFAULT_GAP_PENALTY</code> (0.6). Probe triangle <strong>sky / fire /
-    higher</strong>, which a rapper smoothing "-ire" toward one long vowel treats
+    higher</strong>, which a rapper smoothing &ldquo;-ire&rdquo; toward one long vowel treats
     as one class: fire~higher <strong>1.000</strong> (both have 2-syllable readings),
-    sky~fire <strong>0.741</strong> (rescued by CMUdict's monosyllabic <code>F AY1 R</code>
+    sky~fire <strong>0.741</strong> (rescued by CMUdict&rsquo;s monosyllabic <code>F AY1 R</code>
     variant, then held a hair under threshold by the missing-coda zero —
-    the same mechanism <em>and the same score</em> as item 4's day~wake),
-    sky~higher <strong>0.500</strong> ("higher" has no monosyllabic variant, so the gap
+    the same mechanism <em>and the same score</em> as item 4&rsquo;s day~wake),
+    sky~higher <strong>0.500</strong> (&ldquo;higher&rdquo; has no monosyllabic variant, so the gap
     burns the column). Three scores for one perceptual relation, steered
-    by CMUdict's uneven variant coverage — the review's CMUdict threat
+    by CMUdict&rsquo;s uneven variant coverage — the review&rsquo;s CMUdict threat
     biting the kernel directly. Ear data (the learner, 2026-08-07):
     fire~higher is correctly perfect; sky~fire is slant even when
     smoothed but acceptable (so 0.741-near-threshold is roughly
-    faithful); unsmoothed sky~higher leans <strong>non-rhyme</strong> — "more precise
+    faithful); unsmoothed sky~higher leans <strong>non-rhyme</strong> — &ldquo;more precise
     to say they can be co-contributors to an <em>assonance scheme</em>, which
-    may be perceived to the ear as a rhyme to some degree" — a relation
+    may be perceived to the ear as a rhyme to some degree&rdquo; — a relation
     weaker than pairwise rhyme that still does perceptual work, and a
-    category Unit 14's gold format should be able to express. Candidate
+    category Unit 14&rsquo;s gold format should be able to express. Candidate
     fixes, in order: (a) <strong>variants first</strong> — supply smoothed readings
     through the lexicon/G2P layer (the lincoln/reason rule again:
-    variants, not metric generosity; joins item 2's WikiPron sourcing
+    variants, not metric generosity; joins item 2&rsquo;s WikiPron sourcing
     question); (b) <strong>a compression op</strong> — align one nucleus against two,
     priced by <code>vowel_distance</code> along the glide trajectory instead of
     flat. Compression is not generosity — it is a different alignment
@@ -380,8 +395,8 @@ here already; the review's contribution is that they have names.)</em></p>
 <li>
 <p><strong>The vowel space has two systematic, opposite-signed biases</strong> (audit
     finding, 2026-08-07; <code>learning/audits/audit_feature_space.py</code>, rank
-    comparison against Hirjee &amp; Brown 2009's rap-corpus log-odds matrix;
-    Spearman ρ = +0.51 overall). Supersedes item 2's narrower EY/IH note.
+    comparison against Hirjee &amp; Brown 2009&rsquo;s rap-corpus log-odds matrix;
+    Spearman ρ = +0.51 overall). Supersedes item 2&rsquo;s narrower EY/IH note.
     (a) <strong>Front-glide generosity</strong>: EY~IH is the closest pair in our whole
     space (0.950, rank 1 of 105) but corpus-negative (−3.4); AY~EY ranks
     9th for us and <strong>102nd of 105</strong> in the corpus (−7.0); AY~EH, EH~IY,
@@ -397,37 +412,37 @@ here already; the review's contribution is that they have names.)</em></p>
     ten largest disagreements, all in the stingy direction. Reading: much
     of the genre is delivered in non-rhotic AAE, where coda /r/
     vocalizes, so these correspondences were plausibly <em>performed as</em>
-    [ə]-like vowels; the right model is "what was said was AH," not "ER
-    is perceptually close to everything." Decision (2026-08-07):
+    [ə]-like vowels; the right model is &ldquo;what was said was AH,&rdquo; not &ldquo;ER
+    is perceptually close to everything.&rdquo; Decision (2026-08-07):
     <strong>variant-first</strong> — mint non-rhotic readings as priced data (a
     performed-phonology factory, the exact architecture of
     <code>coerce_performed_stress</code>: a claim about performance, priced and
-    enumerated), with a lowered <code>_W_RHOTIC</code> as the sweep's cheap
+    enumerated), with a lowered <code>_W_RHOTIC</code> as the sweep&rsquo;s cheap
     comparison condition. Testimony note: g2p.py currently licenses
-    surface phonology from <em>spelling</em> testimony ("playa"); universal
+    surface phonology from <em>spelling</em> testimony (&ldquo;playa&rdquo;); universal
     non-rhotic variants would claim it from genre priors alone, so they
     should carry a small sweepable cost, as testimony-free stress
     promotion does.</p>
 </li>
 <li>
 <p><strong>Consonant-space audit findings</strong> (2026-08-07, same audit; ρ = +0.41
-    against H&amp;B's coda-consonant log-odds). (a) <strong>Stop-place mismatches
+    against H&amp;B&rsquo;s coda-consonant log-odds). (a) <strong>Stop-place mismatches
     are overpriced</strong>: B~G (+1.9) and K~P (+1.7) are solidly
-    corpus-positive — H&amp;B note exactly these pairs "validate Holtman's
-    hierarchy" — yet they rank ~184th of 210 in our space; rap freely
-    rhymes coda stop place. Bears on item 4: down~crowd's N~D penalty
+    corpus-positive — H&amp;B note exactly these pairs &ldquo;validate Holtman&rsquo;s
+    hierarchy&rdquo; — yet they rank ~184th of 210 in our space; rap freely
+    rhymes coda stop place. Bears on item 4: down~crowd&rsquo;s N~D penalty
     lives on this same too-expensive axis. (b) <strong>The DH row is
     spuriously generous</strong> on our side (DH~N 0.819 vs corpus −7.5),
     though DH codas are rare and the corpus side may be frequency noise.
     (c) <strong>The nasal-place discount (Katz 2015, table 7) is
     unrepresentable in our geometry</strong>: the parallel place×manner planes
     price nasal and oral-stop place moves identically (0.649 = 0.649, by
-    construction), so Katz's strongest asymmetry (b = −2.51) cannot be
+    construction), so Katz&rsquo;s strongest asymmetry (b = −2.51) cannot be
     expressed. Honest complication: <em>pooled</em> H&amp;B log-odds also show no
     discount (+1.2 both) — Katz measures perceived distance controlling
-    for context, and pooled corpus counts don't reproduce the asymmetry.
+    for context, and pooled corpus counts don&rsquo;t reproduce the asymmetry.
     A real tension between the two best sources, not an oversight in
-    either. (d) <strong>Kawahara 2007's qualitative ordering: we pass</strong> — his
+    either. (d) <strong>Kawahara 2007&rsquo;s qualitative ordering: we pass</strong> — his
     often-rhyme pairs (M~N, T~S, R~N: 0.75–0.85 for us) all outrank his
     rarely-rhyme pairs (M~SH, N~P: 0.46–0.50).</p>
 </li>
@@ -435,34 +450,34 @@ here already; the review's contribution is that they have names.)</em></p>
 <p>Items 5 and 6 share a diagnosis: <strong>performance context (line position, beat
 grid) carries information a segment-only scanner cannot see</strong> — the
 performed-stress problem, one level up. That blank spot on the map has a
-literature (the review's §4.2): Adams (2009) on the metrical techniques of
-flow, Condit-Schultz's <strong>MCFlow</strong> corpus (rap transcriptions whose rhyme
+literature (the review&rsquo;s §4.2): Adams (2009) on the metrical techniques of
+flow, Condit-Schultz&rsquo;s <strong>MCFlow</strong> corpus (rap transcriptions whose rhyme
 annotations <em>include metric placement</em> — it could validate our inferred
-anchors directly), and Ohriner's <em>Flow</em> (2019), the book-length
+anchors directly), and Ohriner&rsquo;s <em>Flow</em> (2019), the book-length
 computational treatment of rap prosody. Their approach is observational
 (transcribe where the beat falls) where ours is inferential (price the
 stress claim and let scoring decide) — complementary, ours working on bare
-text; the review flags the priced-performed-stress move as the repo's most
+text; the review flags the priced-performed-stress move as the repo&rsquo;s most
 publishable idea <em>if</em> Unit 14 shows it buys precision/recall.</p>
-<h2>Closing exercise: Lose Yourself (first verse excerpt)</h2>
-<p>Run at defaults over the famous eight lines ("His palms are sweaty...<code>blaow</code>"):
-208 candidates → 99 matches → 69 selected → 14 classes, OOV = chokin',
-jokin', blaow (Unit 13's motivation, on cue).</p>
+<h2 id="closing-exercise-lose-yourself-first-verse-excerpt"><a class="anchor" href="#closing-exercise-lose-yourself-first-verse-excerpt" aria-hidden="true" tabindex="-1">#</a>Closing exercise: Lose Yourself (first verse excerpt)</h2>
+<p>Run at defaults over the famous eight lines (&ldquo;His palms are sweaty&hellip;<code>blaow</code>&rdquo;):
+208 candidates → 99 matches → 69 selected → 14 classes, OOV = chokin&rsquo;,
+jokin&rsquo;, blaow (Unit 13&rsquo;s motivation, on cue).</p>
 <p><strong>The hit list</strong> (all found, unprompted): the complete -etty chain (sweaty /
 heavy / sweater / already / spaghetti / ready / <em>forgetting</em>); nervous ~
-surface; palms are ~ arms are (0.996); the AA family (palms / arms / mom's /
-calm / bombs / drop); vomit ~ "calm and" ~ "bombs but" (a real flow rhyme,
+surface; palms are ~ arms are (0.996); the AA family (palms / arms / mom&rsquo;s /
+calm / bombs / drop); vomit ~ &ldquo;calm and&rdquo; ~ &ldquo;bombs but&rdquo; (a real flow rhyme,
 easy to miss by eye); wrote down ~ whole crowd; the AW family (down / crowd /
-loud / mouth / out / out); come out ~ run out; knees ~ He's; how ~ now.</p>
+loud / mouth / out / out); come out ~ run out; knees ~ He&rsquo;s; how ~ now.</p>
 <p><strong>The teachable failures:</strong></p>
 <ol>
 <li><strong>The non-transitivity trap fired live.</strong> At threshold 0.75 the AA class
-   swallowed the OW family (wrote / whole / goes / won't) through bridge
+   swallowed the OW family (wrote / whole / goes / won&rsquo;t) through bridge
    edges like whole~calm (OW~AA nuclei rate ~0.85 in our space, plus L~LM
-   coda support). Unit 10's warning, empirically confirmed at verse scale.</li>
+   coda support). Unit 10&rsquo;s warning, empirically confirmed at verse scale.</li>
 <li><strong>The threshold cannot fix it.</strong> The probe:</li>
 <li>0.75: AA+OW glued; function-word contamination (are, on, his, looks).</li>
-<li>0.80: contamination gone; AA+OW still glued; "down" falls out of the AW
+<li>0.80: contamination gone; AA+OW still glued; &ldquo;down&rdquo; falls out of the AW
      class (down~crowd is 0.79 — the N~D coda penalty).</li>
 <li>0.85: AA and OW cleanly separate — but sweater and forgetting fall out
      of the -etty chain (their edges are genuine ~0.8 slant) and more AW
@@ -471,44 +486,44 @@ loud / mouth / out / out); come out ~ run out; knees ~ He's; how ~ now.</p>
    same band as edges the ear demands (sweater, forgetting, down). The fix
    must come from the <strong>feature space</strong> (AA~OW is too generous), not the
    dial — the empirical confirmation of ledger item 2, and the cleanest
-   possible motivation for Unit 14's eval harness.</li>
-<li><strong>Compounds decompose into per-beat classes.</strong> "PALMS-are-SWEATY ~
-   ARMS-are-HEAVY" is heard as one 4-syllable unit but reported as two
-   matches in two classes ('palms are ~ arms are' + 'sweaty ~ heavy'),
+   possible motivation for Unit 14&rsquo;s eval harness.</li>
+<li><strong>Compounds decompose into per-beat classes.</strong> &ldquo;PALMS-are-SWEATY ~
+   ARMS-are-HEAVY&rdquo; is heard as one 4-syllable unit but reported as two
+   matches in two classes (&lsquo;palms are ~ arms are&rsquo; + &lsquo;sweaty ~ heavy&rsquo;),
    because the internal hit sweaty~heavy (1.0) outbids the 4-syllable span
-   (0.998) and same-events it away. By design ("one beat per match;
-   compounds are adjacent hits") — but Unit 12 must reassemble adjacent
+   (0.998) and same-events it away. By design (&ldquo;one beat per match;
+   compounds are adjacent hits&rdquo;) — but Unit 12 must reassemble adjacent
    same-line runs across classes to render the compound the ear hears.</li>
 <li><strong>Tail-internal onsets are invisible</strong> (new ledger item 7): sweaty~heavy
    scores a <em>perfect</em> 1.0 because MOP syllabification puts the medial t/v in
-   the following syllable's <em>onset</em>, and the kernel ignores onsets
+   the following syllable&rsquo;s <em>onset</em>, and the kernel ignores onsets
    everywhere. Consistent with the vowels-first north star, and why the
-   -etty chain coheres — but "perfect" overclaims: identity-from-the-vowel
+   -etty chain coheres — but &ldquo;perfect&rdquo; overclaims: identity-from-the-vowel
    (true perfect rhyme) and any-medial-consonant now tie at 1.0.</li>
 </ol>
-<p><strong>Error routing</strong> (the exercise's real deliverable — every miss diagnosed to
+<p><strong>Error routing</strong> (the exercise&rsquo;s real deliverable — every miss diagnosed to
 a component): AA/OW merge → feature space (item 2); sweater/forgetting loss
 at high threshold → keep threshold ≤0.8, fix feature space instead;
-down/how/now coda issues → coda weighting (item 4); chokin'/jokin'/blaow →
+down/how/now coda issues → coda weighting (item 4); chokin&rsquo;/jokin&rsquo;/blaow →
 G2P (Unit 13); compound rendering → Unit 12.</p>
-<p><strong>Gold verdicts from the learner's ear</strong> (the first entries of Unit 14's gold
+<p><strong>Gold verdicts from the learner&rsquo;s ear</strong> (the first entries of Unit 14&rsquo;s gold
 annotation set):</p>
 <ul>
-<li><em>"What he"</em> does <strong>not</strong> belong in the -etty chain (scanner includes it at
+<li><em>&ldquo;What he&rdquo;</em> does <strong>not</strong> belong in the -etty chain (scanner includes it at
   default threshold via AH~EH nucleus generosity — a feature-space datum,
   <em>not</em> a word-class one: interrogatives can genuinely bear beats, so adding
-  "what" to FUNCTION_WORDS would be the wrong fix).</li>
+  &ldquo;what&rdquo; to FUNCTION_WORDS would be the wrong fix).</li>
 <li><em>sweaty~heavy</em> is a strong slant, <strong>not</strong> a perfect rhyme: the probe pair
   sweaty~Betty (medial t~t) outranks it to the ear, but the kernel scores
-  both 1.0 — ledger item 7's overcrowded top of the scale, ear-confirmed
+  both 1.0 — ledger item 7&rsquo;s overcrowded top of the scale, ear-confirmed
   (2026-08-07).</li>
 <li><em>how/now</em> <strong>should</strong> share a class with <em>loud/out/down</em>. Probe:
   <code>coda_weight=0.30</code> (from 0.35) achieves exactly this on this verse with
   zero other changes to the scheme — a validated candidate fix, deliberately
-  <strong>not</strong> applied yet: 0.35 is Unit 7's calibrated value and one verse is one
-  datapoint. Unit 14's harness decides.</li>
+  <strong>not</strong> applied yet: 0.35 is Unit 7&rsquo;s calibrated value and one verse is one
+  datapoint. Unit 14&rsquo;s harness decides.</li>
 </ul>
-<h2>Design decisions index (as argued during the unit)</h2>
+<h2 id="design-decisions-index-as-argued-during-the-unit"><a class="anchor" href="#design-decisions-index-as-argued-during-the-unit" aria-hidden="true" tabindex="-1">#</a>Design decisions index (as argued during the unit)</h2>
 <table>
 <thead>
 <tr>
@@ -531,7 +546,7 @@ annotation set):</p>
 <tr>
 <td>Stress-pattern space</td>
 <td>Collapsed 2^n patterns to n anchor positions</td>
-<td>Stress's only kernel role is picking the tail start</td>
+<td>Stress&rsquo;s only kernel role is picking the tail start</td>
 </tr>
 <tr>
 <td>Seed gate</td>
@@ -551,7 +566,7 @@ annotation set):</p>
 <tr>
 <td>Selection ranking</td>
 <td>Score-first; H&amp;B longest/nearest demoted to tiebreaks</td>
-<td>Averages self-arbitrate extension and auto-split chains; sums don't</td>
+<td>Averages self-arbitrate extension and auto-split chains; sums don&rsquo;t</td>
 </tr>
 <tr>
 <td>Grouping edges</td>
@@ -561,8 +576,14 @@ annotation set):</p>
 </tbody>
 </table></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#the-demo-verse">The demo verse</a></li><li><a href="#the-one-paragraph-story">The one-paragraph story</a></li><li><a href="#stage-0-the-verse">Stage 0 — the verse</a></li><li><a href="#stage-1-tokenize-verse-positioned-words">Stage 1 — tokenize_verse: positioned words</a></li><li><a href="#stage-2-enumerate-candidates-span-anchor-pairs-with-priced-readings">Stage 2 — enumerate_candidates: (span, anchor) pairs with priced readings</a></li><li><a href="#stage-3-find-matches-gated-priced-thresholded-pairs">Stage 3 — find_matches: gated, priced, thresholded pairs</a></li><li><a href="#stage-4-select-matches-one-description-per-rhyme-event">Stage 4 — select_matches: one description per rhyme event</a></li><li><a href="#stage-5-scan-verse-components-over-the-match-graph">Stage 5 — scan_verse: components over the match graph</a></li><li><a href="#the-wart-class-0-the-mush-twin">The wart: class 0, the “mush twin”</a></li><li><a href="#open-tuning-ledger-for-the-closing-exercise-and-unit-14">Open tuning ledger (for the closing exercise and Unit 14)</a></li><li><a href="#closing-exercise-lose-yourself-first-verse-excerpt">Closing exercise: Lose Yourself (first verse excerpt)</a></li><li><a href="#design-decisions-index-as-argued-during-the-unit">Design decisions index (as argued during the unit)</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="prev" href="unit-10.html">← Unit 10: Grouping rhymes: similarity graphs & components</a><a class="next" href="unit-12.html">Unit 12: Visualizing the scheme →</a>
+<a class="prev" href="unit-10.html"><span class="dir">Previous</span><span class="ttl">Unit 10: Grouping rhymes: similarity graphs &amp; components</span></a><a class="next" href="unit-12.html"><span class="dir">Next</span><span class="ttl">Unit 12: Visualizing the scheme</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script src="course.js"></script>
 </body>
 </html>

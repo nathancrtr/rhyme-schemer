@@ -5,40 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 10 — Grouping rhymes: similarity graphs & components</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-2)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 10</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html" aria-current="page"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 3 · From pairs to a scheme</p>
-<h1>Unit 10 — Grouping rhymes: similarity graphs & components</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
-<li><strong>Build:</strong> <code>group_rhymes(words, threshold)</code> — build a graph where an edge means "score ≥ threshold," then return connected components as rhyme classes.</li>
+<div class="masthead">
+<p class="crumb"><b>Unit 10</b><span class="sep">/</span>Phase 3 &middot; From pairs to a scheme</p>
+<h1>Grouping rhymes: similarity graphs &amp; components</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
+<li><strong>Build:</strong> <code>group_rhymes(words, threshold)</code> — build a graph where an edge means &ldquo;score ≥ threshold,&rdquo; then return connected components as rhyme classes.</li>
 <li><strong>Read:</strong> SLP3 on clustering basics; any union-find reference; Reddy &amp; Knight (2011) — the standard-cited paper for this task, which makes the <em>scheme</em> a latent variable to infer rather than a graph to component-ize.</li>
-<li><strong>Concepts:</strong> pairwise scores → groups; thresholding; the <strong>non-transitivity of slant rhyme</strong> (A rhymes with B, B with C, but not A with C) and why connected components is a deliberate (debatable) choice; union-find. Know the debate's names: components over threshold edges is <strong>single-link clustering</strong>, its failure mode is <strong>chaining</strong> (one generous edge glues two good clusters — the oldest known clustering pathology, and it <em>will</em> fire in Unit 11's ledger), and the principled alternatives are correlation clustering on signed weights, community detection penalizing sparse cuts, or Reddy &amp; Knight's scheme-as-inference.</li>
+<li><strong>Concepts:</strong> pairwise scores → groups; thresholding; the <strong>non-transitivity of slant rhyme</strong> (A rhymes with B, B with C, but not A with C) and why connected components is a deliberate (debatable) choice; union-find. Know the debate&rsquo;s names: components over threshold edges is <strong>single-link clustering</strong>, its failure mode is <strong>chaining</strong> (one generous edge glues two good clusters — the oldest known clustering pathology, and it <em>will</em> fire in Unit 11&rsquo;s ledger), and the principled alternatives are correlation clustering on signed weights, community detection penalizing sparse cuts, or Reddy &amp; Knight&rsquo;s scheme-as-inference.</li>
 <li><strong>Exercise:</strong> Group the line-end words of a real verse. Find a real non-transitive triple and decide how your grouping should treat it; encode the decision as a test.</li>
 <li><strong>Milestone:</strong> Line-end words of a verse grouped into colored rhyme classes (data, not yet pixels).</li>
 <li><strong>Interactive:</strong> lesson <code>unit-10-non-transitivity.md</code>; quiz <code>interactive/quizzes/phase-3-checkpoint.html</code> (build here).</li>
-<li><strong>Key insight:</strong> Slant-rhyme grouping isn't an equivalence relation — similarity rarely is. Choosing components vs. stricter clustering <em>is</em> a modeling decision, and naming it is half of computational linguistics.</li>
+<li><strong>Key insight:</strong> Slant-rhyme grouping isn&rsquo;t an equivalence relation — similarity rarely is. Choosing components vs. stricter clustering <em>is</em> a modeling decision, and naming it is half of computational linguistics.</li>
 </ul></details>
-<div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/grouping-explorer.html">🧪 Grouping Explorer</a> <a class="chip quiz" href="../interactive/quizzes/phase-3-checkpoint.html">✅ Phase 3 checkpoint</a> <a class="chip exercise" href="../interactive/exercises/unit-10-grouping/task.md">⌨️ Exercise: unit-10-grouping</a> <a class="chip companion" href="graphs-and-union-find.html">📖 Graphs, components, and union-find from zero</a></div>
+<div class="hands-on"><h2>Hands-on</h2><div class="chips"><a class="chip" href="../interactive/widgets/grouping-explorer.html" style="--accent:var(--hue-0)"><span>Grouping Explorer</span><span class="kind">widget</span></a><a class="chip" href="../interactive/quizzes/phase-3-checkpoint.html" style="--accent:var(--hue-2)"><span>Phase 3 checkpoint</span><span class="kind">quiz</span></a><a class="chip" href="../interactive/exercises/unit-10-grouping/task.md" style="--accent:var(--hue-4)"><span>unit-10-grouping</span><span class="kind">exercise</span></a><a class="chip" href="graphs-and-union-find.html" style="--accent:var(--hue-7)"><span>Graphs, components, and union-find from zero</span><span class="kind">companion</span></a></div></div>
 <article class="lesson"><p><strong>Objective:</strong> you can turn pairwise rhyme scores into groups via a
 similarity graph and connected components, and — more importantly — you can
 articulate why slant-rhyme similarity is <em>not</em> an equivalence relation,
 which makes grouping a real modeling decision rather than a mechanical step.
 <strong>Prerequisites:</strong> a working <code>rhyme_score</code> (Units 6–8). <strong>Pairs with:</strong>
 <code>rhyme_schemer/rhyme.py</code> (<code>group_rhymes</code>, <code>connected_components</code>).</p>
-<h2>From pairs to groups</h2>
+<h2 id="from-pairs-to-groups"><a class="anchor" href="#from-pairs-to-groups" aria-hidden="true" tabindex="-1">#</a>From pairs to groups</h2>
 <p>You can score any pair. A verse needs <em>groups</em> — the rhyme classes that
 become colors in Unit 12.</p>
-<blockquote class="think"><p><span class="think-label">Think first</span> Given all pairwise scores, what's the simplest thing you could do
+<blockquote class="think"><p><span class="think-label">Think first</span> Given all pairwise scores, what&rsquo;s the simplest thing you could do
 to get groups? Sketch it before reading on.</p>
 </blockquote>
 <p>The simplest thing: draw an edge whenever two words score above a
@@ -47,26 +62,26 @@ threshold, then call each connected clump a group. That is exactly what
 a small union-find, exposed as <code>connected_components(count, edges)</code> for
 reuse). A few lines of code. The unit is about what those lines <em>commit
 you to</em>.</p>
-<h2>The trap</h2>
+<h2 id="the-trap"><a class="anchor" href="#the-trap" aria-hidden="true" tabindex="-1">#</a>The trap</h2>
 <blockquote class="think"><p><span class="think-label">Think first</span> Suppose A rhymes with B (above threshold) and B rhymes with C —
 but A and C score <em>below</em> threshold. Should A and C be in the same
 group? Sit with it; there is no clean answer.</p>
 </blockquote>
 <p>That discomfort is the payload of the unit. With connected components, A
-and C end up grouped <em>through</em> B even though they don't rhyme. Slant-rhyme
+and C end up grouped <em>through</em> B even though they don&rsquo;t rhyme. Slant-rhyme
 similarity is reflexive and symmetric but <strong>not transitive</strong> — it is not an
-equivalence relation — yet "connected components" imposes transitivity by
+equivalence relation — yet &ldquo;connected components&rdquo; imposes transitivity by
 fiat. Real triples are easy to build: tight vowel chains like
 city/gritty/pity hold up, but loosen the threshold and you can chain
 feel → fill → fell, where the ends barely rhyme at all.</p>
-<h2>The trap has a name, and a literature</h2>
+<h2 id="the-trap-has-a-name-and-a-literature"><a class="anchor" href="#the-trap-has-a-name-and-a-literature" aria-hidden="true" tabindex="-1">#</a>The trap has a name, and a literature</h2>
 <ul>
 <li>Components over threshold edges is <strong>single-link clustering</strong>, and its
   failure mode — one generous edge gluing two good clusters into a
   mega-class — is <strong>chaining</strong> (percolation), the oldest known clustering
   pathology. This is not a hypothetical: it fires, on schedule, in Unit
-  11's tuning ledger (items 1 and 9 — the "mush twin" and the OW
-  mega-class), and the ledger's naming note credits this exact analysis.</li>
+  11&rsquo;s tuning ledger (items 1 and 9 — the &ldquo;mush twin&rdquo; and the OW
+  mega-class), and the ledger&rsquo;s naming note credits this exact analysis.</li>
 <li>Alternatives that refuse forced transitivity: require <em>all</em> pairs above
   threshold (cliques — strict, brittle); <strong>correlation clustering</strong> on
   signed edge weights; community detection that penalizes sparse cuts; or
@@ -74,7 +89,7 @@ feel → fill → fell, where the ends barely rhyme at all.</p>
 <li>The deepest alternative reframes the task entirely: <strong>Reddy &amp; Knight
   (2011)</strong> (https://aclanthology.org/P11-2014/) treat the rhyme <em>scheme</em> as
   a latent structured object to infer — a prior over schemes regularizes
-  the class structure — with no pronunciation dictionary at all. Unit 14's
+  the class structure — with no pronunciation dictionary at all. Unit 14&rsquo;s
   sweep includes one edge-weight-aware clustering condition precisely to
   <em>price</em> what the components choice costs, rather than guessing.</li>
 </ul>
@@ -83,37 +98,43 @@ here. The code is a few lines of union-find; the judgment — components vs.
 cliques vs. scheme-inference — is the substance, and the field has already
 held the debate. What the project adds is the discipline of writing its
 choice down as a choice and scheduling the measurement.</p>
-<h2>Common confusions</h2>
+<h2 id="common-confusions"><a class="anchor" href="#common-confusions" aria-hidden="true" tabindex="-1">#</a>Common confusions</h2>
 <ul>
-<li><strong>Treating the threshold as objective.</strong> It's a dial trading precision
-  for recall. Unit 14 measures the tradeoff; until then it's a recorded
+<li><strong>Treating the threshold as objective.</strong> It&rsquo;s a dial trading precision
+  for recall. Unit 14 measures the tradeoff; until then it&rsquo;s a recorded
   guess (0.75, chosen from the empty band between observed clusters —
-  see <code>rhyme.py</code>'s comment).</li>
+  see <code>rhyme.py</code>&rsquo;s comment).</li>
 <li><strong>Assuming one right grouping exists.</strong> Human annotators genuinely
-  disagree about slant rhyme — perception differs, and that's a <em>finding</em>
-  in the literature (Katz), not an annoyance. It's why Unit 14 reports
+  disagree about slant rhyme — perception differs, and that&rsquo;s a <em>finding</em>
+  in the literature (Katz), not an annoyance. It&rsquo;s why Unit 14 reports
   inter-annotator agreement as the ceiling any scanner score is read
   against.</li>
 </ul>
-<h2>Check yourself</h2>
+<h2 id="check-yourself"><a class="anchor" href="#check-yourself" aria-hidden="true" tabindex="-1">#</a>Check yourself</h2>
 <blockquote class="think"><p><span class="think-label">Check yourself</span> group the line-end words of a verse you like at some
-threshold. Find one grouping you can defend and one you can't. For the
+threshold. Find one grouping you can defend and one you can&rsquo;t. For the
 indefensible one — is the fix the threshold, or the grouping rule
 itself? (If lowering the threshold un-glues one bad class but breaks a
-good one elsewhere, you've just rediscovered why item 2's ledger entry
+good one elsewhere, you&rsquo;ve just rediscovered why item 2&rsquo;s ledger entry
 says the fix must come from the feature space.)</p>
 </blockquote>
-<h2>Exercise</h2>
+<h2 id="exercise"><a class="anchor" href="#exercise" aria-hidden="true" tabindex="-1">#</a>Exercise</h2>
 <p>From the syllabus: find a real non-transitive triple in a real verse,
 decide how your grouping should treat it, and encode the decision as a
 test.</p>
-<p><strong>Where this is heading:</strong> these groups are the data behind Unit 12's
+<p><strong>Where this is heading:</strong> these groups are the data behind Unit 12&rsquo;s
 colors, the scanner (Unit 11) feeds its <em>selected matches</em> — not recomputed
 scores — into this same grouping, and Unit 14 finally prices the whole
 arrangement against gold annotations.</p></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#from-pairs-to-groups">From pairs to groups</a></li><li><a href="#the-trap">The trap</a></li><li><a href="#the-trap-has-a-name-and-a-literature">The trap has a name, and a literature</a></li><li><a href="#common-confusions">Common confusions</a></li><li><a href="#check-yourself">Check yourself</a></li><li><a href="#exercise">Exercise</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="prev" href="unit-09.html">← Unit 9: Multi-word spans & pronunciation variants</a><a class="next" href="unit-11.html">Unit 11: Internal & multisyllabic rhyme: scanning a verse →</a>
+<a class="prev" href="unit-09.html"><span class="dir">Previous</span><span class="ttl">Unit 9: Multi-word spans &amp; pronunciation variants</span></a><a class="next" href="unit-11.html"><span class="dir">Next</span><span class="ttl">Unit 11: Internal &amp; multisyllabic rhyme: scanning a verse</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script src="course.js"></script>
 </body>
 </html>

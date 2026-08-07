@@ -5,35 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 12 — Visualizing the scheme</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-4)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 12</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html" aria-current="page"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 4 · Seeing, guessing, measuring</p>
-<h1>Unit 12 — Visualizing the scheme</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<div class="masthead">
+<p class="crumb"><b>Unit 12</b><span class="sep">/</span>Phase 4 &middot; Seeing, guessing, measuring</p>
+<h1>Visualizing the scheme</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
 <li><strong>Build:</strong> A renderer that takes grouped rhymes and emits highlighted output — an HTML page coloring each rhyme class (Pudding/Vox style), plus a terminal fallback.</li>
-<li><strong>Read:</strong> the Pudding pieces; Hirjee &amp; Brown's "Rhyme Analyzer" UI (five formatting styles for overlapping rhymes).</li>
+<li><strong>Read:</strong> the Pudding pieces; Hirjee &amp; Brown&rsquo;s &ldquo;Rhyme Analyzer&rdquo; UI (five formatting styles for overlapping rhymes).</li>
 <li><strong>Concepts:</strong> mapping rhyme classes to colors; handling a word in multiple classes (internal + line-final); designing for the non-specialist reader.</li>
 <li><strong>Exercise:</strong> Render a full verse to a standalone HTML file; handle the overlapping-membership case.</li>
-<li><strong>Milestone:</strong> A shareable HTML visualization of a verse's rhyme scheme — the README's original goal, realized.</li>
+<li><strong>Milestone:</strong> A shareable HTML visualization of a verse&rsquo;s rhyme scheme — the README&rsquo;s original goal, realized.</li>
 </ul></details>
 <article class="lesson"><p><strong>Objective:</strong> you can turn a <code>VerseScan</code> into the colored verse view the
 README promised on day one — and you can defend every rendering decision as
 a <em>policy</em>, separated from the pixels that execute it. <strong>Prerequisites:</strong>
 Unit 11. <strong>Pairs with:</strong> <code>rhyme_schemer/render.py</code>; <code>tests/test_render.py</code>.</p>
-<h2>What color means: render the judgments, not the phonetics</h2>
+<h2 id="what-color-means-render-the-judgments-not-the-phonetics"><a class="anchor" href="#what-color-means-render-the-judgments-not-the-phonetics" aria-hidden="true" tabindex="-1">#</a>What color means: render the judgments, not the phonetics</h2>
 <p>The field offers three schools for coloring rhyme. Color-by-vowel (Martin
-Brath's lyric visualizations): every EY is one hue, every IY another — the
-<em>input phonetics</em> made visible. Multi-channel formatting (Hirjee &amp; Brown's
+Brath&rsquo;s lyric visualizations): every EY is one hue, every IY another — the
+<em>input phonetics</em> made visible. Multi-channel formatting (Hirjee &amp; Brown&rsquo;s
 Rhyme Analyzer): five stacked typographic channels for different rhyme
 types. And color-by-<strong>rhyme-class</strong> (the Pudding/Vox school): words that
 the analysis groups together share a color, whatever their vowels are.</p>
@@ -41,10 +56,10 @@ the analysis groups together share a color, whatever their vowels are.</p>
 eleven units <em>judging</em> — gating, pricing, selecting, grouping. Coloring by
 vowel would throw those judgments away and show raw phonetics; stacking
 five channels shows everything and communicates little to a non-specialist.
-The renderer's job is to display the scanner's <em>conclusions</em> — and, less
+The renderer&rsquo;s job is to display the scanner&rsquo;s <em>conclusions</em> — and, less
 comfortably, that means its mistakes too. That discomfort is a feature;
 hold the thought.</p>
-<h2>Policy as data: <code>RenderPlan</code></h2>
+<h2 id="policy-as-data-renderplan"><a class="anchor" href="#policy-as-data-renderplan" aria-hidden="true" tabindex="-1">#</a>Policy as data: <code>RenderPlan</code></h2>
 <p><code>render.py</code> splits in two. <code>plan_verse</code> resolves a verse plus its
 <code>VerseScan</code> into a <strong><code>RenderPlan</code></strong> — a data structure in which every
 policy decision is already made: which class each word span belongs to,
@@ -59,67 +74,73 @@ policy lives inside the HTML generator?</p>
 into the plan means one place decides and N places paint. It also makes
 policy <em>testable as data</em>: <code>test_render.py</code> asserts against plans, not
 against HTML strings.</p>
-<h2>The hard cases are the normal cases</h2>
+<h2 id="the-hard-cases-are-the-normal-cases"><a class="anchor" href="#the-hard-cases-are-the-normal-cases" aria-hidden="true" tabindex="-1">#</a>The hard cases are the normal cases</h2>
 <p>Real verses are not tidy:</p>
 <ul>
 <li><strong>Words in multiple classes.</strong> Common — up to five classes on one word in
-  real data, with extents that both nest <em>and</em> cross. Policy: the word's
+  real data, with extents that both nest <em>and</em> cross. Policy: the word&rsquo;s
   fill goes to its <strong>best-scoring</strong> class; the others appear as small tick
   bars; the tooltip carries the full receipts (each class, each partner,
   each score). Show the winner, keep the evidence.</li>
-<li><strong>Compounds.</strong> Unit 11's selector splits glued chains into one-beat
-  matches by design ("palms are SWEATY ~ arms are HEAVY" is two matches in
+<li><strong>Compounds.</strong> Unit 11&rsquo;s selector splits glued chains into one-beat
+  matches by design (&ldquo;palms are SWEATY ~ arms are HEAVY&rdquo; is two matches in
   two classes); <code>chain_matches</code> reassembles adjacent same-line runs so the
   ear-sized unit renders as one — under a <em>neutral</em> spanning rule, since a
-  compound's beats belong to different classes.</li>
+  compound&rsquo;s beats belong to different classes.</li>
 <li><strong>OOV words</strong> get a dotted underline; <strong>G2P-guessed</strong> words (Unit 13) a
   dashed one plus a provenance line in the tooltip — the reader can always
   tell attested from inferred from absent.</li>
 </ul>
-<h2>Palette discipline</h2>
+<h2 id="palette-discipline"><a class="anchor" href="#palette-discipline" aria-hidden="true" tabindex="-1">#</a>Palette discipline</h2>
 <p>Eight fixed-order categorical slots, chosen as text-safe tints and
 validated for color-vision deficiency in both light and dark modes.
 Largest classes claim slots first; classes beyond eight fold into a neutral
 wash rather than cycling hues — <strong>never cycle</strong>: the eleventh hue is
 indistinguishable from the third, and a false color match is a false claim
 about the analysis.</p>
-<blockquote class="think"><p><span class="think-label">Think first</span> A verse has ten rhyme classes. Defend "two of them go gray" over
-"reuse colors" to a designer who finds gray boring.</p>
+<blockquote class="think"><p><span class="think-label">Think first</span> A verse has ten rhyme classes. Defend &ldquo;two of them go gray&rdquo; over
+&ldquo;reuse colors&rdquo; to a designer who finds gray boring.</p>
 </blockquote>
-<h2>What rendering taught the project — the recorded moment</h2>
+<h2 id="what-rendering-taught-the-project-the-recorded-moment"><a class="anchor" href="#what-rendering-taught-the-project-the-recorded-moment" aria-hidden="true" tabindex="-1">#</a>What rendering taught the project — the recorded moment</h2>
 <p>Unit 12 was where the precision debt stopped being abstract. The ledger had
 suspected generous edges for two units; <em>rendering the fixture verses made
 it visible</em> — mega junk classes in the Poe stanza, function-word glue,
-passenger beats riding real compounds ("kind of a mess," in the learner's
-recorded verdict). The response is the project's whole epistemics in
+passenger beats riding real compounds (&ldquo;kind of a mess,&rdquo; in the learner&rsquo;s
+recorded verdict). The response is the project&rsquo;s whole epistemics in
 miniature: no knob was turned. Every observation went into the tuning
-ledger, and <strong>all</strong> tuning was deferred to Unit 14's evaluation sweep,
+ledger, and <strong>all</strong> tuning was deferred to Unit 14&rsquo;s evaluation sweep,
 because fixing what you can suddenly <em>see</em> — before you can <em>measure</em> — is
-how a system gets tuned to one demo verse. The renderer's job was to make
-the debt visible; the harness's job is to price it.</p>
-<h2>A test-fixture rule with teeth</h2>
+how a system gets tuned to one demo verse. The renderer&rsquo;s job was to make
+the debt visible; the harness&rsquo;s job is to price it.</p>
+<h2 id="a-test-fixture-rule-with-teeth"><a class="anchor" href="#a-test-fixture-rule-with-teeth" aria-hidden="true" tabindex="-1">#</a>A test-fixture rule with teeth</h2>
 <p>Never embed multi-line commercial lyrics in fixtures — copyright, plus
-content-filter breakage in tooling. The repo's fixtures are an original
+content-filter breakage in tooling. The repo&rsquo;s fixtures are an original
 engineered verse and public-domain poetry (Poe, Gilbert &amp; Sullivan);
 single iconic mild lines are acceptable. This rule shaped Unit 14 too:
 evaluation corpora are referenced by song ID + offsets, never by committed
 lyric text.</p>
-<h2>Check yourself</h2>
-<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Why does a word's fill color follow its
+<h2 id="check-yourself"><a class="anchor" href="#check-yourself" aria-hidden="true" tabindex="-1">#</a>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) Why does a word&rsquo;s fill color follow its
 <em>best-scoring</em> class rather than its first or largest? (2) What would be
 lost — concretely — if classes beyond eight cycled hues? (3) Why does
 the plan/emitter split make the multi-class policy testable?</p>
 </blockquote>
-<h2>Exercise</h2>
+<h2 id="exercise"><a class="anchor" href="#exercise" aria-hidden="true" tabindex="-1">#</a>Exercise</h2>
 <p>From the syllabus: render a full verse to a standalone HTML file, and make
 sure a word with overlapping class memberships displays fill, ticks, and
 tooltip receipts correctly in both HTML and terminal output.</p>
-<p><strong>Where this is heading:</strong> the renderer shows the scanner's judgments,
+<p><strong>Where this is heading:</strong> the renderer shows the scanner&rsquo;s judgments,
 mistakes included. Unit 13 widens coverage (OOV words join the scan);
-Unit 14 finally measures what you've been looking at.</p></article>
+Unit 14 finally measures what you&rsquo;ve been looking at.</p></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#what-color-means-render-the-judgments-not-the-phonetics">What color means: render the judgments, not the phonetics</a></li><li><a href="#policy-as-data-renderplan">Policy as data: RenderPlan</a></li><li><a href="#the-hard-cases-are-the-normal-cases">The hard cases are the normal cases</a></li><li><a href="#palette-discipline">Palette discipline</a></li><li><a href="#what-rendering-taught-the-project-the-recorded-moment">What rendering taught the project — the recorded moment</a></li><li><a href="#a-test-fixture-rule-with-teeth">A test-fixture rule with teeth</a></li><li><a href="#check-yourself">Check yourself</a></li><li><a href="#exercise">Exercise</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="prev" href="unit-11.html">← Unit 11: Internal & multisyllabic rhyme: scanning a verse</a><a class="next" href="unit-13.html">Unit 13: Out-of-vocabulary words & grapheme-to-phoneme →</a>
+<a class="prev" href="unit-11.html"><span class="dir">Previous</span><span class="ttl">Unit 11: Internal &amp; multisyllabic rhyme: scanning a verse</span></a><a class="next" href="unit-13.html"><span class="dir">Next</span><span class="ttl">Unit 13: Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script src="course.js"></script>
 </body>
 </html>

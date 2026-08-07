@@ -5,30 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 8 — Unequal lengths: sequence alignment</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-1)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 8</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html" aria-current="page"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 2 · The rhyme kernel</p>
-<h1>Unit 8 — Unequal lengths: sequence alignment</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<div class="masthead">
+<p class="crumb"><b>Unit 8</b><span class="sep">/</span>Phase 2 &middot; The rhyme kernel</p>
+<h1>Unequal lengths: sequence alignment</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
 <li><strong>Build:</strong> Generalize <code>rhyme_score</code> to tails of <strong>different lengths</strong> (multisyllabic rhyme) via alignment: implement Needleman–Wunsch over vowel skeletons using <code>vowel_distance</code> as substitution cost and a tuned gap penalty.</li>
-<li><strong>Read:</strong> SLP3 Ch. 2 <strong>Minimum Edit Distance</strong> (the algorithm, the backtrace); panphon's <code>Distance</code> source (feature-weighted edit distance in the wild); afterward, Kondrak (2000) — what you just built is, almost exactly, <strong>ALINE</strong>, the standard phonetic-alignment algorithm for 25 years, and its salience weights, vowel/consonant split, and diphthong expansions answer questions we handle ad hoc.</li>
+<li><strong>Read:</strong> SLP3 Ch. 2 <strong>Minimum Edit Distance</strong> (the algorithm, the backtrace); panphon&rsquo;s <code>Distance</code> source (feature-weighted edit distance in the wild); afterward, Kondrak (2000) — what you just built is, almost exactly, <strong>ALINE</strong>, the standard phonetic-alignment algorithm for 25 years, and its salience weights, vowel/consonant split, and diphthong expansions answer questions we handle ad hoc.</li>
 <li><strong>Concepts:</strong> edit distance / Needleman–Wunsch / DTW; substitution cost from a feature metric; gap penalties; alignment as the general case of which equal-length scoring was a special case.</li>
-<li><strong>Exercise:</strong> <code>interactive/exercises/unit-08-alignment/</code> — implement the DP table and backtrace; make multisyllabic tests pass (e.g. "national"/"rational"; a 3-syllable vs 2-syllable near-rhyme). Verify equal-length inputs still match Unit 6's scores.</li>
+<li><strong>Exercise:</strong> <code>interactive/exercises/unit-08-alignment/</code> — implement the DP table and backtrace; make multisyllabic tests pass (e.g. &ldquo;national&rdquo;/&rdquo;rational&rdquo;; a 3-syllable vs 2-syllable near-rhyme). Verify equal-length inputs still match Unit 6&rsquo;s scores.</li>
 <li><strong>Milestone:</strong> Multisyllabic slant rhymes scored sensibly; the alignment visualized in the lesson.</li>
-<li><strong>Key insight:</strong> This is the same dynamic-programming alignment used for spell-check and DNA — you're applying a workhorse NLP algorithm to vowels.</li>
+<li><strong>Key insight:</strong> This is the same dynamic-programming alignment used for spell-check and DNA — you&rsquo;re applying a workhorse NLP algorithm to vowels.</li>
 <li><strong>Interactive:</strong> lesson <code>unit-08-alignment.md</code>.</li>
 </ul></details>
-<div class="hands-on"><h2>Hands-on</h2><a class="chip widget" href="../interactive/widgets/nw-alignment.html">🧪 NW Alignment Explorer</a> <a class="chip quiz" href="../interactive/quizzes/phase-2-checkpoint.html">✅ Phase 2 checkpoint</a> <a class="chip exercise" href="../interactive/exercises/unit-08-alignment/task.md">⌨️ Exercise: unit-08-alignment</a> <a class="chip companion" href="sequence-alignment-family.html">📖 The sequence-alignment family</a></div>
+<div class="hands-on"><h2>Hands-on</h2><div class="chips"><a class="chip" href="../interactive/widgets/nw-alignment.html" style="--accent:var(--hue-0)"><span>NW Alignment Explorer</span><span class="kind">widget</span></a><a class="chip" href="../interactive/quizzes/phase-2-checkpoint.html" style="--accent:var(--hue-2)"><span>Phase 2 checkpoint</span><span class="kind">quiz</span></a><a class="chip" href="../interactive/exercises/unit-08-alignment/task.md" style="--accent:var(--hue-4)"><span>unit-08-alignment</span><span class="kind">exercise</span></a><a class="chip" href="sequence-alignment-family.html" style="--accent:var(--hue-7)"><span>The sequence-alignment family</span><span class="kind">companion</span></a></div></div>
 <article class="lesson"><p><strong>Objective:</strong> you can implement Needleman–Wunsch over vowel skeletons with a
 feature-distance substitution cost, and you see it as the same
 dynamic-programming alignment behind spell-check and DNA — generalized to
@@ -36,9 +51,9 @@ vowels. <strong>Prerequisites:</strong> Units 5–7; the Minimum Edit Distance s
 SLP3 Ch. 2 is the companion reading. <strong>Pairs with:</strong> <code>rhyme_schemer/rhyme.py</code>;
 <code>interactive/exercises/unit-08-alignment/</code>.</p>
 <p>This is the hardest unit in the course. Go slow, and build the DP table by
-hand on a tiny example before touching code — the exercise's <code>task.md</code> walks
+hand on a tiny example before touching code — the exercise&rsquo;s <code>task.md</code> walks
 one. If a wall appears, it usually falls to a smaller table.</p>
-<h2>The problem your Unit 7 kernel can't see</h2>
+<h2 id="the-problem-your-unit-7-kernel-can-t-see"><a class="anchor" href="#the-problem-your-unit-7-kernel-can-t-see" aria-hidden="true" tabindex="-1">#</a>The problem your Unit 7 kernel can&rsquo;t see</h2>
 <p>Your kernel so far averages similarity position by position — position 1
 against position 1, position 2 against position 2. That silently assumes the
 two tails have the <em>same number</em> of syllables.</p>
@@ -53,28 +68,28 @@ three-syllable phrase against a two-syllable word and your scorer needs to
 decide <em>which</em> syllables correspond and what the spare one costs. Deciding
 correspondence under insertions and deletions is a named, solved problem:
 <strong>sequence alignment</strong>.</p>
-<h2>The intuition: three moves, priced</h2>
-<p>If you've ever read a <code>git diff</code> or taken a spell-checker's suggestion,
-you've watched this algorithm work. Any transformation of one sequence into
+<h2 id="the-intuition-three-moves-priced"><a class="anchor" href="#the-intuition-three-moves-priced" aria-hidden="true" tabindex="-1">#</a>The intuition: three moves, priced</h2>
+<p>If you&rsquo;ve ever read a <code>git diff</code> or taken a spell-checker&rsquo;s suggestion,
+you&rsquo;ve watched this algorithm work. Any transformation of one sequence into
 another decomposes into three moves: <strong>match/substitute</strong> (pair two
 elements), <strong>insert</strong>, and <strong>delete</strong> (leave an element unpaired — a <em>gap</em>).</p>
 <p>Aligning two vowel skeletons is exactly that, with one upgrade: the cost of
-a substitution isn't the 0-or-1 of spell-check but <code>vowel_distance</code> — pairing
+a substitution isn&rsquo;t the 0-or-1 of spell-check but <code>vowel_distance</code> — pairing
 EH with IH is cheap, pairing IY with AA is expensive. The whole feature-space
-apparatus of Unit 2 becomes the alignment's cost model.</p>
+apparatus of Unit 2 becomes the alignment&rsquo;s cost model.</p>
 <blockquote class="think"><p><span class="think-label">Think first</span> What should a <em>gap</em> cost, relative to a cheap substitution and an
 expensive one? Reason it out from failure cases: what goes wrong if gaps
-are cheaper than every substitution? If they're dearer than all of them?</p>
+are cheaper than every substitution? If they&rsquo;re dearer than all of them?</p>
 </blockquote>
 <p>Bound it from both sides. If a gap is cheaper than a near-vowel
 substitution, the aligner shreds real matches into gap pairs — everything
-aligns against nothing. If it's dearer than even a far substitution, a
+aligns against nothing. If it&rsquo;s dearer than even a far substitution, a
 genuinely spare syllable gets force-matched onto whatever is adjacent rather
 than skipped. So the gap penalty must sit <em>above</em> near-vowel substitutions
-(~0.1–0.2) and <em>below</em> far ones (~0.6–0.7). The repo's calibrated value is
+(~0.1–0.2) and <em>below</em> far ones (~0.6–0.7). The repo&rsquo;s calibrated value is
 <code>DEFAULT_GAP_PENALTY = 0.6</code>; the <code>nw-alignment.html</code> widget lets you feel
 what moves as you slide it.</p>
-<h2>Formalizing: Needleman–Wunsch</h2>
+<h2 id="formalizing-needleman-wunsch"><a class="anchor" href="#formalizing-needleman-wunsch" aria-hidden="true" tabindex="-1">#</a>Formalizing: Needleman–Wunsch</h2>
 <ul>
 <li>Fill a table <code>D[i][j]</code> = the best cost of aligning the first <code>i</code> nuclei of
   one skeleton with the first <code>j</code> of the other, taking the minimum of the
@@ -87,7 +102,7 @@ what moves as you slide it.</p>
   diagonal with no gaps — alignment <em>generalizes</em> your old scorer, and the
   parity test in the exercise proves your old scores still come out when
   lengths match.</li>
-<li>panphon's <code>Distance</code> class implements this same idea (feature-weighted
+<li>panphon&rsquo;s <code>Distance</code> class implements this same idea (feature-weighted
   edit distance) in a mature library — worth reading its source after yours
   works.</li>
 <li><strong>This has a name in the literature: ALINE</strong> (Kondrak 2000, https://webdocs.cs.ualberta.ca/~kondrak/papers/chum.pdf) — DP alignment of phone sequences with feature-decomposed similarity, the standard phonetic-alignment algorithm for 25 years. Reimplementing it from first principles was the point of this unit; read it <em>after</em> your implementation works, both for credit and because its design answers questions we currently settle ad hoc — the next section maps them.</li>
@@ -96,23 +111,23 @@ what moves as you slide it.</p>
 bioinformatics — applied to phonology, where it has been the standard tool
 since 2000. The structure is identical; only the cost model knows about
 vowels.</p>
-<h2>3b. What ALINE knows that we settle ad hoc</h2>
-<p>Each of ALINE's three design elements maps onto a question our kernel answers
+<h2 id="3b-what-aline-knows-that-we-settle-ad-hoc"><a class="anchor" href="#3b-what-aline-knows-that-we-settle-ad-hoc" aria-hidden="true" tabindex="-1">#</a>3b. What ALINE knows that we settle ad hoc</h2>
+<p>Each of ALINE&rsquo;s three design elements maps onto a question our kernel answers
 <em>implicitly</em>. Reading the mapping is the fastest way to see your own design
 decisions as decisions.</p>
 <ul>
 <li><strong>Per-feature salience weights.</strong> ALINE scores phone similarity as a
   weighted sum over features, every weight named and hand-set (place 40,
-  manner 50, voice 10...). We have salience weights too, but scattered:
+  manner 50, voice 10&hellip;). We have salience weights too, but scattered:
   <code>DEFAULT_NUCLEUS_WEIGHT</code>/<code>DEFAULT_CODA_WEIGHT</code> are explicit, and so are
-  <code>features.py</code>'s <code>_W_ROUND</code>/<code>_W_RHOTIC</code> — but the Euclidean metric on the
+  <code>features.py</code>&rsquo;s <code>_W_ROUND</code>/<code>_W_RHOTIC</code> — but the Euclidean metric on the
   vowel plane silently fixes the backness:height ratio at 1:1. That ratio is
-  a third salience weight that currently doesn't exist as a parameter, so no
+  a third salience weight that currently doesn&rsquo;t exist as a parameter, so no
   sweep can sweep it.</li>
 </ul>
 <blockquote class="think"><p><span class="think-label">Think first</span> Find one more weight in the pipeline that exists only as a
 structural choice, not as a number. (Candidates: gaps scoring exactly 0
-in <code>rhyme_score</code>; the seed gate's nucleus-only-ness in Unit 11.)</p>
+in <code>rhyme_score</code>; the seed gate&rsquo;s nucleus-only-ness in Unit 11.)</p>
 </blockquote>
 <ul>
 <li>
@@ -121,47 +136,53 @@ in <code>rhyme_score</code>; the seed gate's nucleus-only-ness in Unit 11.)</p>
   skeleton, and each coda is welded to its column. Mostly a feature (no
   pathological alignments can exist), but the weld means a consonant can
   never shift columns to find its counterpart: one representational
-  commitment behind three ledger symptoms (item 4's missing-coda zero, item
-  7's invisible medial consonants, item 10's flat-gap smoothing).</p>
+  commitment behind three ledger symptoms (item 4&rsquo;s missing-coda zero, item
+  7&rsquo;s invisible medial consonants, item 10&rsquo;s flat-gap smoothing).</p>
 </li>
 <li>
 <p><strong>Expansions/compressions.</strong> ALINE lets one phone align against <em>two</em>,
   priced by similarity — a diphthong can match a two-vowel sequence. Our only
   tool for a syllable-count mismatch is the flat gap penalty. The probe
-  triangle <strong>sky / fire / higher</strong> (a rapper smoothing "-ire" toward one long
+  triangle <strong>sky / fire / higher</strong> (a rapper smoothing &ldquo;-ire&rdquo; toward one long
   vowel treats all three as classmates) exposes the cost: fire~higher scores
-  1.000, sky~fire 0.741 (rescued by CMUdict's monosyllabic <code>F AY1 R</code>
-  variant), sky~higher 0.500 ("higher" has no such variant, so the gap burns
+  1.000, sky~fire 0.741 (rescued by CMUdict&rsquo;s monosyllabic <code>F AY1 R</code>
+  variant), sky~higher 0.500 (&ldquo;higher&rdquo; has no such variant, so the gap burns
   the column) — three numbers for one perceptual relation, steered by
   accidents of dictionary variant coverage. Ledger item 10 holds the ear
   data and the candidate fixes (variants first; a compression op as the
   metric-side alternative).</p>
 </li>
 </ul>
-<h2>Common confusions</h2>
+<h2 id="common-confusions"><a class="anchor" href="#common-confusions" aria-hidden="true" tabindex="-1">#</a>Common confusions</h2>
 <ul>
 <li><strong>Gap penalty too low</strong> → everything aligns to gaps, scores collapse. Too
-  high → real extra syllables can't be skipped.</li>
-<li><strong>Skipping the backtrace</strong> → you get a score but can't show <em>which</em>
+  high → real extra syllables can&rsquo;t be skipped.</li>
+<li><strong>Skipping the backtrace</strong> → you get a score but can&rsquo;t show <em>which</em>
   syllables rhymed — and the pairing is needed for coda scoring and for
-  Unit 12's visualization. Build the backtrace now, not later.</li>
+  Unit 12&rsquo;s visualization. Build the backtrace now, not later.</li>
 <li><strong>Distance vs. similarity bookkeeping</strong> → pick one convention and hold it;
   alignment naturally minimizes a cost, so convert to similarity once, at
   the end.</li>
 </ul>
-<h2>Exit check</h2>
-<blockquote class="think"><p><span class="think-label">Check yourself</span> hand-fill the DP table for a small pair (the exercise's
+<h2 id="exit-check"><a class="anchor" href="#exit-check" aria-hidden="true" tabindex="-1">#</a>Exit check</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> hand-fill the DP table for a small pair (the exercise&rsquo;s
 2×3 example is ideal), then read the alignment off your own backtrace.
-Where did a gap get chosen, and what did it cost? If you can't fill the
+Where did a gap get chosen, and what did it cost? If you can&rsquo;t fill the
 table without peeking, shrink to 2×2 and rebuild the recurrence cell by
-cell — then implement it and make the exercise's tests pass, including
+cell — then implement it and make the exercise&rsquo;s tests pass, including
 the equal-length parity cases.</p>
 </blockquote>
 <p><strong>Where this is heading:</strong> with alignment, any two spans can be scored.
 Phase 3 turns these pairwise scores into <em>groups</em> — the rhyme scheme itself.</p></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#the-problem-your-unit-7-kernel-can-t-see">The problem your Unit 7 kernel can’t see</a></li><li><a href="#the-intuition-three-moves-priced">The intuition: three moves, priced</a></li><li><a href="#formalizing-needleman-wunsch">Formalizing: Needleman–Wunsch</a></li><li><a href="#3b-what-aline-knows-that-we-settle-ad-hoc">3b. What ALINE knows that we settle ad hoc</a></li><li><a href="#common-confusions">Common confusions</a></li><li><a href="#exit-check">Exit check</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="prev" href="unit-07.html">← Unit 7: Graded slant rhyme & weighting</a><a class="next" href="unit-09.html">Unit 9: Multi-word spans & pronunciation variants →</a>
+<a class="prev" href="unit-07.html"><span class="dir">Previous</span><span class="ttl">Unit 7: Graded slant rhyme &amp; weighting</span></a><a class="next" href="unit-09.html"><span class="dir">Next</span><span class="ttl">Unit 9: Multi-word spans &amp; pronunciation variants</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script src="course.js"></script>
 </body>
 </html>

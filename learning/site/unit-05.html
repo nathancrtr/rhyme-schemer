@@ -5,51 +5,66 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 5 — The vowel skeleton & the rhyme-bearing tail</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-1)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Unit 5</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html" aria-current="page"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Phase 2 · The rhyme kernel</p>
-<h1>Unit 5 — The vowel skeleton & the rhyme-bearing tail</h1>
-<details class="glance" open><summary>The unit at a glance <span class="muted">(from the syllabus)</span></summary><ul>
+<div class="masthead">
+<p class="crumb"><b>Unit 5</b><span class="sep">/</span>Phase 2 &middot; The rhyme kernel</p>
+<h1>The vowel skeleton &amp; the rhyme-bearing tail</h1>
+</div>
+<details class="glance" open><summary>The unit at a glance <span class="muted">from the syllabus</span></summary><ul>
 <li><strong>Build:</strong> A new <code>rhyme_schemer/rhyme.py</code>. Implement <code>rhyme_tail(pron) -&gt; tuple[Syllable, ...]</code> — the syllables from the <strong>last primary-stressed</strong> syllable to the end (the perceptual rhyming part).</li>
-<li><strong>Read:</strong> Parrish's <code>rhyming_part()</code> notes; Hirjee &amp; Brown §2 (what counts as a rhyme).</li>
-<li><strong>Concepts:</strong> why rhyme lives in the tail from the last stress (not the last syllable — "lessen"/"strengthen" share a final syllable but don't rhyme); the rime; stress as the anchor; reusing <code>Pronunciation.vowel_skeleton</code>.</li>
+<li><strong>Read:</strong> Parrish&rsquo;s <code>rhyming_part()</code> notes; Hirjee &amp; Brown §2 (what counts as a rhyme).</li>
+<li><strong>Concepts:</strong> why rhyme lives in the tail from the last stress (not the last syllable — &ldquo;lessen&rdquo;/&rdquo;strengthen&rdquo; share a final syllable but don&rsquo;t rhyme); the rime; stress as the anchor; reusing <code>Pronunciation.vowel_skeleton</code>.</li>
 <li><strong>Exercise:</strong> <code>interactive/exercises/unit-05-rhyme-tail/</code> ships failing tests; make them pass. Edge cases: no primary stress (fall back to last secondary, then last vowel); monosyllables.</li>
-<li><strong>Milestone:</strong> <code>rhyme_tail</code> passes its suite, including the "lessen/strengthen don't rhyme" case.</li>
+<li><strong>Milestone:</strong> <code>rhyme_tail</code> passes its suite, including the &ldquo;lessen/strengthen don&rsquo;t rhyme&rdquo; case.</li>
 </ul></details>
-<div class="hands-on"><h2>Hands-on</h2><a class="chip exercise" href="../interactive/exercises/unit-05-rhyme-tail/task.md">⌨️ Exercise: unit-05-rhyme-tail</a></div>
+<div class="hands-on"><h2>Hands-on</h2><div class="chips"><a class="chip" href="../interactive/exercises/unit-05-rhyme-tail/task.md" style="--accent:var(--hue-4)"><span>unit-05-rhyme-tail</span><span class="kind">exercise</span></a></div></div>
 <article class="lesson"><p><strong>Objective:</strong> you can implement <code>rhyme_tail</code> — the slice of a pronunciation
 that actually carries rhyme — and defend its anchor: the <em>last
 primary-stressed</em> syllable, not the last syllable. <strong>Prerequisites:</strong> Units
 1–4 (this is the first <em>build</em> unit: the phonetic foundation is now yours to
 stand on). <strong>Pairs with:</strong> <code>rhyme_schemer/rhyme.py</code> (<code>rhyme_tail</code>);
 <code>interactive/exercises/unit-05-rhyme-tail/</code>.</p>
-<h2>Where rhyme lives</h2>
-<p>"Lessen" and "strengthen" share a final syllable — both end in the same
-unstressed <code>-en</code> — and do not rhyme at all. "Reason" and "season" rhyme
+<h2 id="where-rhyme-lives"><a class="anchor" href="#where-rhyme-lives" aria-hidden="true" tabindex="-1">#</a>Where rhyme lives</h2>
+<p>&ldquo;Lessen&rdquo; and &ldquo;strengthen&rdquo; share a final syllable — both end in the same
+unstressed <code>-en</code> — and do not rhyme at all. &ldquo;Reason&rdquo; and &ldquo;season&rdquo; rhyme
 across <em>two</em> syllables. The difference is stress:</p>
 <pre><code>lessen      L EH1 . S AH0 N        strengthen  S T R EH1 NG . TH AH0 N
 reason      R IY1 . Z AH0 N        season      S IY1 . Z AH0 N
 </code></pre>
 <p>Rhyme is anchored at the <strong>last stressed syllable</strong> and runs from there to
-the end of the word. For reason/season that's <code>IY1 …</code> onward — two matching
+the end of the word. For reason/season that&rsquo;s <code>IY1 …</code> onward — two matching
 syllables. For lessen/strengthen the anchored material is <code>EH1 . S AH0 N</code> vs
 <code>EH1 NG . TH AH0 N</code> — the shared <code>-en</code> was never the rhyme-bearing part,
 just trailing coincidence after two very different stressed syllables.</p>
 <p>That anchored slice is the <strong>rhyme tail</strong>, and every scoring step for the
 rest of the course operates on tails, never on whole words. Its sequence of
-nuclei is the <strong>vowel skeleton</strong> — the spine that Unit 8's alignment will
+nuclei is the <strong>vowel skeleton</strong> — the spine that Unit 8&rsquo;s alignment will
 walk.</p>
-<h2>The spec, with its edge cases</h2>
+<h2 id="the-spec-with-its-edge-cases"><a class="anchor" href="#the-spec-with-its-edge-cases" aria-hidden="true" tabindex="-1">#</a>The spec, with its edge cases</h2>
 <p><code>rhyme_tail(pron) -&gt; tuple[Syllable, ...]</code>:</p>
 <ul>
 <li>The syllables from the <strong>last PRIMARY-stressed</strong> syllable to the end.</li>
@@ -57,34 +72,34 @@ walk.</p>
 <li>No stress at all? The final syllable alone.</li>
 <li>Empty pronunciation → empty tail.</li>
 </ul>
-<blockquote class="think"><p><span class="think-label">Think first</span> Why "last" primary rather than "first"? Invent a case where they
+<blockquote class="think"><p><span class="think-label">Think first</span> Why &ldquo;last&rdquo; primary rather than &ldquo;first&rdquo;? Invent a case where they
 differ before reading on.</p>
 </blockquote>
 <p>Single words rarely carry two primaries — but Unit 9 makes multi-word
-<em>spans</em> into ordinary <code>Pronunciation</code>s, and a span like "GEM-in-I" carries
-a primary per word. The rhyme anchors on the final beat ("…-I!"), so the
+<em>spans</em> into ordinary <code>Pronunciation</code>s, and a span like &ldquo;GEM-in-I&rdquo; carries
+a primary per word. The rhyme anchors on the final beat (&ldquo;…-I!&rdquo;), so the
 <em>last</em> primary wins. Writing <code>rhyme_tail</code> to scan for the last one costs
 nothing today and makes spans work for free later — a small example of
 designing the invariant before the feature that needs it.</p>
-<p>And the fallbacks aren't decoration: CMUdict contains stress-less
-pronunciations (reduced function words), and a scorer that crashes on "a"
+<p>And the fallbacks aren&rsquo;t decoration: CMUdict contains stress-less
+pronunciations (reduced function words), and a scorer that crashes on &ldquo;a&rdquo;
 is not a scorer. The final-syllable fallback says: with no stress evidence,
-the most rhyme-like thing left is the word's end.</p>
-<h2>One honest caveat, recorded now</h2>
+the most rhyme-like thing left is the word&rsquo;s end.</p>
+<h2 id="one-honest-caveat-recorded-now"><a class="anchor" href="#one-honest-caveat-recorded-now" aria-hidden="true" tabindex="-1">#</a>One honest caveat, recorded now</h2>
 <p>The tail trusts <em>dictionary</em> stress. Hip-hop performance routinely
-overrides it — a rapper lands the beat on "em-CEE" where the dictionary
-says "EM-cee," and suddenly the performed tail differs from the citation
-tail. That gap is not this unit's problem, but it is real, it is recorded
+overrides it — a rapper lands the beat on &ldquo;em-CEE&rdquo; where the dictionary
+says &ldquo;EM-cee,&rdquo; and suddenly the performed tail differs from the citation
+tail. That gap is not this unit&rsquo;s problem, but it is real, it is recorded
 (the performed-vs-lexical-stress thread), and Unit 11 eventually solves it
 properly: performed stress becomes an enumerated, <em>priced</em> reading rather
 than a dictionary fact. For now: citation stress, deliberately.</p>
-<h2>Check yourself</h2>
-<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) <code>rhyme_tail</code> of "around" (<code>AH0 . R AW1 N D</code>) — how
+<h2 id="check-yourself"><a class="anchor" href="#check-yourself" aria-hidden="true" tabindex="-1">#</a>Check yourself</h2>
+<blockquote class="think"><p><span class="think-label">Check yourself</span> (1) <code>rhyme_tail</code> of &ldquo;around&rdquo; (<code>AH0 . R AW1 N D</code>) — how
 many syllables and why? (2) Why must lessen/strengthen come out as
 non-rhyming from any correct tail implementation? (3) What does the tail
 of a stress-less pronunciation contain?</p>
 </blockquote>
-<h2>Exercise</h2>
+<h2 id="exercise"><a class="anchor" href="#exercise" aria-hidden="true" tabindex="-1">#</a>Exercise</h2>
 <p><code>interactive/exercises/unit-05-rhyme-tail/</code> ships the stub and failing
 tests — the tests assert structure (the tail is a suffix; its nuclei are a
 suffix of the vowel skeleton) plus the examples above, including the
@@ -94,8 +109,14 @@ working part, written by you.</p>
 grades the scoring; Unit 8 aligns unequal tails. Everything runs on the
 slice you just built.</p></article>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#where-rhyme-lives">Where rhyme lives</a></li><li><a href="#the-spec-with-its-edge-cases">The spec, with its edge cases</a></li><li><a href="#one-honest-caveat-recorded-now">One honest caveat, recorded now</a></li><li><a href="#check-yourself">Check yourself</a></li><li><a href="#exercise">Exercise</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="prev" href="unit-04.html">← Unit 4: Syllables & phonotactics: the Maximal Onset Principle</a><a class="next" href="unit-06.html">Unit 6: Perfect rhyme first →</a>
+<a class="prev" href="unit-04.html"><span class="dir">Previous</span><span class="ttl">Unit 4: Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><a class="next" href="unit-06.html"><span class="dir">Next</span><span class="ttl">Unit 6: Perfect rhyme first</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script src="course.js"></script>
 </body>
 </html>

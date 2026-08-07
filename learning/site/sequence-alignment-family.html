@@ -5,26 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The sequence-alignment family</title>
 <link rel="stylesheet" href="style.css">
+<script>(function(){try{var t=localStorage.getItem("rs-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 </head>
-<body>
+<body style="--accent:var(--hue-1)">
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    <details class="switch"><summary>Course contents</summary><div class="switch-menu"><h4 style="--accent:var(--hue-0)">Phase 1 &middot; The phonetic foundation</h4><a href="unit-01.html"><span class="n">1</span><span>Phonemes, ARPAbet &amp; the lexicon</span></a><a href="unit-02.html"><span class="n">2</span><span>The IPA vowel space &amp; articulatory features</span></a><a href="unit-03.html"><span class="n">3</span><span>Consonants: place, manner, voicing, sonority</span></a><a href="unit-04.html"><span class="n">4</span><span>Syllables &amp; phonotactics: the Maximal Onset Principle</span></a><h4 style="--accent:var(--hue-1)">Phase 2 &middot; The rhyme kernel</h4><a href="unit-05.html"><span class="n">5</span><span>The vowel skeleton &amp; the rhyme-bearing tail</span></a><a href="unit-06.html"><span class="n">6</span><span>Perfect rhyme first</span></a><a href="unit-07.html"><span class="n">7</span><span>Graded slant rhyme &amp; weighting</span></a><a href="unit-08.html"><span class="n">8</span><span>Unequal lengths: sequence alignment</span></a><h4 style="--accent:var(--hue-2)">Phase 3 &middot; From pairs to a scheme</h4><a href="unit-09.html"><span class="n">9</span><span>Multi-word spans &amp; pronunciation variants</span></a><a href="unit-10.html"><span class="n">10</span><span>Grouping rhymes: similarity graphs &amp; components</span></a><a href="unit-11.html"><span class="n">11</span><span>Internal &amp; multisyllabic rhyme: scanning a verse</span></a><h4 style="--accent:var(--hue-4)">Phase 4 &middot; Seeing, guessing, measuring</h4><a href="unit-12.html"><span class="n">12</span><span>Visualizing the scheme</span></a><a href="unit-13.html"><span class="n">13</span><span>Out-of-vocabulary words &amp; grapheme-to-phoneme</span></a><a href="unit-14.html"><span class="n">14</span><span>Evaluation: is it any good?</span></a><h4 style="--accent:var(--hue-5)">Phase 5 &middot; Capstone &amp; frontiers</h4><a href="unit-15.html"><span class="n">15</span><span>Capstone: the finished tool + the written understanding</span></a><h4>Companion reading</h4><a href="phonetics-primer.html"><span class="n">&middot;</span><span>How speech works: a phonetics refresher</span></a><a href="sequence-alignment-family.html" aria-current="page"><span class="n">&middot;</span><span>The sequence-alignment family</span></a><a href="graphs-and-union-find.html"><span class="n">&middot;</span><span>Graphs, components, and union-find</span></a></div></details>
+    <nav>
+      <a href="index.html">Units</a>
+      <a href="syllabus.html">Syllabus</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+      <button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
-<p class="crumb">Companion reading · Unit 8</p><h1>The Sequence-Alignment Family: Alignment, Seed-and-Extend, and Chaining</h1>
-<p><em>A companion essay for rhyme-schemer. Prerequisite: you've implemented (or
+<div class="masthead"><p class="crumb">Companion reading &middot; Unit 8</p></div><h1>The Sequence-Alignment Family: Alignment, Seed-and-Extend, and Chaining</h1>
+<p><em>A companion essay for rhyme-schemer. Prerequisite: you&rsquo;ve implemented (or
 read) <code>align_tails</code> in <code>rhyme.py</code> and <code>scan.py</code>. No biology assumed or
 required — these are general-purpose algorithms over sequences of symbols; the
 symbols are vowels for us, and we lean on the same three ideas that turn up
 whenever anyone compares long strings.</em></p>
 <hr />
-<h2>0. Why these algorithms keep showing up in one project</h2>
+<h2 id="0-why-these-algorithms-keep-showing-up-in-one-project"><a class="anchor" href="#0-why-these-algorithms-keep-showing-up-in-one-project" aria-hidden="true" tabindex="-1">#</a>0. Why these algorithms keep showing up in one project</h2>
 <p>Three times now, a problem in this repo has had a matching solution in the
 theory of comparing sequences:</p>
 <table>
@@ -32,7 +45,7 @@ theory of comparing sequences:</p>
 <tr>
 <th>rhyme-schemer problem</th>
 <th>the algorithm</th>
-<th>the "canonical" home</th>
+<th>the &ldquo;canonical&rdquo; home</th>
 </tr>
 </thead>
 <tbody>
@@ -53,35 +66,35 @@ theory of comparing sequences:</p>
 </tr>
 </tbody>
 </table>
-<p>That isn't a coincidence, and it isn't because rhyme is secretly biological.
-It's because <strong>all three problems are the same shape</strong>: you have two (or many)
+<p>That isn&rsquo;t a coincidence, and it isn&rsquo;t because rhyme is secretly biological.
+It&rsquo;s because <strong>all three problems are the same shape</strong>: you have two (or many)
 sequences of symbols drawn from a small alphabet, symbols can match
 <em>imperfectly</em> (a slant vowel; a mutated DNA base; a typo), and you want to
 line them up in a way that maximizes total similarity while respecting
 <em>order</em>. Any field with that shape — computational biology, plagiarism
 detection, <code>diff</code>, spell-check, music similarity, speech recognition —
 reinvents or imports the same toolkit. Biology got there early and with the
-most funding, so the vocabulary ("gap penalty", "local alignment", "BLAST")
+most funding, so the vocabulary (&ldquo;gap penalty&rdquo;, &ldquo;local alignment&rdquo;, &ldquo;BLAST&rdquo;)
 comes from there. The math is alphabet-agnostic.</p>
 <p>The unifying idea underneath all three: <strong>an alignment is a path, and the best
 alignment is a shortest/cheapest path.</strong> Once you see that, the three
 algorithms are just three different graphs and three different path problems.</p>
 <hr />
-<h2>1. Global alignment (Needleman–Wunsch) — the one you already built</h2>
-<h3>The problem</h3>
-<p>You have two sequences and you want a single score for <em>"how similar are these,
-end to end?"</em> — where they may differ in length, so you can't just compare
+<h2 id="1-global-alignment-needleman-wunsch-the-one-you-already-built"><a class="anchor" href="#1-global-alignment-needleman-wunsch-the-one-you-already-built" aria-hidden="true" tabindex="-1">#</a>1. Global alignment (Needleman–Wunsch) — the one you already built</h2>
+<h3 id="the-problem"><a class="anchor" href="#the-problem" aria-hidden="true" tabindex="-1">#</a>The problem</h3>
+<p>You have two sequences and you want a single score for <em>&ldquo;how similar are these,
+end to end?&rdquo;</em> — where they may differ in length, so you can&rsquo;t just compare
 position 1 to position 1. For us: two rhyme tails, <code>[EY, AH]</code> (wake up) versus
 <code>[EY, AH, P?]</code>… where a multisyllabic rhyme has more syllables on one side than
-the other. Comparing "position by position" breaks the moment the lengths
+the other. Comparing &ldquo;position by position&rdquo; breaks the moment the lengths
 differ or a syllable is inserted.</p>
-<h3>The idea: alignment as a grid path</h3>
+<h3 id="the-idea-alignment-as-a-grid-path"><a class="anchor" href="#the-idea-alignment-as-a-grid-path" aria-hidden="true" tabindex="-1">#</a>The idea: alignment as a grid path</h3>
 <p>Lay sequence A down the left edge of a grid and sequence B across the top. Any
 way of aligning them corresponds to a monotone path from the top-left corner
 to the bottom-right, where at each step you either:</p>
 <ul>
 <li>move <strong>diagonally</strong> — pair <code>A[i]</code> with <code>B[j]</code> (a <em>substitution</em>, cheap if
-  they're similar, dear if not),</li>
+  they&rsquo;re similar, dear if not),</li>
 <li>move <strong>down</strong> — consume <code>A[i]</code> against nothing (a <em>gap</em> in B),</li>
 <li>move <strong>right</strong> — consume <code>B[j]</code> against nothing (a <em>gap</em> in A).</li>
 </ul>
@@ -99,10 +112,10 @@ to the bottom-right, where at each step you either:</p>
      └───┴───┴───┴───┴───┘
 </code></pre>
 <p>Every path is a valid alignment; the score of a path is the sum of its step
-costs. So <em>"find the best alignment"</em> becomes <em>"find the cheapest corner-to-corner
-path"</em> — and because the path only ever moves toward the bottom-right, the
+costs. So <em>&ldquo;find the best alignment&rdquo;</em> becomes <em>&ldquo;find the cheapest corner-to-corner
+path&rdquo;</em> — and because the path only ever moves toward the bottom-right, the
 cheapest way to reach any cell depends only on three neighbors already
-computed. That's the <strong>dynamic programming recurrence</strong> you wrote:</p>
+computed. That&rsquo;s the <strong>dynamic programming recurrence</strong> you wrote:</p>
 <pre><code>D[i][j] = min(
     D[i-1][j-1] + substitution_cost(A[i], B[j]),   # diagonal: pair them
     D[i-1][j]   + gap_penalty,                       # down: skip A[i]
@@ -111,69 +124,69 @@ computed. That's the <strong>dynamic programming recurrence</strong> you wrote:<
 </code></pre>
 <p>Fill the grid row by row (each cell O(1) given its neighbors), and the
 bottom-right cell holds the best total cost. Then <strong>backtrace</strong> — walk from the
-corner back to the origin, at each cell asking "which of the three neighbors
-did I come from?" — to recover the actual pairing, not just its score. That
+corner back to the origin, at each cell asking &ldquo;which of the three neighbors
+did I come from?&rdquo; — to recover the actual pairing, not just its score. That
 backtrace is why <code>align_tails</code> returns <em>columns</em> and not just a number: the
 downstream coda scoring and (soon) the visualization need to know <em>which</em>
 syllable paired with which.</p>
-<h3>The name and the knobs</h3>
+<h3 id="the-name-and-the-knobs"><a class="anchor" href="#the-name-and-the-knobs" aria-hidden="true" tabindex="-1">#</a>The name and the knobs</h3>
 <p>This is <strong>Needleman–Wunsch</strong> (1970), the first application of dynamic
 programming to sequence comparison. Two knobs define its behavior, and both
 live in <code>rhyme.py</code>:</p>
 <ul>
 <li><strong>substitution cost</strong> — how much a mismatch hurts. For us this is
   <code>vowel_distance</code>: near-vowels cost little, far ones cost a lot. In the
-  textbook version it's a fixed "match = 0, mismatch = 1"; our graded cost is
+  textbook version it&rsquo;s a fixed &ldquo;match = 0, mismatch = 1&rdquo;; our graded cost is
   what makes it a <em>slant</em>-rhyme scorer instead of an equality check.</li>
 <li><strong>gap penalty</strong> (<code>DEFAULT_GAP_PENALTY</code>) — the price of an unpaired symbol.
   Set it too low and the algorithm skips freely, matching anything to anything;
-  too high and it force-pairs symbols that shouldn't be. Our value sits
+  too high and it force-pairs symbols that shouldn&rsquo;t be. Our value sits
   <em>above</em> a near-vowel substitution but <em>below</em> a far one, exactly so genuine
   slant pairs are kept while spare syllables are dropped.</li>
 </ul>
-<h3>Cost</h3>
+<h3 id="cost"><a class="anchor" href="#cost" aria-hidden="true" tabindex="-1">#</a>Cost</h3>
 <p><code>O(m·n)</code> time and space for sequences of length m and n. For rhyme tails
-(2–6 syllables) that's nothing. For two whole genomes (billions of symbols)
-it's <code>10¹⁸</code> — hopelessly slow, and <strong>the reason the next algorithm exists.</strong></p>
-<h3>The "global" in global alignment</h3>
+(2–6 syllables) that&rsquo;s nothing. For two whole genomes (billions of symbols)
+it&rsquo;s <code>10¹⁸</code> — hopelessly slow, and <strong>the reason the next algorithm exists.</strong></p>
+<h3 id="the-global-in-global-alignment"><a class="anchor" href="#the-global-in-global-alignment" aria-hidden="true" tabindex="-1">#</a>The &ldquo;global&rdquo; in global alignment</h3>
 <p>Needleman–Wunsch pins <em>both</em> ends: the path must start at the top-left corner
 and finish at the bottom-right, so every symbol of both sequences is accounted
-for. That's the right model when you already know the two things are
+for. That&rsquo;s the right model when you already know the two things are
 counterparts and want to score them whole — which is exactly the rhyme-tail
-situation (you've already decided these two tails are the rhyme; now grade
-them). It's the <em>wrong</em> model when you want to find a good-matching <em>region</em>
+situation (you&rsquo;ve already decided these two tails are the rhyme; now grade
+them). It&rsquo;s the <em>wrong</em> model when you want to find a good-matching <em>region</em>
 buried inside two much longer sequences, where forcing the ends to align just
 drags in noise. That distinction is the seam between Unit 8 and Unit 11.</p>
 <hr />
-<h2>2. Local alignment and seed-and-extend — the scanner's engine</h2>
-<h3>The problem shift</h3>
-<p>In Unit 11 the question changed from <em>"score these two tails"</em> to <em>"somewhere
-in this verse, are there two stretches that rhyme?"</em> Now you don't know the
-endpoints — that's the <em>output</em>, not the input. And you can't afford to run a
-full alignment between every pair of candidate spans: that's the O(n²)-spans ×
+<h2 id="2-local-alignment-and-seed-and-extend-the-scanner-s-engine"><a class="anchor" href="#2-local-alignment-and-seed-and-extend-the-scanner-s-engine" aria-hidden="true" tabindex="-1">#</a>2. Local alignment and seed-and-extend — the scanner&rsquo;s engine</h2>
+<h3 id="the-problem-shift"><a class="anchor" href="#the-problem-shift" aria-hidden="true" tabindex="-1">#</a>The problem shift</h3>
+<p>In Unit 11 the question changed from <em>&ldquo;score these two tails&rdquo;</em> to <em>&ldquo;somewhere
+in this verse, are there two stretches that rhyme?&rdquo;</em> Now you don&rsquo;t know the
+endpoints — that&rsquo;s the <em>output</em>, not the input. And you can&rsquo;t afford to run a
+full alignment between every pair of candidate spans: that&rsquo;s the O(n²)-spans ×
 O(n²)-pairs blowup we counted early in Unit 11.</p>
-<h3>Local alignment (Smith–Waterman), briefly</h3>
-<p>There's a cousin of Needleman–Wunsch called <strong>Smith–Waterman</strong> (1981) that
+<h3 id="local-alignment-smith-waterman-briefly"><a class="anchor" href="#local-alignment-smith-waterman-briefly" aria-hidden="true" tabindex="-1">#</a>Local alignment (Smith–Waterman), briefly</h3>
+<p>There&rsquo;s a cousin of Needleman–Wunsch called <strong>Smith–Waterman</strong> (1981) that
 finds the single best-matching <em>sub-region</em> of two sequences rather than
 aligning them end to end. The trick is a one-line change to the recurrence:
 add a fourth option, <code>0</code>, to the <code>min</code>/<code>max</code> —</p>
 <pre><code>D[i][j] = max(0, diagonal, up, left)   # a 0 lets the alignment &quot;restart&quot;
 </code></pre>
-<p>— so an alignment that's going badly resets to nothing instead of accumulating
+<p>— so an alignment that&rsquo;s going badly resets to nothing instead of accumulating
 penalty, and you read the answer off the <em>best cell anywhere in the grid</em>
 rather than the corner. That finds the best local region between <em>two given</em>
-sequences. But it's still <code>O(m·n)</code> per pair, so on its own it doesn't solve the
-"search a whole verse / database" problem. For that you need to avoid looking at
+sequences. But it&rsquo;s still <code>O(m·n)</code> per pair, so on its own it doesn&rsquo;t solve the
+&ldquo;search a whole verse / database&rdquo; problem. For that you need to avoid looking at
 most pairs at all.</p>
-<h3>The BLAST heuristic: seed, then extend</h3>
+<h3 id="the-blast-heuristic-seed-then-extend"><a class="anchor" href="#the-blast-heuristic-seed-then-extend" aria-hidden="true" tabindex="-1">#</a>The BLAST heuristic: seed, then extend</h3>
 <p><strong>BLAST</strong> (Basic Local Alignment Search Tool, 1990) is the most-cited method in
-its field, and its idea is one every programmer can appreciate: <em>don't run the
+its field, and its idea is one every programmer can appreciate: <em>don&rsquo;t run the
 expensive algorithm everywhere — run a cheap filter first, and only pay for the
 expensive part where the filter says it might be worth it.</em> Three steps:</p>
 <ol>
-<li><strong>Seed.</strong> Find short, high-quality exact-or-near-exact matches ("seeds" or
-   "words"). These are cheap to find (hash lookups) and most of the sequence
-   produces none — so you've thrown away the vast boring majority for almost no
+<li><strong>Seed.</strong> Find short, high-quality exact-or-near-exact matches (&ldquo;seeds&rdquo; or
+   &ldquo;words&rdquo;). These are cheap to find (hash lookups) and most of the sequence
+   produces none — so you&rsquo;ve thrown away the vast boring majority for almost no
    cost. <em>A rhyme cannot exist without its anchor syllables matching, so only
    stressed-syllable pairs are worth seeding from.</em></li>
 <li><strong>Extend.</strong> From each seed, grow outward in both directions, accumulating
@@ -187,55 +200,55 @@ expensive part where the filter says it might be worth it.</em> Three steps:</p>
 cheap seeding first and expensive alignment only in the neighborhoods seeds
 point at. You trade a <em>guarantee</em> (Smith–Waterman finds the provably best local
 alignment) for <em>speed</em> (BLAST finds the good ones fast and rarely misses a real
-one). That is the classic <strong>heuristic bargain</strong>: give up "provably optimal" for
-"fast and almost always right," and know exactly which you're giving up.</p>
-<h3>How this maps onto <code>scan.py</code>, precisely</h3>
-<p>Our scanner is BLAST's skeleton with rhyme-flavored steps:</p>
+one). That is the classic <strong>heuristic bargain</strong>: give up &ldquo;provably optimal&rdquo; for
+&ldquo;fast and almost always right,&rdquo; and know exactly which you&rsquo;re giving up.</p>
+<h3 id="how-this-maps-onto-scan-py-precisely"><a class="anchor" href="#how-this-maps-onto-scan-py-precisely" aria-hidden="true" tabindex="-1">#</a>How this maps onto <code>scan.py</code>, precisely</h3>
+<p>Our scanner is BLAST&rsquo;s skeleton with rhyme-flavored steps:</p>
 <ul>
 <li><strong>Seed</strong> = the seed gate (<code>_seed_ok</code>). A pair of candidates is only worth
   scoring if their <em>anchor syllables</em> rhyme on their own — the anchor is our
-  seed, and "anchors must match" is our "seed must be a near-exact word." The
+  seed, and &ldquo;anchors must match&rdquo; is our &ldquo;seed must be a near-exact word.&rdquo; The
   phonological restriction that only stressed, full-vowel syllables can anchor
   is what makes seeds sparse (most positions never seed), which is the whole
   point of seeding.</li>
 <li><strong>Extend</strong> = the rhyme kernel scoring the tail from the anchor outward, plus
-  selection's rule that a trailing syllable only stays if it pulls the <em>average</em>
-  up — that is literally "extend while the score improves, stop when it drops."</li>
-<li><strong>Threshold / rank</strong> = <code>find_matches</code>' threshold and <code>select_matches</code>'
+  selection&rsquo;s rule that a trailing syllable only stays if it pulls the <em>average</em>
+  up — that is literally &ldquo;extend while the score improves, stop when it drops.&rdquo;</li>
+<li><strong>Threshold / rank</strong> = <code>find_matches</code>&rsquo; threshold and <code>select_matches</code>&rsquo;
   score-first ranking.</li>
 </ul>
-<p>So Unit 11 wasn't "inspired by" BLAST loosely; it's the same three-phase
-structure, with each phase's generic requirement ("seeds must be
-high-quality", "extend while improving") instantiated by a fact about rhyme.</p>
-<h3>The knobs, and the bargain they encode</h3>
+<p>So Unit 11 wasn&rsquo;t &ldquo;inspired by&rdquo; BLAST loosely; it&rsquo;s the same three-phase
+structure, with each phase&rsquo;s generic requirement (&ldquo;seeds must be
+high-quality&rdquo;, &ldquo;extend while improving&rdquo;) instantiated by a fact about rhyme.</p>
+<h3 id="the-knobs-and-the-bargain-they-encode"><a class="anchor" href="#the-knobs-and-the-bargain-they-encode" aria-hidden="true" tabindex="-1">#</a>The knobs, and the bargain they encode</h3>
 <ul>
 <li><strong>seed sensitivity</strong> — shorter/looser seeds find more real matches but waste
   time on more false leads; longer/stricter seeds are faster but miss faint
   ones. Our <code>DEFAULT_SEED_THRESHOLD</code> is exactly this dial: lower it and more
   anchor pairs qualify as seeds.</li>
-<li>Every knob here trades <strong>sensitivity</strong> (don't miss real rhymes — recall)
-  against <strong>specificity</strong> (don't chase fake ones — precision). You'll meet that
+<li>Every knob here trades <strong>sensitivity</strong> (don&rsquo;t miss real rhymes — recall)
+  against <strong>specificity</strong> (don&rsquo;t chase fake ones — precision). You&rsquo;ll meet that
   tradeoff by its proper names in Unit 14, when you finally <em>measure</em> it
   instead of guessing.</li>
 </ul>
 <hr />
-<h2>3. Co-linear chaining — Unit 12's compound-builder</h2>
-<h3>The problem</h3>
+<h2 id="3-co-linear-chaining-unit-12-s-compound-builder"><a class="anchor" href="#3-co-linear-chaining-unit-12-s-compound-builder" aria-hidden="true" tabindex="-1">#</a>3. Co-linear chaining — Unit 12&rsquo;s compound-builder</h2>
+<h3 id="the-problem-2"><a class="anchor" href="#the-problem-2" aria-hidden="true" tabindex="-1">#</a>The problem</h3>
 <p>Seed-and-extend gives you a <em>set</em> of local hits. But one real feature often
 shows up as <em>several</em> nearby hits that ought to be read as a single longer
 alignment — interrupted by a gap too big for extension to have crossed, yet
-clearly part of one story. In our terms: "PALMS-are-SWEATY ~ ARMS-are-HEAVY" is
+clearly part of one story. In our terms: &ldquo;PALMS-are-SWEATY ~ ARMS-are-HEAVY&rdquo; is
 one 4-syllable rhyme the ear hears as a unit, but the scanner (correctly, per
 its per-beat model) emits it as two separate matches, <code>palms are ~ arms are</code>
 and <code>sweaty ~ heavy</code>. We need to recognize that these two hits <em>line up</em> and
 fuse them.</p>
-<h3>The idea: hits as points, a compound as a monotone path</h3>
+<h3 id="the-idea-hits-as-points-a-compound-as-a-monotone-path"><a class="anchor" href="#the-idea-hits-as-points-a-compound-as-a-monotone-path" aria-hidden="true" tabindex="-1">#</a>The idea: hits as points, a compound as a monotone path</h3>
 <p>Put every local hit on a 2-D plane: the x-axis is position in sequence A, the
 y-axis is position in sequence B. A hit is a little segment (it occupies a
 range on each axis). Two hits are <strong>co-linear / chainable</strong> if one lies <em>down
 and to the right</em> of the other — i.e. it comes strictly later in <em>both</em>
 sequences. Chain a set of hits that are pairwise compatible in that sense and
-you've got one long alignment threading through them.</p>
+you&rsquo;ve got one long alignment threading through them.</p>
 <pre><code>   position in B ↑
                  │
      &quot;heavy&quot;     │              ● (sweaty~heavy)      both coordinates
@@ -247,18 +260,18 @@ you've got one long alignment threading through them.</p>
 
    A crossing pair (down-LEFT) would be a reversal, not a compound — reject it.
 </code></pre>
-<p>The rule "later in both sequences, same order" is exactly your <strong>sandwich
-observation</strong> made precise. Your "SWEATY is the meat between PALMS and ARMS"
-is what interleaving looks like from the middle; "both hits step down-and-right
-together" is what it looks like from the extents. The extent view is the one
+<p>The rule &ldquo;later in both sequences, same order&rdquo; is exactly your <strong>sandwich
+observation</strong> made precise. Your &ldquo;SWEATY is the meat between PALMS and ARMS&rdquo;
+is what interleaving looks like from the middle; &ldquo;both hits step down-and-right
+together&rdquo; is what it looks like from the extents. The extent view is the one
 that generalizes cleanly to <strong>three or more</strong> beats (a chain, not just a pair)
 and to hits that are far apart or on different lines (where nothing is
 literally sandwiched but the compound is just as real).</p>
-<h3>Why it's a classic (and where it lives in the wild)</h3>
+<h3 id="why-it-s-a-classic-and-where-it-lives-in-the-wild"><a class="anchor" href="#why-it-s-a-classic-and-where-it-lives-in-the-wild" aria-hidden="true" tabindex="-1">#</a>Why it&rsquo;s a classic (and where it lives in the wild)</h3>
 <p>After BLAST-style tools produce many local hits, a <strong>chaining</strong> step stitches
-compatible ones into larger alignments — it's standard post-processing in
-genome-scale aligners, and the general problem ("given weighted intervals/hits,
-find the best-scoring chain of mutually compatible ones") is a well-studied
+compatible ones into larger alignments — it&rsquo;s standard post-processing in
+genome-scale aligners, and the general problem (&ldquo;given weighted intervals/hits,
+find the best-scoring chain of mutually compatible ones&rdquo;) is a well-studied
 piece of computational geometry. The clean version sorts hits by one coordinate
 and runs a dynamic program (or an interval structure) to find the maximum-weight
 increasing chain — a close relative of <strong>longest-increasing-subsequence</strong>, which
@@ -266,7 +279,7 @@ you may have met in coding interviews. Same skeleton as the two algorithms
 above: <em>the best chain is the best-scoring monotone path through a set of
 points.</em> Alignment was a path through a grid; chaining is a path through a
 scatter of hits.</p>
-<h3>What we actually need (and don't)</h3>
+<h3 id="what-we-actually-need-and-don-t"><a class="anchor" href="#what-we-actually-need-and-don-t" aria-hidden="true" tabindex="-1">#</a>What we actually need (and don&rsquo;t)</h3>
 <p>Our version is deliberately tiny, because our hits are already few and clean:</p>
 <ul>
 <li><strong>Adjacency, not just order.</strong> In genomics, chained hits can have large gaps
@@ -276,32 +289,32 @@ scatter of hits.</p>
   condition than mere down-and-right. We tried and <em>rejected</em> tolerating a
   one-word gap: on the Lose Yourself verse it fused unrelated beats from
   different rhyme classes (<code>palms sweaty ~ calm ready</code>) five times for every
-  real compound. A blind gap can't tell a throwaway (<code>so</code>) from a word already
+  real compound. A blind gap can&rsquo;t tell a throwaway (<code>so</code>) from a word already
   claimed by another beat (<code>palms [are] sweaty</code>, where <code>are</code> belongs to the
-  <code>palms are ~ arms are</code> beat) — that distinction needs the gap's <em>content</em>,
-  which a match-level post-pass can't see. And the one thing a gap would buy —
+  <code>palms are ~ arms are</code> beat) — that distinction needs the gap&rsquo;s <em>content</em>,
+  which a match-level post-pass can&rsquo;t see. And the one thing a gap would buy —
   fusing across <em>differing</em> fillers (<code>palms are so sweaty ~ arms are really
-  heavy</code>) — isn't clearly a real perceived rhyme. Parallel fillers that are
+  heavy</code>) — isn&rsquo;t clearly a real perceived rhyme. Parallel fillers that are
   <em>identical</em> on both sides need no gap help anyway: span enumeration absorbs
   them into a beat (as an identity column) before chaining runs. So: strict
   abutment, full stop.</li>
 <li><strong>Same order, no crossing.</strong> Enforced exactly as above: reject a pair whose
-  sequences disagree on order (that's chiasmus, a different device).</li>
+  sequences disagree on order (that&rsquo;s chiasmus, a different device).</li>
 <li><strong>No scoring contest.</strong> Genome chainers maximize a weighted chain because
   hits compete and overlap messily. Ours simply grows maximal runs of
   abutting, same-order matches — closer to a union-find / transitive closure
-  over a "these two abut" relation than to a weighted-path optimization. If
+  over a &ldquo;these two abut&rdquo; relation than to a weighted-path optimization. If
   real verses ever produce competing overlapping chains, the full
-  maximum-weight-chain DP is the principled upgrade, and it's the same shape as
+  maximum-weight-chain DP is the principled upgrade, and it&rsquo;s the same shape as
   everything else here.</li>
 </ul>
 <p>So <code>chain_matches</code> will be a pure post-pass over <code>VerseScan.matches</code>: no
 scanner or kernel changes, each beat keeps its own rhyme class (the compound
-<em>spans</em> classes — that's the whole point), and the renderer gets a uniform
+<em>spans</em> classes — that&rsquo;s the whole point), and the renderer gets a uniform
 picture whether a given compound happened to survive selection whole or in
 pieces.</p>
 <hr />
-<h2>4. The through-line</h2>
+<h2 id="4-the-through-line"><a class="anchor" href="#4-the-through-line" aria-hidden="true" tabindex="-1">#</a>4. The through-line</h2>
 <p>Read the three together and one picture keeps redrawing itself:</p>
 <ul>
 <li><strong>An alignment is a monotone path</strong>, and the best one is a cheapest/best path
@@ -323,25 +336,31 @@ pieces.</p>
   scanner is alignment wrapped in a search; the compound-builder is a search
   wrapped around the scanner.</li>
 </ul>
-<p>None of this is biology. It's what falls out whenever you compare sequences of
+<p>None of this is biology. It&rsquo;s what falls out whenever you compare sequences of
 imperfectly-matching symbols and care about order — which is precisely the
 structure of rhyme over a stream of vowels. The life sciences are simply where
-these particular tools were sharpened first; we're borrowing the whetstone, not
+these particular tools were sharpened first; we&rsquo;re borrowing the whetstone, not
 the knife.</p>
-<h3>If you want to go deeper (all alphabet-agnostic algorithm reading)</h3>
+<h3 id="if-you-want-to-go-deeper-all-alphabet-agnostic-algorithm-reading"><a class="anchor" href="#if-you-want-to-go-deeper-all-alphabet-agnostic-algorithm-reading" aria-hidden="true" tabindex="-1">#</a>If you want to go deeper (all alphabet-agnostic algorithm reading)</h3>
 <ul>
-<li>Needleman–Wunsch and Smith–Waterman: any algorithms text's dynamic-programming
-  chapter, or the "edit distance / sequence alignment" section (it's the same
+<li>Needleman–Wunsch and Smith–Waterman: any algorithms text&rsquo;s dynamic-programming
+  chapter, or the &ldquo;edit distance / sequence alignment&rdquo; section (it&rsquo;s the same
   DP as Levenshtein distance, which powers spell-checkers and <code>diff</code>).</li>
-<li>The seed-and-extend / heuristic-search idea generalizes as "filter cheaply,
-  verify expensively" — the same pattern behind database query planning and
+<li>The seed-and-extend / heuristic-search idea generalizes as &ldquo;filter cheaply,
+  verify expensively&rdquo; — the same pattern behind database query planning and
   approximate nearest-neighbor search.</li>
 <li>Chaining ↔ longest-increasing-subsequence and maximum-weight interval
   scheduling: classic DP/greedy problems you may know from interview prep.</li>
 </ul>
 </main>
+<aside class="rail" aria-label="On this page"><h2>On this page</h2><ol><li><a href="#0-why-these-algorithms-keep-showing-up-in-one-project">0. Why these algorithms keep showing up in one project</a></li><li><a href="#1-global-alignment-needleman-wunsch-the-one-you-already-built">1. Global alignment (Needleman–Wunsch) — the one you already built</a></li><li class="sub"><a href="#the-problem">The problem</a></li><li class="sub"><a href="#the-idea-alignment-as-a-grid-path">The idea: alignment as a grid path</a></li><li class="sub"><a href="#the-name-and-the-knobs">The name and the knobs</a></li><li class="sub"><a href="#cost">Cost</a></li><li class="sub"><a href="#the-global-in-global-alignment">The “global” in global alignment</a></li><li><a href="#2-local-alignment-and-seed-and-extend-the-scanner-s-engine">2. Local alignment and seed-and-extend — the scanner’s engine</a></li><li class="sub"><a href="#the-problem-shift">The problem shift</a></li><li class="sub"><a href="#local-alignment-smith-waterman-briefly">Local alignment (Smith–Waterman), briefly</a></li><li class="sub"><a href="#the-blast-heuristic-seed-then-extend">The BLAST heuristic: seed, then extend</a></li><li class="sub"><a href="#how-this-maps-onto-scan-py-precisely">How this maps onto scan.py, precisely</a></li><li class="sub"><a href="#the-knobs-and-the-bargain-they-encode">The knobs, and the bargain they encode</a></li><li><a href="#3-co-linear-chaining-unit-12-s-compound-builder">3. Co-linear chaining — Unit 12’s compound-builder</a></li><li class="sub"><a href="#the-problem-2">The problem</a></li><li class="sub"><a href="#the-idea-hits-as-points-a-compound-as-a-monotone-path">The idea: hits as points, a compound as a monotone path</a></li><li class="sub"><a href="#why-it-s-a-classic-and-where-it-lives-in-the-wild">Why it’s a classic (and where it lives in the wild)</a></li><li class="sub"><a href="#what-we-actually-need-and-don-t">What we actually need (and don’t)</a></li><li><a href="#4-the-through-line">4. The through-line</a></li><li class="sub"><a href="#if-you-want-to-go-deeper-all-alphabet-agnostic-algorithm-reading">If you want to go deeper (all alphabet-agnostic algorithm reading)</a></li></ol></aside>
+</div>
 <footer class="pager">
-<a class="next" href="unit-08.html">Unit 8: Unequal lengths: sequence alignment →</a>
+<a class="next" href="unit-08.html"><span class="dir">Next</span><span class="ttl">Unit 8: Unequal lengths: sequence alignment</span></a>
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+<script src="course.js"></script>
 </body>
 </html>

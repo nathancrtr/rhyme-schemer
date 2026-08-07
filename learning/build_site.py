@@ -3,16 +3,23 @@
 The course is delivered as a static, file://-friendly site -- every page
 opens by double-click, no server, no network. This script is the whole
 build system: it renders the lesson guides and course documents
-(python-markdown), wraps them in a shared shell (header nav, unit
-breadcrumbs, prev/next footer), assembles per-unit pages that combine the
-unit's syllabus entry with its lesson and hands-on material, and writes the
-stylesheet. Markdown stays the source of truth; the generated site is
-committed so a fresh clone is browsable without running anything.
+(python-markdown), wraps them in a shared shell (sticky header, unit
+switcher, theme toggle, section rail, prev/next footer), assembles per-unit
+pages that combine the unit's syllabus entry with its lesson and hands-on
+material, and writes the stylesheet. Markdown stays the source of truth; the
+generated site is committed so a fresh clone is browsable without running
+anything.
 
 Regenerate after editing any lesson or curriculum.md:
 
-    pip install markdown          # dev-only dependency (not in requirements.txt)
+    pip install markdown           # dev-only dependency (not in requirements.txt)
     python learning/build_site.py
+
+The typefaces are a separate, rarely-run step -- the subset .woff2 files are
+committed, so you only need this if you change the character coverage:
+
+    pip install "fonttools[woff]" brotli
+    python learning/build_fonts.py
 
 Conventions the build enforces:
 - "> PAUSE. ..." blockquotes in lessons render as think-first boxes -- the
@@ -21,14 +28,27 @@ Conventions the build enforces:
 - Links to lesson .md files are rewritten to their unit pages.
 - Widgets/quizzes/exercises stay where they live (interactive/); unit pages
   link to them relatively, so the site works from any checkout location.
+- Prose gets typographic punctuation (curly quotes, proper dashes and
+  ellipses) via python-markdown's `smarty`. The sources are written with
+  straight quotes; making the *renderer* responsible for typography means
+  nobody has to type a curly quote to get one, and code spans are left
+  alone because smarty never touches them.
+- Every h2/h3 in body prose gets a stable id and a hover anchor, which is
+  also what feeds the sticky section rail.
+
+Design lives in learning/style_source.py -- including why it looks like this.
 """
 
 from __future__ import annotations
 
+import html as html_mod
 import re
 from pathlib import Path
 
 import markdown
+
+import style_source
+from style_source import KIND_HUE, PHASE_HUE
 
 LEARNING = Path(__file__).resolve().parent
 SITE = LEARNING / "site"
@@ -126,6 +146,13 @@ LINK_MAP = {
     "curriculum.md": "syllabus.html",
 }
 
+# Companion pages, so the unit switcher can offer them too.
+COMPANIONS = [
+    ("phonetics-primer.html", "How speech works: a phonetics refresher"),
+    ("sequence-alignment-family.html", "The sequence-alignment family"),
+    ("graphs-and-union-find.html", "Graphs, components, and union-find"),
+]
+
 # ---------------------------------------------------------------------------
 # Rendering
 # ---------------------------------------------------------------------------
@@ -140,10 +167,14 @@ _LIST_AFTER_PARAGRAPH = re.compile(
     re.MULTILINE,
 )
 
+# `smarty` gives the prose real typography; the sources are written with
+# straight quotes on purpose, so that nobody has to type a curly one.
+MD_EXTENSIONS = ["fenced_code", "tables", "smarty"]
+
 
 def md_to_html(text: str) -> str:
     text = _LIST_AFTER_PARAGRAPH.sub(r"\1\n\n", text)
-    html = markdown.markdown(text, extensions=["fenced_code", "tables"])
+    html = markdown.markdown(text, extensions=MD_EXTENSIONS)
     # Socratic pauses become think-first boxes.
     html = re.sub(
         r"<blockquote>\s*<p>(?:<strong>)?PAUSE\.?(?:</strong>)?\s*(?:Ask:)?\s*",
@@ -161,6 +192,235 @@ def md_to_html(text: str) -> str:
     return html
 
 
+# ---------------------------------------------------------------------------
+# Headings: ids, hover anchors, and the section rail they feed
+# ---------------------------------------------------------------------------
+
+_HEADING = re.compile(r"<(h[23])>(.*?)</\1>", re.DOTALL)
+
+
+def slugify(label: str) -> str:
+    slug = re.sub(r"<[^>]+>", "", label)
+    slug = html_mod.unescape(slug).lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", slug).strip("-")
+    return slug or "section"
+
+
+def anchor_headings(html: str) -> tuple[str, list[tuple[str, str, str]]]:
+    """Give body h2/h3 stable ids + hover anchors; return the TOC alongside.
+
+    Ids are slugs of the heading text, de-duplicated with a numeric suffix so
+    that two "Common confusions" sections on one page still get distinct
+    targets (unit 11 has repeats).
+    """
+    toc: list[tuple[str, str, str]] = []
+    seen: dict[str, int] = {}
+
+    def replace(match: re.Match[str]) -> str:
+        tag, inner = match.group(1), match.group(2)
+        base = slugify(inner)
+        seen[base] = seen.get(base, 0) + 1
+        ident = base if seen[base] == 1 else f"{base}-{seen[base]}"
+        label = html_mod.unescape(re.sub(r"<[^>]+>", "", inner)).strip()
+        toc.append((tag, ident, label))
+        anchor = (f'<a class="anchor" href="#{ident}" aria-hidden="true" '
+                  f'tabindex="-1">#</a>')
+        return f'<{tag} id="{ident}">{anchor}{inner}</{tag}>'
+
+    return _HEADING.sub(replace, html), toc
+
+
+# ---------------------------------------------------------------------------
+# Purpose-built layouts for the two reference documents
+# ---------------------------------------------------------------------------
+# The syllabus and the resources list are not prose -- they are records, and
+# almost every line of both is a "**Label:** value" bullet. Rendered as
+# bullets they are a wall: fifteen units whose Build/Read/Concepts/Exercise
+# fields all look alike, and nothing to scan by. Nobody reads a syllabus; they
+# look things up in one. So the labels get a column of their own, units become
+# numbered entries that link to their pages (the old syllabus said every unit
+# had a page but linked to none of them), and resource type tags stop being
+# inline code and become badges.
+
+_INNER_UL = re.compile(r"<ul>((?:(?!</?ul>).)*?)</ul>", re.S)
+_FIELD_LI = re.compile(r"<li>\s*<strong>([^<:]{2,30}):</strong>\s*(.*?)</li>", re.S)
+
+
+def field_lists(html: str) -> str:
+    """A bullet list whose every item opens '**Label:**' is a definition list."""
+    def convert(match: re.Match[str]) -> str:
+        block = match.group(1)
+        fields = _FIELD_LI.findall(block)
+        # Only convert when *every* item fits the shape; a mixed list stays a list.
+        if len(fields) < 2 or len(fields) != block.count("<li>"):
+            return match.group(0)
+        rows = "".join(f"<dt>{html_mod.escape(key)}</dt><dd>{value.strip()}</dd>"
+                       for key, value in fields)
+        return f'<dl class="fields">{rows}</dl>'
+    return _INNER_UL.sub(convert, html)
+
+
+UNIT_PHASE = {unit["num"]: unit["phase"] for unit in UNITS}
+
+_SYL_UNIT = re.compile(
+    r"<h3>Unit (\d+) &mdash; (.*?)</h3>\s*(<dl class=\"fields\">.*?</dl>)"
+    r"|<h3>Unit (\d+) — (.*?)</h3>\s*(<dl class=\"fields\">.*?</dl>)", re.S)
+_SYL_CHECKPOINT = re.compile(r"<h3>—\s*(Phase \d+ Checkpoint)\s*—</h3>")
+
+
+def syllabus_layout(html: str) -> str:
+    html = field_lists(html)
+
+    def unit(match: re.Match[str]) -> str:
+        groups = [g for g in match.groups() if g is not None]
+        num, title, fields = int(groups[0]), groups[1], groups[2]
+        hue = PHASE_HUE[UNIT_PHASE.get(num, 1)]
+        return (f'<section class="uentry" style="--accent:var(--hue-{hue})">'
+                f'<div class="ue-num">{num}</div><div class="ue-body">'
+                f"<h3>{title}</h3>{fields}"
+                f'<a class="ue-go" href="unit-{num:02d}.html">Open Unit {num}</a>'
+                f"</div></section>")
+
+    html = _SYL_UNIT.sub(unit, html)
+    return _SYL_CHECKPOINT.sub(r'<p class="checkpoint">\1</p>', html)
+
+
+# Resource type -> hue slot, so the badges stay categorical rather than decorative.
+RESOURCE_HUE = {"TEXT": 0, "PAPER": 4, "CODE": 1, "TOOL": 2,
+                "INTERACTIVE": 7, "VIDEO": 5}
+_RES_TAGS = re.compile(r"\s*<code>((?:\[[A-Z]+\])+)</code>")
+# Everything from an h3 up to the next heading is that resource's entry.
+# Matching the *body* rather than a specific list shape matters: only about a
+# third of the entries are pure "**Label:** value" lists. The rest mix those
+# with citation lines ("**Kondrak (2000),** *A New Algorithm...*"), which are
+# genuinely a list and should stay one. Every entry still becomes a card.
+_RES_ENTRY = re.compile(r"<h3>(.*?)</h3>(.*?)(?=<h[123]|\Z)", re.S)
+
+
+_RES_LEGEND = re.compile(r"<p>Tags:\s*<code>((?:\[[A-Z]+\]\s*)+)</code>\.?</p>")
+
+
+def resources_layout(html: str) -> str:
+    html = field_lists(html)
+
+    # The "Tags: [TEXT] [CODE] ..." legend is the key to the badges, so it
+    # should be made of badges rather than of inline code.
+    def legend(match: re.Match[str]) -> str:
+        badges = "".join(
+            f'<span class="rtag" style="--accent:var(--hue-'
+            f'{RESOURCE_HUE.get(tag, 3)})">{tag}</span>'
+            for tag in re.findall(r"[A-Z]+", match.group(1)))
+        return f'<p class="legend-row">Tags <span class="rtags">{badges}</span></p>'
+
+    html = _RES_LEGEND.sub(legend, html)
+
+    def entry(match: re.Match[str]) -> str:
+        title, body = match.group(1), match.group(2)
+        found: list[str] = []
+        title = _RES_TAGS.sub(
+            lambda m: found.extend(re.findall(r"[A-Z]+", m.group(1))) or "", title)
+        hue = RESOURCE_HUE.get(found[0], 3) if found else 3
+        badges = "".join(
+            f'<span class="rtag" style="--accent:var(--hue-'
+            f'{RESOURCE_HUE.get(tag, 3)})">{tag}</span>' for tag in found)
+        head = f'<div class="rtags">{badges}</div>' if badges else ""
+        return (f'<section class="res" style="--accent:var(--hue-{hue})">'
+                f"{head}<h3>{title.strip()}</h3>{body.strip()}</section>")
+
+    return _RES_ENTRY.sub(entry, html)
+
+
+def rail_html(toc: list[tuple[str, str, str]]) -> str:
+    """The sticky "on this page" rail. Omitted when there is nothing to steer by."""
+    if len([t for t in toc if t[0] == "h2"]) < 2:
+        return ""
+    items = []
+    for tag, ident, label in toc:
+        cls = ' class="sub"' if tag == "h3" else ""
+        items.append(f'<li{cls}><a href="#{ident}">{html_mod.escape(label)}</a></li>')
+    return ('<aside class="rail" aria-label="On this page"><h2>On this page</h2>'
+            f'<ol>{"".join(items)}</ol></aside>')
+
+
+# ---------------------------------------------------------------------------
+# Chrome
+# ---------------------------------------------------------------------------
+
+def unit_switcher(current: str | None) -> str:
+    """A native <details> menu of the whole course. Works from file:// with no JS."""
+    groups = []
+    for phase_num, (title, _blurb) in PHASES.items():
+        hue = PHASE_HUE[phase_num]
+        rows = []
+        for unit in UNITS:
+            if unit["phase"] != phase_num:
+                continue
+            page = f'unit-{unit["num"]:02d}.html'
+            mark = ' aria-current="page"' if page == current else ""
+            rows.append(f'<a href="{page}"{mark}><span class="n">{unit["num"]}</span>'
+                        f'<span>{html_mod.escape(unit["title"])}</span></a>')
+        groups.append(f'<h4 style="--accent:var(--hue-{hue})">Phase {phase_num} &middot; '
+                      f'{html_mod.escape(title)}</h4>{"".join(rows)}')
+    extras = "".join(
+        f'<a href="{page}"{" aria-current=\"page\"" if page == current else ""}>'
+        f'<span class="n">&middot;</span><span>{html_mod.escape(label)}</span></a>'
+        for page, label in COMPANIONS)
+    groups.append(f'<h4>Companion reading</h4>{extras}')
+    label = "Course contents"
+    if current and current.startswith("unit-"):
+        label = f"Unit {int(current[5:7])}"
+    return ('<details class="switch"><summary>' + label + '</summary>'
+            f'<div class="switch-menu">{"".join(groups)}</div></details>')
+
+
+THEME_TOGGLE = """<button class="theme" type="button" id="theme-toggle"
+  aria-label="Switch between light and dark">
+<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2M12 19.8v2
+  M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4
+  a8.2 8.2 0 1 0 10.5 10.5z"/></svg></button>"""
+
+# Runs before first paint, so an explicit choice never flashes the other mode.
+THEME_BOOT = ('<script>(function(){try{var t=localStorage.getItem("rs-theme");'
+              'if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}'
+              'catch(e){}})();</script>')
+
+# Toggle + rail scrollspy, written out as site/course.js so the eleven
+# hand-authored widget and quiz pages can link the same file instead of each
+# carrying its own copy. Both features degrade to nothing if JS is off: the
+# theme still follows the OS, and the rail still works as plain anchor links.
+COURSE_JS = """(function(){
+  var root=document.documentElement, btn=document.getElementById("theme-toggle");
+  if(btn) btn.addEventListener("click",function(){
+    var dark=root.dataset.theme
+      ? root.dataset.theme==="dark"
+      : matchMedia("(prefers-color-scheme:dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try{localStorage.setItem("rs-theme",root.dataset.theme);}catch(e){}
+  });
+  var links=[].slice.call(document.querySelectorAll(".rail a"));
+  if(!links.length||!window.IntersectionObserver) return;
+  var byId={};
+  links.forEach(function(a){ byId[a.getAttribute("href").slice(1)]=a; });
+  var visible={};
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ visible[e.target.id]=e.isIntersecting; });
+    var current=null;
+    Object.keys(byId).forEach(function(id){ if(visible[id]&&!current) current=id; });
+    links.forEach(function(a){ a.classList.remove("on"); });
+    if(current&&byId[current]) byId[current].classList.add("on");
+  },{rootMargin:"-88px 0px -70% 0px"});
+  Object.keys(byId).forEach(function(id){
+    var el=document.getElementById(id); if(el) obs.observe(el);
+  });
+})();
+"""
+
+SITE_JS = '<script src="course.js"></script>'
+
+
 PAGE = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -168,33 +428,62 @@ PAGE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>@TITLE@</title>
 <link rel="stylesheet" href="style.css">
+@BOOT@
 </head>
-<body>
+<body@BODYATTR@>
 <header class="top">
-  <a class="brand" href="index.html">rhyme-schemer <span>· the course</span></a>
-  <nav>
-    <a href="index.html">Units</a>
-    <a href="syllabus.html">Syllabus</a>
-    <a href="resources.html">Resources</a>
-    <a href="about.html">About</a>
-  </nav>
+  <div class="top-in">
+    <a class="brand" href="index.html">rhyme-schemer <span>&middot; the course</span></a>
+    @SWITCHER@
+    <nav>
+      <a href="index.html"@NAV_INDEX@>Units</a>
+      <a href="syllabus.html"@NAV_SYLL@>Syllabus</a>
+      <a href="resources.html"@NAV_RES@>Resources</a>
+      <a href="about.html"@NAV_ABOUT@>About</a>
+      @THEME@
+    </nav>
+  </div>
 </header>
+<div class="shell">
 <main>
 @CONTENT@
 </main>
+@RAIL@
+</div>
 <footer class="pager">
 @PAGER@
 </footer>
+<div class="foot">Generated from Markdown by <code>learning/build_site.py</code>.
+Type: Source Serif&nbsp;4, Inter, JetBrains&nbsp;Mono, Charis&nbsp;SIL &mdash; all
+<a href="https://openfontlicense.org">SIL&nbsp;OFL</a>.</div>
+@JS@
 </body>
 </html>
 """
 
 
-def write_page(name: str, title: str, content: str, pager: str = "") -> None:
+def write_page(name: str, title: str, content: str, pager: str = "",
+               rail: str = "", accent: int | None = None) -> None:
+    body_attr = f' style="--accent:var(--hue-{accent})"' if accent is not None else ""
     html = (PAGE.replace("@TITLE@", title)
+                .replace("@BOOT@", THEME_BOOT)
+                .replace("@BODYATTR@", body_attr)
+                .replace("@SWITCHER@", unit_switcher(name))
+                .replace("@THEME@", THEME_TOGGLE)
                 .replace("@CONTENT@", content)
-                .replace("@PAGER@", pager))
+                .replace("@RAIL@", rail)
+                .replace("@PAGER@", pager)
+                .replace("@JS@", SITE_JS))
+    for token, page in (("@NAV_INDEX@", "index.html"), ("@NAV_SYLL@", "syllabus.html"),
+                        ("@NAV_RES@", "resources.html"), ("@NAV_ABOUT@", "about.html")):
+        html = html.replace(token, ' aria-current="page"' if name == page else "")
     (SITE / name).write_text(html)
+
+
+def pager_link(direction: str, href: str, label: str) -> str:
+    word = "Previous" if direction == "prev" else "Next"
+    return (f'<a class="{direction}" href="{href}"><span class="dir">{word}</span>'
+            f'<span class="ttl">{html_mod.escape(label)}</span></a>')
 
 
 def curriculum_extract(curriculum: str, num: int) -> str:
@@ -206,39 +495,63 @@ def curriculum_extract(curriculum: str, num: int) -> str:
     return match.group(1).strip() if match else ""
 
 
+def chip(kind: str, label: str, href: str) -> str:
+    """One hands-on link. The dot carries the type; no emoji.
+
+    Full-colour emoji (the old prefixes) read as clip-art beside a palette
+    this restrained, and they are the first thing that makes a page look
+    unconsidered. A hue dot plus a tracked micro-label says the same thing
+    in the design system's own voice.
+    """
+    hue = KIND_HUE[kind]
+    return (f'<a class="chip" href="{href}" style="--accent:var(--hue-{hue})">'
+            f'<span>{html_mod.escape(label)}</span>'
+            f'<span class="kind">{kind}</span></a>')
+
+
 def hands_on_card(unit: dict) -> str:
     rows = []
     for label, path in unit.get("widgets", []):
-        rows.append(f'<a class="chip widget" href="../{path}">🧪 {label}</a>')
+        rows.append(chip("widget", label, f"../{path}"))
     if unit.get("quiz"):
         label, path = unit["quiz"]
-        rows.append(f'<a class="chip quiz" href="../{path}">✅ {label}</a>')
+        rows.append(chip("quiz", label, f"../{path}"))
     if unit.get("exercise"):
         label, path = unit["exercise"]
-        rows.append(f'<a class="chip exercise" href="../{path}/task.md">⌨️ Exercise: {label}</a>')
+        rows.append(chip("exercise", label, f"../{path}/task.md"))
     if unit.get("companion"):
         label, md_name = unit["companion"]
         page = LINK_MAP.get(md_name, md_name)
-        rows.append(f'<a class="chip companion" href="{page}">📖 {label}</a>')
+        rows.append(chip("companion", label, page))
     if not rows:
         return ""
-    return '<div class="hands-on"><h2>Hands-on</h2>' + " ".join(rows) + "</div>"
+    return ('<div class="hands-on"><h2>Hands-on</h2>'
+            f'<div class="chips">{"".join(rows)}</div></div>')
 
 
 def build_unit_pages(curriculum: str) -> None:
     for i, unit in enumerate(UNITS):
         num = unit["num"]
         phase_title = PHASES[unit["phase"]][0]
+        hue = PHASE_HUE[unit["phase"]]
+        # The unit number rides in the eyebrow, not the h1: "Unit 4 -- " in
+        # front of a real title pushed several headings to three display-size
+        # lines and buried the words that name the unit.
         parts = [
-            f'<p class="crumb">Phase {unit["phase"]} · {phase_title}</p>',
-            f'<h1>Unit {num} — {unit["title"]}</h1>',
+            '<div class="masthead">',
+            f'<p class="crumb"><b>Unit {num}</b><span class="sep">/</span>'
+            f'Phase {unit["phase"]} &middot; {html_mod.escape(phase_title)}</p>',
+            f'<h1>{html_mod.escape(unit["title"])}</h1>',
+            '</div>',
         ]
         extract = curriculum_extract(curriculum, num)
         if extract:
             parts.append('<details class="glance" open><summary>The unit at a glance '
-                         '<span class="muted">(from the syllabus)</span></summary>'
+                         '<span class="muted">from the syllabus</span></summary>'
                          + md_to_html(extract) + "</details>")
         parts.append(hands_on_card(unit))
+
+        toc: list[tuple[str, str, str]] = []
         if unit.get("lesson"):
             lesson_md = (LESSONS / unit["lesson"]).read_text()
             # The lesson file's own H1 duplicates the page title; drop it.
@@ -246,84 +559,133 @@ def build_unit_pages(curriculum: str) -> None:
             note = unit.get("lesson_note")
             if note:
                 parts.append('<div class="note">' + md_to_html(note)[3:-4] + "</div>")
-            parts.append('<article class="lesson">' + md_to_html(lesson_md) + "</article>")
+            lesson_html, toc = anchor_headings(md_to_html(lesson_md))
+            parts.append('<article class="lesson">' + lesson_html + "</article>")
         else:
             parts.append(
                 '<div class="pending">The full guide for this unit is still being '
                 "written; the syllabus entry above is the map in the meantime. "
                 "Guides land unit by unit as the course build-out continues.</div>")
 
-        prev_html = next_html = ""
+        pager = ""
         if i > 0:
             p = UNITS[i - 1]
-            prev_html = f'<a class="prev" href="unit-{p["num"]:02d}.html">← Unit {p["num"]}: {p["title"]}</a>'
+            pager += pager_link("prev", f'unit-{p["num"]:02d}.html',
+                                f'Unit {p["num"]}: {p["title"]}')
         if i < len(UNITS) - 1:
             n = UNITS[i + 1]
-            next_html = f'<a class="next" href="unit-{n["num"]:02d}.html">Unit {n["num"]}: {n["title"]} →</a>'
+            pager += pager_link("next", f'unit-{n["num"]:02d}.html',
+                                f'Unit {n["num"]}: {n["title"]}')
         write_page(f"unit-{num:02d}.html", f"Unit {num} — {unit['title']}",
-                   "\n".join(p for p in parts if p), prev_html + next_html)
+                   "\n".join(p for p in parts if p), pager,
+                   rail_html(toc), accent=hue)
 
 
 def build_index() -> None:
     cards = []
     for phase_num, (title, blurb) in PHASES.items():
+        hue = PHASE_HUE[phase_num]
         rows = []
         for unit in UNITS:
             if unit["phase"] != phase_num:
                 continue
             badges = []
-            if unit.get("lesson"):
-                badges.append('<span class="badge lesson">guide</span>')
-            if unit.get("widgets"):
-                badges.append('<span class="badge widget">widget</span>')
-            if unit.get("quiz"):
-                badges.append('<span class="badge quiz">quiz</span>')
-            if unit.get("exercise"):
-                badges.append('<span class="badge exercise">exercise</span>')
+            for kind, present in (("guide", unit.get("lesson")),
+                                  ("widget", unit.get("widgets")),
+                                  ("quiz", unit.get("quiz")),
+                                  ("exercise", unit.get("exercise"))):
+                if present:
+                    badges.append(
+                        f'<span class="badge" style="--accent:var(--hue-{KIND_HUE[kind]})"'
+                        f' title="{kind}"><span>{kind}</span></span>')
             rows.append(
                 f'<li><a href="unit-{unit["num"]:02d}.html">'
-                f'<span class="unum">{unit["num"]}</span> {unit["title"]}</a>'
-                f'<span class="badges">{"".join(badges)}</span></li>')
+                f'<span class="unum">{unit["num"]}</span>'
+                f'<span class="utitle">{html_mod.escape(unit["title"])}</span>'
+                f'<span class="badges">{"".join(badges)}</span></a></li>')
         cards.append(
-            f'<section class="phase"><h2>Phase {phase_num} — {title}</h2>'
-            f'<p class="muted">{blurb}</p><ul class="units">{"".join(rows)}</ul></section>')
+            f'<section class="phase" style="--accent:var(--hue-{hue})">'
+            f'<div class="phase-hd"><p class="phase-n">Phase {phase_num}</p>'
+            f'<h2>{html_mod.escape(title)}</h2>'
+            f'<p>{html_mod.escape(blurb)}</p></div>'
+            f'<ul class="units">{"".join(rows)}</ul></section>')
 
     content = (
+        '<div class="masthead">'
         "<h1>Computational phonetics, one rhyme detector at a time</h1>"
         '<p class="lede">A self-contained course on NLP and computational phonology, taught '
         "through a single worked project: <b>rhyme-schemer</b>, a tool that reads hip-hop "
-        "lyrics and surfaces their rhyme scheme — slant rhyme, assonance, and all. You read "
+        "lyrics and surfaces their rhyme scheme &mdash; slant rhyme, assonance, and all. You read "
         "real modules, build the missing ones, and every concept arrives already attached to "
         "code that uses it.</p>"
         '<p class="lede muted">For the linguistics-curious programmer: the phonology is taught '
         "from the ground up; the algorithms assume fluency in code but not a background in "
-        'algorithm design. Start with <a href="about.html">how this course works</a> — and if '
+        'algorithm design. Start with <a href="about.html">how this course works</a> &mdash; and if '
         'your phonetics is cold (or was never warm), <a href="phonetics-primer.html">the sounds '
         "refresher</a> rebuilds it in twenty minutes, mostly by making you make sounds at your "
-        "desk.</p>"
+        "desk.</p></div>"
+        + SPECIMEN
         + "".join(cards))
     write_page("index.html", "rhyme-schemer: the course", content)
 
 
+# The hero specimen: a stretch of the project's own engineered test verse with
+# its rhyme classes painted in the renderer's hue slots. It is hand-marked
+# rather than generated, so the site build never depends on the package
+# importing cleanly -- but the classes and colours are the real ones.
+SPECIMEN = """
+<div class="specimen">
+<p class="cap">What you are building</p>
+<p><span class="rw" style="--accent:var(--hue-0)">My palms</span> are <span
+class="rw" style="--accent:var(--hue-1)">steady</span>, my <span
+class="rw" style="--accent:var(--hue-0)">arms</span> are <span
+class="rw" style="--accent:var(--hue-1)">ready</span><br>I <span
+class="rw" style="--accent:var(--hue-2)">wake up</span>, <span
+class="rw" style="--accent:var(--hue-2)">shake the whole state up</span><br>I&rsquo;m <span
+class="rw" style="--accent:var(--hue-4)">nervous</span>, but my <span
+class="rw" style="--accent:var(--hue-4)">verses</span> stay <span
+class="rw" style="--accent:var(--hue-1)">steady</span></p>
+</div>
+"""
+
+
 def build_document_pages(curriculum: str) -> None:
     resources = (LEARNING / "learning-resources.md").read_text()
-    write_page("resources.html", "Resources", md_to_html(resources))
+    body, toc = anchor_headings(resources_layout(md_to_html(resources)))
+    write_page("resources.html", "Resources",
+               '<div class="masthead"><p class="crumb">Course reference</p></div>'
+               + body, rail=rail_html(toc))
+
+    body, toc = anchor_headings(syllabus_layout(md_to_html(curriculum)))
     write_page("syllabus.html", "Syllabus",
-               '<p class="note">The complete syllabus, one page. Each unit heading here has a '
-               'matching <a href="index.html">unit page</a> with the lesson and hands-on material.</p>'
-               + md_to_html(curriculum))
+               '<div class="masthead"><p class="crumb">Course reference</p></div>'
+               '<p class="note">The complete syllabus, one page &mdash; every unit here '
+               'links to its own page, with the lesson and hands-on material.</p>' + body,
+               rail=rail_html(toc))
+
     seq = (LESSONS / "sequence-alignment-family.md").read_text()
+    body, toc = anchor_headings(md_to_html(seq))
     write_page("sequence-alignment-family.html", "The sequence-alignment family",
-               '<p class="crumb">Companion reading · Unit 8</p>' + md_to_html(seq),
-               '<a class="next" href="unit-08.html">Unit 8: Unequal lengths: sequence alignment →</a>')
+               '<div class="masthead"><p class="crumb">Companion reading &middot; Unit 8</p>'
+               '</div>' + body,
+               pager_link("next", "unit-08.html", "Unit 8: Unequal lengths: sequence alignment"),
+               rail_html(toc), accent=PHASE_HUE[2])
+
     primer = (LESSONS / "phonetics-primer.md").read_text()
+    body, toc = anchor_headings(md_to_html(primer))
     write_page("phonetics-primer.html", "How speech works: a phonetics refresher",
-               '<p class="crumb">On-ramp · before Unit 1</p>' + md_to_html(primer),
-               '<a class="next" href="unit-01.html">Unit 1: Phonemes, ARPAbet & the lexicon →</a>')
+               '<div class="masthead"><p class="crumb">On-ramp &middot; before Unit 1</p>'
+               '</div>' + body,
+               pager_link("next", "unit-01.html", "Unit 1: Phonemes, ARPAbet & the lexicon"),
+               rail_html(toc), accent=PHASE_HUE[1])
+
     dsu = (LESSONS / "graphs-and-union-find.md").read_text()
+    body, toc = anchor_headings(md_to_html(dsu))
     write_page("graphs-and-union-find.html", "Graphs, components, and union-find from zero",
-               '<p class="crumb">Companion reading · Unit 10</p>' + md_to_html(dsu),
-               '<a class="next" href="unit-10.html">Unit 10: Grouping rhymes →</a>')
+               '<div class="masthead"><p class="crumb">Companion reading &middot; Unit 10</p>'
+               '</div>' + body,
+               pager_link("next", "unit-10.html", "Unit 10: Grouping rhymes"),
+               rail_html(toc), accent=PHASE_HUE[3])
 
     about = """
 # How this course works
@@ -358,85 +720,22 @@ are per-phase checkpoints.
 should be green before Unit 1). The tests are the course's grader.
 
 **Regenerating this site.** Pages are generated from Markdown sources by
-`learning/build_site.py`; edit the source, not the HTML.
+`learning/build_site.py`; edit the source, not the HTML. The design system
+lives in `learning/style_source.py` and the subset webfonts are built by
+`learning/build_fonts.py`.
 """
-    write_page("about.html", "About this course", md_to_html(about))
-
-
-STYLE = """
-:root{--bg:#0f1115;--card:#1a1e26;--ink:#e8eaed;--muted:#9aa3af;--line:#2a2f3a;
-      --accent:#6ea8fe;--good:#2ecc71;--warn:#f0a868;--think:#c678dd;}
-*{box-sizing:border-box;}
-body{margin:0;background:var(--bg);color:var(--ink);
-     font:16px/1.65 ui-sans-serif,system-ui,-apple-system,sans-serif;}
-a{color:var(--accent);text-decoration:none;}
-a:hover{text-decoration:underline;}
-header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;
-  flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--line);}
-.brand{font-weight:700;color:var(--ink);font-size:1.02rem;}
-.brand span{color:var(--muted);font-weight:400;}
-header.top nav{display:flex;gap:18px;font-size:.92rem;}
-main{max-width:780px;margin:0 auto;padding:30px 20px 60px;}
-h1{font-size:1.7rem;line-height:1.25;margin:.2em 0 .5em;}
-h2{font-size:1.25rem;margin-top:1.6em;}
-h3{font-size:1.05rem;margin-top:1.4em;}
-.crumb{color:var(--muted);font-size:.85rem;letter-spacing:.4px;text-transform:uppercase;margin:0;}
-.lede{font-size:1.08rem;}
-.muted{color:var(--muted);}
-code{background:#222833;border-radius:5px;padding:1px 5px;font-size:.86em;
-     font-family:ui-monospace,Menlo,monospace;}
-pre{background:var(--card);border:1px solid var(--line);border-radius:12px;
-    padding:14px 16px;overflow-x:auto;line-height:1.45;}
-pre code{background:none;padding:0;font-size:.84rem;}
-blockquote{margin:1.2em 0;padding:2px 18px;border-left:3px solid var(--line);color:var(--muted);}
-blockquote.think{border-left:3px solid var(--think);background:rgba(198,120,221,.07);
-  border-radius:0 10px 10px 0;color:var(--ink);padding:10px 18px;}
-.think-label{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.8px;
-  text-transform:uppercase;color:var(--think);margin-right:8px;}
-table{border-collapse:collapse;margin:1.1em 0;font-size:.92rem;display:block;overflow-x:auto;}
-th,td{border:1px solid var(--line);padding:6px 11px;text-align:left;}
-th{background:var(--card);}
-.glance{background:var(--card);border:1px solid var(--line);border-radius:14px;
-  padding:6px 18px 12px;margin:1.2em 0;}
-.glance summary{cursor:pointer;font-weight:600;padding:8px 0;}
-.hands-on{background:var(--card);border:1px solid var(--line);border-radius:14px;
-  padding:14px 18px;margin:1.2em 0;}
-.hands-on h2{margin:0 0 10px;font-size:1rem;}
-.chip{display:inline-block;background:#222833;border:1px solid var(--line);
-  border-radius:999px;padding:6px 14px;margin:3px 6px 3px 0;font-size:.9rem;color:var(--ink);}
-.chip:hover{border-color:var(--accent);text-decoration:none;}
-.note{background:rgba(110,168,254,.08);border:1px solid rgba(110,168,254,.3);
-  border-radius:12px;padding:10px 16px;margin:1.2em 0;font-size:.93rem;}
-.pending{background:var(--card);border:1px dashed var(--line);border-radius:12px;
-  padding:14px 18px;margin:1.4em 0;color:var(--muted);}
-.phase{background:var(--card);border:1px solid var(--line);border-radius:14px;
-  padding:16px 20px;margin:18px 0;}
-.phase h2{margin:0 0 2px;font-size:1.1rem;}
-.phase p{margin:.2em 0 .7em;font-size:.9rem;}
-ul.units{list-style:none;margin:0;padding:0;}
-ul.units li{display:flex;justify-content:space-between;gap:10px;align-items:baseline;
-  padding:7px 0;border-top:1px solid var(--line);flex-wrap:wrap;}
-ul.units a{color:var(--ink);}
-.unum{display:inline-block;min-width:1.6em;color:var(--muted);font-variant-numeric:tabular-nums;}
-.badges{display:flex;gap:6px;}
-.badge{font-size:.68rem;letter-spacing:.5px;text-transform:uppercase;border-radius:999px;
-  padding:2px 9px;border:1px solid var(--line);color:var(--muted);}
-.badge.lesson{color:var(--good);border-color:rgba(46,204,113,.4);}
-.badge.widget{color:var(--accent);border-color:rgba(110,168,254,.4);}
-.badge.quiz{color:var(--warn);border-color:rgba(240,168,104,.4);}
-.badge.exercise{color:var(--think);border-color:rgba(198,120,221,.4);}
-footer.pager{max-width:780px;margin:0 auto;padding:0 20px 50px;display:flex;
-  justify-content:space-between;gap:14px;flex-wrap:wrap;}
-footer.pager a{font-size:.92rem;}
-footer.pager .next{margin-left:auto;}
-article.lesson{margin-top:1.6em;border-top:1px solid var(--line);padding-top:.4em;}
-"""
+    body, toc = anchor_headings(md_to_html(about))
+    write_page("about.html", "About this course",
+               '<div class="masthead"><p class="crumb">Orientation</p></div>' + body,
+               pager_link("next", "index.html", "Browse the units"),
+               rail_html(toc))
 
 
 def main() -> None:
     SITE.mkdir(exist_ok=True)
     curriculum = (LEARNING / "curriculum.md").read_text()
-    (SITE / "style.css").write_text(STYLE)
+    (SITE / "style.css").write_text(style_source.stylesheet())
+    (SITE / "course.js").write_text(COURSE_JS)
     build_index()
     build_unit_pages(curriculum)
     build_document_pages(curriculum)
