@@ -15,87 +15,86 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rhyme-Score Sandbox</title>
-<link rel="stylesheet" href="../../site/style.css">
-<script>(function(){try{var t=localStorage.getItem("rs-theme");
-if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<link rel="stylesheet" href="../../theme.css">
 <style>
-  /* Palette, faces, and type ramp come from ../../site/style.css; only this
-     widget's own mechanics live here, expressed in those tokens. */
-  :root{--good:var(--hue-1);--mid:var(--hue-2);--bad:var(--hue-5);
-        --accent:var(--hue-0);--gap:var(--hue-5);}
+  /* Native to curricle (spike: one-stop-shop). The chrome — palette, type,
+     panels, focus rings, both themes — comes from the served theme.css;
+     nothing below names a chrome color. What stays local is layout plus the
+     widget's DATA ink: the nucleus highlight, the gap cells (an alignment
+     op), and the score bar's lo→mid→hi series are what the receipts are
+     about, so they keep rhyme-schemer's values as local token pairs, tuned
+     per theme. The rhyme/no-rhyme verdict is right/wrong, so it moved onto
+     the theme's good/warn pairs instead of staying local. */
+  :root { --nuc:#2a78d6; --gap:#e34948;
+          --score-lo:#e34948; --score-mid:#eda100; --score-hi:#1baf7a; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme=light]) {
+      --nuc:#3987e5; --gap:#e66767;
+      --score-lo:#e66767; --score-mid:#c98500; --score-hi:#199e70; }
+  }
+  :root[data-theme=dark] {
+    --nuc:#3987e5; --gap:#e66767;
+    --score-lo:#e66767; --score-mid:#c98500; --score-hi:#199e70; }
+
   .wrap{max-width:58rem;margin:0 auto;padding:2rem 1.25rem 4rem;}
-  h1{font-size:1.65rem;margin:0 0 .2rem;letter-spacing:-.022em;}
-  .sub{color:var(--ink-muted);margin:0 0 1.6rem;font-size:1.02rem;line-height:1.5;}
+  h1{font-size:1.65rem;margin:14px 0 .2rem;letter-spacing:-.022em;}
+  .sub{color:var(--muted);margin:0 0 1.6rem;font-size:1.02rem;line-height:1.5;}
   .inputs{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.1rem;}
-  .inputs label{display:block;font-family:var(--sans);font-size:.72rem;
-                font-weight:600;letter-spacing:.04em;color:var(--ink-muted);
+  .inputs label{display:block;font-size:.72rem;
+                font-weight:600;letter-spacing:.04em;color:var(--muted);
                 margin-bottom:.3rem;text-transform:uppercase;}
-  .inputs input{background:var(--surface);border:1px solid var(--rule-strong);
-                border-radius:var(--radius-sm);color:var(--ink);
-                font-family:var(--mono);font-size:.95rem;padding:.55rem .75rem;width:15rem;}
+  .inputs input{background:var(--bg);border:1px solid var(--line);
+                border-radius:10px;color:var(--ink);
+                font-family:ui-monospace,Menlo,Consolas,monospace;
+                font-size:.95rem;padding:.55rem .75rem;width:15rem;}
   .inputs input:focus{outline:none;border-color:var(--accent);
                 box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent);}
-  .card{background:var(--surface-raised);border:1px solid var(--rule);
-        border-radius:var(--radius);padding:1.1rem 1.2rem;margin-bottom:1rem;}
+  .card{padding:1.1rem 1.2rem;margin-bottom:1rem;}
   .score-row{display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;}
-  .big{font-family:var(--mono);font-size:2rem;font-weight:700;
+  .big{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:2rem;font-weight:700;
        font-variant-numeric:tabular-nums lining-nums;color:var(--ink);
        letter-spacing:-.02em;}
-  .verdict{font-family:var(--sans);font-size:.8rem;font-weight:700;
+  .verdict{font-size:.8rem;font-weight:700;
            letter-spacing:.04em;padding:.2rem .7rem;border-radius:999px;}
-  .v-yes{background:color-mix(in srgb,var(--good) 15%,var(--surface));
-         color:color-mix(in srgb,var(--good) 60%,var(--ink));}
-  .v-no{background:color-mix(in srgb,var(--bad) 15%,var(--surface));
-        color:color-mix(in srgb,var(--bad) 60%,var(--ink));}
-  .bar{height:.55rem;border-radius:999px;background:var(--surface-sunken);
+  .v-yes{background:var(--good-soft);color:var(--good-text);}
+  .v-no{background:var(--warn-soft);color:var(--warn-text);}
+  .bar{height:.55rem;border-radius:999px;background:var(--chip);
        overflow:hidden;margin:.7rem 0 .3rem;position:relative;
-       border:1px solid var(--rule);}
+       border:1px solid var(--line);}
   .bar>i{display:block;height:100%;
-         background:linear-gradient(90deg,var(--bad),var(--mid),var(--good));}
+         background:linear-gradient(90deg,var(--score-lo),var(--score-mid),var(--score-hi));}
   .thresh{position:absolute;top:-3px;bottom:-3px;width:2px;
           background:var(--ink);opacity:.55;}
-  .muted{color:var(--ink-muted);font-size:.92rem;}
+  .muted{color:var(--muted);font-size:.92rem;}
   .tails{display:flex;gap:1.4rem;flex-wrap:wrap;font-size:.98rem;}
-  .tails b{font-family:var(--sans);font-size:.7rem;font-weight:700;
+  .tails b{font-size:.7rem;font-weight:700;
            text-transform:uppercase;letter-spacing:.1em;
-           color:var(--ink-faint);display:block;margin-bottom:.25rem;}
-  .syl{display:inline-block;background:var(--surface-sunken);
-       border:1px solid var(--rule);border-radius:var(--radius-sm);
+           color:var(--muted);display:block;margin-bottom:.25rem;}
+  .syl{display:inline-block;background:var(--chip);
+       border:1px solid var(--line);border-radius:10px;
        padding:.2rem .5rem;margin:.15rem .2rem .15rem 0;
-       font-family:var(--mono);font-size:.85rem;}
-  .syl .on{color:var(--ink-faint);text-decoration:line-through;}
-  .syl .nu{color:var(--accent);font-weight:700;}
-  .syl .st{color:var(--ink-muted);font-size:.7rem;vertical-align:super;}
-  table{border-collapse:collapse;width:100%;font-size:.9rem;display:table;margin:0;}
-  th{font-family:var(--sans);font-size:.66rem;font-weight:700;
-     text-transform:uppercase;letter-spacing:.09em;color:var(--ink-faint);
-     text-align:left;border-bottom:1px solid var(--rule-strong);
+       font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;}
+  .syl .on{color:var(--muted);text-decoration:line-through;}
+  .syl .nu{color:var(--nuc);font-weight:700;}
+  .syl .st{color:var(--muted);font-size:.7rem;vertical-align:super;}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;margin:0;}
+  th{font-size:.66rem;font-weight:700;
+     text-transform:uppercase;letter-spacing:.09em;color:var(--muted);
+     text-align:left;border-bottom:1px solid var(--line);
      padding:.25rem .65rem .4rem 0;white-space:nowrap;}
-  td{padding:.45rem .65rem .45rem 0;border-bottom:1px solid var(--rule);
+  td{padding:.45rem .65rem .45rem 0;border-bottom:1px solid var(--line);
      vertical-align:top;font-variant-numeric:tabular-nums lining-nums;}
-  tbody tr:hover{background:transparent;}
   tr:last-child td{border-bottom:none;}
   .gapcell{color:var(--gap);font-style:italic;}
   .colscore{font-weight:700;color:var(--ink);}
-  .hint{color:var(--ink-muted);font-size:.92rem;margin-top:.7rem;line-height:1.5;}
+  .hint{color:var(--muted);font-size:.92rem;margin-top:.7rem;line-height:1.5;}
 </style>
 </head>
 <body>
-<div class="toolbar"><div class="toolbar-in">
-    <a class="back" href="../../site/unit-07.html">Unit 7</a>
-    <a class="brand" href="../../site/index.html">rhyme-schemer <span>&middot; the course</span></a>
-    <button class="theme" type="button" id="theme-toggle"
-      aria-label="Switch between light and dark">
-      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/>
-        <path d="M12 2.2v2M12 19.8v2M2.2 12h2M19.8 12h2M4.9 4.9l1.4 1.4
-        M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
-      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.2 8.2 0 1 0 10.5 10.5z"/></svg>
-    </button>
-</div></div>
 <div class="wrap">
+  <p class="eyebrow"><a href="../../index.html">← course hub</a>
+  <span class="sep">·</span> <a href="../../unit/u7.html">unit 07</a>
+  <span class="sep">·</span> rhyme-score sandbox</p>
   <h1>Rhyme-Score Sandbox</h1>
   <p class="sub">Two words in, every receipt out: tails, alignment, per-column blend, final score —
      the numbers are exactly what <code>rhyme_score()</code> computes in <code>rhyme.py</code>.</p>
@@ -108,7 +107,7 @@ if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}}
     <datalist id="lex"></datalist>
   </div>
 
-  <div class="card">
+  <div class="card panel">
     <div class="score-row">
       <span class="big" id="score">—</span>
       <span class="verdict" id="verdict" hidden></span>
@@ -118,16 +117,16 @@ if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}}
     <div class="muted">threshold 0.75 — the tick on the bar. <span id="band"></span></div>
   </div>
 
-  <div class="card">
+  <div class="card panel">
     <div class="tails">
       <div><b>tail A <span class="muted">(from the last stress)</span></b><span id="ta"></span></div>
       <div><b>tail B</b><span id="tb"></span></div>
     </div>
     <div class="hint">Onsets are <span style="text-decoration:line-through">struck</span> because the kernel
-      ignores them — that’s what makes <i>cat/hat</i> rhyme. The <span style="color:var(--accent);font-weight:700">nucleus</span> dominates; the coda is texture (weight 0.35 vs 1.0).</div>
+      ignores them — that’s what makes <i>cat/hat</i> rhyme. The <span style="color:var(--nuc);font-weight:700">nucleus</span> dominates; the coda is texture (weight 0.35 vs 1.0).</div>
   </div>
 
-  <div class="card">
+  <div class="card panel">
     <table id="align"><thead><tr>
       <th>column</th><th>A</th><th>B</th><th>nucleus sim</th><th>coda sim</th><th>column score</th>
     </tr></thead><tbody id="cols"></tbody></table>
@@ -345,6 +344,5 @@ $("wa").addEventListener("input",render);
 $("wb").addEventListener("input",render);
 render();
 </script>
-<script src="../../site/course.js"></script>
 </body>
 </html>
