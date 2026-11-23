@@ -5,3 +5,6 @@ venv/
 .pytest_cache/
 *.egg-info/
 .DS_Store
+
+# Dev-only download cache (raw upstream data is never committed)
+learning/audits/.cache/

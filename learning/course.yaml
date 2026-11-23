@@ -297,6 +297,92 @@ resources:
     it already worked out: per-feature **salience weights**, separate
     vowel/consonant treatment, and expansions/compressions for diphthongs —
     several questions the repo currently answers ad hoc.
+- key: hillenbrand
+  tier: 2
+  group: "Vowel perception & Bark formant space"
+  title: "Acoustic characteristics of American English vowels"
+  cite: "Hillenbrand, Getty, Clark & Wheeler · JASA 97(5) · 1995"
+  formats: [PAPER]
+  verified_at: "2026-11"
+  links:
+  - ["JASA (doi:10.1121/1.411872)", "https://doi.org/10.1121/1.411872"]
+  - ["Data mirror (MIT, hosted with Hillenbrand's permission)", "https://github.com/santiagobarreda/hillenbrand_et_al_1995"]
+  - ["Hillenbrand & Nearey 1999, Effects of formant contour (JASA 105(6))", "https://doi.org/10.1121/1.424676"]
+  - ["Hillenbrand 2003, American English: Southern Michigan (JIPA 33(1))", "https://doi.org/10.1017/S0025100303001221"]
+  why_this_one: >-
+    The standard American English vowel formant dataset (45 men, 48 women,
+    46 children; 12 vowels in /hVd/ words; F1–F3 at the steady state and at
+    20%, 50% and 80% of the vowel), and the source of `learning/audits/`'s
+    Bark arm. The quadrilateral in `features.py` is a diagram of tongue
+    position; this is what the vowels measure as sound.
+  covers: >-
+    Hillenbrand & Nearey (1999) resynthesized these vowels with their
+    formants frozen at the steady state and found them identified less
+    accurately than with their original contours; a classifier using
+    formants at 20% and 80% of duration accounted for much of listeners'
+    labeling. That is why the Bark arm compares vowels at two time points.
+    Hillenbrand (2003) describes the talkers' southern Michigan dialect,
+    which the metric inherits (tuning-ledger item 13).
+- key: vowelpercept
+  tier: 2
+  group: "Vowel perception & Bark formant space"
+  title: "Perceptual vowel space: formants, Bark and whole spectra"
+  cite: "Pols et al. 1969 · Bladon & Lindblom 1981 · Kewley-Port & Atal 1989 · Traunmüller 1990 · all JASA"
+  formats: [PAPER]
+  verified_at: "2026-11"
+  links:
+  - ["Pols, van der Kamp & Plomp 1969, Perceptual and physical space of vowel sounds (JASA 46(2B))", "https://doi.org/10.1121/1.1911711"]
+  - ["Bladon & Lindblom 1981, Modeling the judgment of vowel quality differences (JASA 69(5))", "https://doi.org/10.1121/1.385824"]
+  - ["Kewley-Port & Atal 1989, Perceptual differences between vowels located in a limited phonetic space (JASA 85(4))", "https://doi.org/10.1121/1.397962"]
+  - ["Traunmüller 1990, Analytical expressions for the tonotopic sensory scale (JASA 88(1))", "https://doi.org/10.1121/1.399849"]
+  why_this_one: >-
+    The case for Bark-scaled formant space as the perceptual alternative to
+    the quadrilateral. Pols et al. founded the comparison of how listeners
+    group vowels (multidimensional scaling of similarity judgments) with
+    how they measure. Kewley-Port & Atal found Euclidean F1/F2 distance in
+    Bark the best model of listeners' dissimilarity judgments. Traunmüller
+    supplies the Hz-to-Bark formula the audit uses.
+  covers: >-
+    Kewley-Port & Atal also found that a consonant frame didn't change the
+    judgments, but spreading the vowels across different categories let
+    phonetic identity shape them: one candidate reason rappers avoid EY~IH
+    although the two are acoustically close (ledger item 13). Bladon &
+    Lindblom is the main alternative to formant points: distance between
+    whole auditory spectra, with critical bands and masking built in.
+- key: coraal
+  tier: 2
+  group: "Vowel perception & Bark formant space"
+  title: "CORAAL: The Corpus of Regional African American Language"
+  cite: "Kendall & Farrington · version 2023.06 · CC BY-NC-SA 4.0"
+  formats: [TOOL]
+  cost: "free"
+  free: true
+  verified_at: "2026-11"
+  links:
+  - ["CORAAL (doi:10.7264/1ad5-6t35)", "https://doi.org/10.7264/1ad5-6t35"]
+  - ["DC 2016 Stella Passage supplement (formants included)", "https://oraal.github.io/dcb-stella"]
+  why_this_one: >-
+    Hip-hop's main dialect is African American English, and this is the
+    openly licensed corpus of it: sociolinguistic interviews from several
+    communities (Washington DC, Rochester, Princeville, Atlanta and more),
+    with audio, transcripts and, for several components, forced
+    alignments. The DC speakers' read-passage supplement ships formant
+    measurements already made, and is the AAE reference data in the Bark
+    audit's proof of concept (tuning-ledger item 13f).
+- key: adank
+  tier: 2
+  group: "Vowel perception & Bark formant space"
+  title: "A comparison of vowel normalization procedures for language variation research"
+  cite: "Adank, Smits & van Hout · JASA 116(5) · 2004"
+  formats: [PAPER]
+  verified_at: "2026-11"
+  links:
+  - ["JASA (doi:10.1121/1.1795335)", "https://doi.org/10.1121/1.1795335"]
+  why_this_one: >-
+    On Dutch talkers, procedures that normalize each formant using a
+    talker's whole vowel set (Lobanov's z-scoring is one) best preserved
+    phonemic information. Context for the Bark audit's open puzzle:
+    Lobanov normalization *lowered* agreement with rap rhyme practice.
 - key: mcflow
   tier: 2
   group: "Evaluation corpora & the beat grid"
