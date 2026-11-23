@@ -49,6 +49,7 @@ from statistics import mean
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from audit_feature_space import _ranks, rank_report, spearman  # noqa: E402
+from coraal_dcb_stella_bark import MEANS as AAE_MEANS  # noqa: E402
 from hillenbrand_1995_bark import CONDITIONS  # noqa: E402
 from hirjee_brown_2009 import VOWEL_LOGODDS  # noqa: E402
 
@@ -147,5 +148,83 @@ def main() -> None:
     )
 
 
+
+# Pairs whose ranks the AAE arm reports. The first group tests the dialect
+# finding and the item-13 suspects on vowels Hillenbrand also covers; the
+# second involves AY and OY, which only the AAE data has.
+AAE_SHARED_PAIRS = [
+    ("AE", "EH"), ("EY", "IH"), ("EH", "IH"), ("AA", "AO"), ("AA", "AH"),
+    ("AH", "ER"), ("AA", "ER"), ("AO", "ER"), ("ER", "OW"), ("IH", "IY"),
+]
+AAE_DIPHTHONG_PAIRS = [
+    ("AA", "AY"), ("AE", "AY"), ("AH", "AY"), ("AY", "EH"), ("AY", "EY"),
+    ("AY", "IY"), ("AY", "OY"), ("AO", "OY"), ("OW", "OY"),
+]
+
+
+def aae_arm() -> None:
+    """Proof of concept: the same comparison with AAE reference data.
+
+    ``coraal_dcb_stella_bark.py`` holds Bark means from 16 Washington DC men
+    reading a short passage (CORAAL; see ``derive_coraal_stella_bark.py``).
+    It covers 13 vowels: no AW (not in the passage) and no UH (one token).
+    Two comparisons, because the vowel sets differ:
+
+    1. The 11 vowels all three spaces share (55 pairs): hand vs Hillenbrand
+       vs AAE, like for like. Ledger item 13d predicts the AAE data should
+       not make AE~EH the closest pair, as Hillenbrand's Michigan data does.
+    2. All 13 AAE vowels (78 pairs), including AY and OY, which Hillenbrand
+       lacks: hand vs AAE only.
+    """
+    print("\n\n==== AAE arm (proof of concept): CORAAL DC read passage, men ====")
+    corpus_of = lambda ps: [VOWEL_LOGODDS[a, b] for a, b in ps]  # noqa: E731
+    hand_of = lambda ps: [vowel_similarity(a, b) for a, b in ps]  # noqa: E731
+    aae_of = lambda ps: [-formant_distance(AAE_MEANS, a, b) for a, b in ps]  # noqa: E731
+
+    shared = sorted(set(AAE_MEANS) & set(CONDITIONS[BEST]))
+    pairs = list(combinations(shared, 2))
+    corpus, hand, aae = corpus_of(pairs), hand_of(pairs), aae_of(pairs)
+    hill = [-formant_distance(CONDITIONS[BEST], a, b) for a, b in pairs]
+    print(f"\n{len(pairs)} pairs over the {len(shared)} vowels all three share:")
+    print(f"  {' '.join(shared)}")
+    print(f"  {'hand-placed quadrilateral':<44} rho = {spearman(hand, corpus):+.3f}")
+    print(f"  {'Hillenbrand ' + LABELS[BEST]:<44} rho = {spearman(hill, corpus):+.3f}")
+    print(f"  {'AAE (CORAAL) Bark F1/F2 @20%+80%, men':<44} rho = {spearman(aae, corpus):+.3f}")
+    ranks = [_ranks(hand), _ranks(hill), _ranks(aae), _ranks(corpus)]
+    print(f"\n  rank of {len(pairs)} (1 = most similar):")
+    print(f"  {'pair':<7} {'hand':>4} {'Hill':>4} {'AAE':>4}  {'H&B':>4}  log-odds")
+    for a, b in AAE_SHARED_PAIRS:
+        i = pairs.index((a, b))
+        row = " ".join(f"{r[i]:>4.0f}" for r in ranks[:3])
+        print(f"  {a + '~' + b:<7} {row}  {ranks[3][i]:>4.0f}  {corpus[i]:+.1f}")
+
+    full = sorted(AAE_MEANS)
+    pairs = list(combinations(full, 2))
+    corpus, hand, aae = corpus_of(pairs), hand_of(pairs), aae_of(pairs)
+    print(f"\n{len(pairs)} pairs over all {len(full)} AAE vowels (adds AY, OY):")
+    print(f"  {'hand-placed quadrilateral':<44} rho = {spearman(hand, corpus):+.3f}")
+    print(f"  {'AAE (CORAAL) Bark F1/F2 @20%+80%, men':<44} rho = {spearman(aae, corpus):+.3f}")
+    ranks = [_ranks(hand), _ranks(aae), _ranks(corpus)]
+    print(f"\n  rank of {len(pairs)} (1 = most similar):")
+    print(f"  {'pair':<7} {'hand':>4} {'AAE':>4}  {'H&B':>4}  log-odds")
+    for a, b in AAE_DIPHTHONG_PAIRS:
+        i = pairs.index((a, b))
+        print(
+            f"  {a + '~' + b:<7} {ranks[0][i]:>4.0f} {ranks[1][i]:>4.0f}  "
+            f"{ranks[2][i]:>4.0f}  {corpus[i]:+.1f}"
+        )
+    rank_report(
+        "AAE (CORAAL) Bark vs Hirjee & Brown 2009, 13 vowels", pairs, aae, corpus
+    )
+    diffs = bootstrap_difference(hand, aae, corpus)
+    print(
+        "\nbootstrap over pairs, rho(AAE) - rho(hand), 13 vowels:\n"
+        f"  median {diffs[len(diffs) // 2]:+.3f}, 95% CI "
+        f"[{diffs[int(0.025 * len(diffs))]:+.3f}, {diffs[int(0.975 * len(diffs))]:+.3f}]"
+        "  (optimistic: pairs share vowels)"
+    )
+
+
 if __name__ == "__main__":
     main()
+    aae_arm()

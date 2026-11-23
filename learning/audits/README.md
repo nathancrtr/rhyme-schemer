@@ -28,6 +28,12 @@ become *conditions* in Unit 14's evaluation sweep.
   each step.
 - `hillenbrand_1995_bark.py` — the output of the script above: per-vowel
   Bark means for each audit condition. Generated; don't edit it by hand.
+- `derive_coraal_stella_bark.py` — dev-only, the same job for African
+  American English: Bark means from the CORAAL Washington DC speakers'
+  read passage, whose formants the CORAAL team released already measured.
+  Its docstring lists each filtering step.
+- `coraal_dcb_stella_bark.py` — that script's output. Generated, and
+  licensed **CC BY-NC-SA 4.0**, inherited from CORAAL (see provenance).
 
 ## Findings (2026-08-07)
 
@@ -78,6 +84,32 @@ vowel log-odds, all on the same 66 pairs of 12 vowels:
   southern Michigan dialect.
 - **Lobanov normalization hurt.** Cause unknown.
 
+## Findings: AAE reference data, proof of concept (2026-11-22)
+
+The dialect finding above says the reference data's dialect gets built
+into the metric. This swaps Hillenbrand's southern Michigan talkers for
+16 Washington DC men from CORAAL reading a short passage. It is a proof of
+concept: one passage, and AY, OY and ER rest on one word each ("five",
+"toy", "her"). Full statement in ledger item 13f.
+
+| Space | 11 shared vowels (55 pairs) | 13 AAE vowels (78 pairs) |
+|---|---|---|
+| Hand-placed quadrilateral | +0.571 | +0.506 |
+| Hillenbrand Bark F1/F2 at 20% and 80%, men | +0.678 | — |
+| AAE (CORAAL) Bark F1/F2 at 20% and 80%, men | +0.674 | +0.581 |
+
+- **On the shared vowels, AAE and Michigan reference data tie.** Both
+  beat the hand space by about the same margin.
+- **The dialect signal moves the predicted way, partly.** AE~EH drops
+  from Hillenbrand's closest pair to 5th of 55 (corpus 18th). AA~AO
+  (corpus 1st) rises from 9th to 2nd and AH~ER (corpus 3rd) from 8th to
+  4th. EY~IH stays 1st, so that bias isn't a dialect effect.
+- **AY and OY get their first formant data.** AY~EY, which the hand space
+  ranks 7th of 78 and the corpus 76th, falls to 38th. But OY lands far
+  from AY and AO (57th and 44th; corpus 16th and 7th), on one word.
+- On 13 vowels the AAE space beats the hand space by a bootstrap median
+  of +0.074, 95% CI [−0.119, +0.284]. Not established.
+
 ## Provenance notes
 
 - A July 2026 review claim that Katz 2015 / Kawahara 2007 could audit the
@@ -115,3 +147,20 @@ vowel log-odds, all on the same 66 pairs of 12 vowels:
   most (38 of 45 men's tokens survive). F3 is hardest to track exactly
   where it matters most, so the F3 rows rest on less ER data than the
   others.
+- **CORAAL** (the Corpus of Regional African American Language). The AAE
+  proof of concept uses the CORAAL:DCB Stella Passage supplement
+  (Farrington, Quartey, Tacata & Kendall 2023, version 2023.03,
+  https://oraal.github.io/dcb-stella), which ships FAVE-extract formant
+  measurements on Montreal Forced Aligner boundaries, plus the DCB
+  speaker metadata (Kendall et al. 2018, version 2018.10.06). Main corpus:
+  Kendall & Farrington (2023), version 2023.06,
+  https://doi.org/10.7264/1ad5-6t35. Both downloads are pinned by SHA-256.
+- **License.** CORAAL is CC BY-NC-SA 4.0, and its user guide says derived
+  versions "must be distributed using the same license". So
+  `coraal_dcb_stella_bark.py` is CC BY-NC-SA 4.0, stated in its header.
+  It is the only file in the repo derived from CORAAL data.
+- **What the proof of concept can't say.** Read speech from one city:
+  AAE varies by region, and a read passage isn't conversation or a
+  performed verse. The measurements are automatic (alignment plus
+  formant tracker), where Hillenbrand checked his by hand. ER's label
+  comes from the dictionary, so rhotic and non-rhotic "her" are pooled.
