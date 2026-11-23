@@ -349,6 +349,26 @@ resources:
     although the two are acoustically close (ledger item 13). Bladon &
     Lindblom is the main alternative to formant points: distance between
     whole auditory spectra, with critical bands and masking built in.
+- key: coraal
+  tier: 2
+  group: "Vowel perception & Bark formant space"
+  title: "CORAAL: The Corpus of Regional African American Language"
+  cite: "Kendall & Farrington · version 2023.06 · CC BY-NC-SA 4.0"
+  formats: [TOOL]
+  cost: "free"
+  free: true
+  verified_at: "2026-11"
+  links:
+  - ["CORAAL (doi:10.7264/1ad5-6t35)", "https://doi.org/10.7264/1ad5-6t35"]
+  - ["DC 2016 Stella Passage supplement (formants included)", "https://oraal.github.io/dcb-stella"]
+  why_this_one: >-
+    Hip-hop's main dialect is African American English, and this is the
+    openly licensed corpus of it: sociolinguistic interviews from several
+    communities (Washington DC, Rochester, Princeville, Atlanta and more),
+    with audio, transcripts and, for several components, forced
+    alignments. The DC speakers' read-passage supplement ships formant
+    measurements already made, and is the AAE reference data in the Bark
+    audit's proof of concept (tuning-ledger item 13f).
 - key: adank
   tier: 2
   group: "Vowel perception & Bark formant space"

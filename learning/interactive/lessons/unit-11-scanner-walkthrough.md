@@ -475,13 +475,39 @@ here already; the review's contribution is that they have names.)*
     CMUdict dialect caveat in acoustic form: whatever dialect the
     reference data comes from gets built into the metric, and the
     genre's main dialect is AAE, not Inland North. The honest fix is
-    AAE formant data, which nobody has sourced yet.
+    AAE formant data, which nobody has sourced yet. *(Sourced the same
+    day: CORAAL; proof of concept at (f).)*
     (e) **Lobanov normalization hurt; cause unknown.** One untested
     guess: z-scoring every formant to unit variance overrides the
     relative weighting the Bark scale sets up. Worth knowing alongside
     it: Adank et al. (2004) found procedures like Lobanov's among the
     best at preserving phonemic *categories*, which is a different job
     from ordering cross-category similarity. Open.
+    (f) **AAE reference data, proof of concept** (2026-11-22). Source:
+    CORAAL, the Corpus of Regional African American Language (Kendall &
+    Farrington 2023, CC BY-NC-SA 4.0), specifically its DC 2016 speakers
+    reading the "Please Call Stella" passage, which the CORAAL team
+    released with formants already measured at 20% and 80% (16 adult
+    men; `learning/audits/derive_coraal_stella_bark.py`). It covers 13
+    vowels: no AW (absent from the passage) and no UH (one token). AY,
+    OY and ER each rest on one word ("five", "toy", "her"). Results: on
+    the 11 vowels all three spaces share, AAE ρ = +0.674 vs
+    Hillenbrand's +0.678 (hand +0.571), a tie. (d)'s prediction holds
+    only partly: AE~EH falls from 1st to 5th of 55 (corpus 18th), while
+    AA~AO (corpus 1st) rises 9th → 2nd and AH~ER (corpus 3rd) 8th → 4th.
+    EY~IH stays 1st, so (b) isn't a dialect effect. AY and OY get their
+    first formant data: AY~EY, item 11a's worst case (hand 7th of 78,
+    corpus 76th), falls to 38th. In these means AY's F1 barely moves
+    between 20% and 80% (6.36 → 6.27 Bark), which fits AAE's weakened
+    /aɪ/ glide, though "five" is a single word before a voiced consonant;
+    but OY sits far from AY and AO (57th and 44th; corpus 16th
+    and 7th). Over all 13 vowels AAE ρ = +0.581 vs hand +0.506,
+    bootstrap median +0.074, 95% CI [−0.119, +0.284]: not established.
+    What this can't say: one city (AAE varies regionally), read speech
+    (not conversation, not a performed verse), automatic measurement,
+    and dictionary ER labels that pool rhotic and non-rhotic "her". The
+    next step is the CORAAL DC interviews, which have all 15 vowels and
+    many tokens of each.
     For the sweep: the Bark space is a Unit 14 condition, never the
     default, and the men-only choice behind its best row is a decision
     still to be made, not a finding. It can't run yet. The kernel scores

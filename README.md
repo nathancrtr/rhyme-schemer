@@ -202,8 +202,12 @@ Vowel-space audits run (`learning/audits/`, no package changes):
   +0.56), though not by a margin the data can establish, and it brings
   blind spots of its own, including the talkers' Michigan dialect. It
   isn't buildable as a full vowel space yet: no published table gives
-  onset and offset formants for AY, AW and OY. Findings are tuning-ledger
-  items 11–13.
+  onset and offset formants for AY, AW and OY. A proof of concept swaps in
+  African American English reference data from
+  [CORAAL](https://doi.org/10.7264/1ad5-6t35)'s Washington DC read
+  passage: it ties the Michigan data on shared vowels, partly undoes the
+  dialect artifact, and gives AY and OY their first measurements.
+  Findings are tuning-ledger items 11–13.
 
 Next up: **evaluation** (Unit 14). Ground truth comes corpora-first —
 [MCFlow](https://emusicology.org/article/id/4737/) (rap transcriptions with
