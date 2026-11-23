@@ -46,6 +46,12 @@ from pathlib import Path
 # reordered file fail loudly instead of silently scoring the wrong column.
 WANTED_SPINES = ("**lyrics", "**break", "**rhyme", "**stress")
 
+# ``**ipa`` is the corpus's transcription of how each syllable was actually
+# *pronounced* -- the segmental counterpart of ``**stress``. Gold conversion
+# does not need it, so a file without it still converts; the tool that does
+# need it (``mcflow_performed_eval.py``) checks for itself.
+OPTIONAL_SPINES = ("**ipa",)
+
 # A rhyme token is an optional opener, a letter, an optional closer.
 _RHYME_RE = re.compile(r"^(?P<open>\()?(?P<letter>[A-Za-z])(?P<close>[)\]])?$")
 
@@ -80,6 +86,11 @@ class Word:
     # Per-syllable performed stress, in order -- MCFlow's observation of
     # where the beat actually landed, which is what CMUdict cannot say.
     stresses: list[int] = field(default_factory=list)
+    # Raw ``**ipa`` cells, one per syllable, in order: the performed
+    # pronunciation. Empty if the file has no ``**ipa`` spine. Compare its
+    # length with ``stresses`` before pairing the two -- a syllable whose
+    # stress cell is neither 0 nor 1 appears here but not there.
+    ipa: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -180,7 +191,7 @@ def _spine_columns(header: str) -> dict[str, int]:
     """Map spine name -> column index from the exclusive interpretation line."""
     columns = {}
     for i, name in enumerate(header.rstrip("\n").split("\t")):
-        if name in WANTED_SPINES and name not in columns:
+        if name in WANTED_SPINES + OPTIONAL_SPINES and name not in columns:
             columns[name] = i
     missing = set(WANTED_SPINES) - set(columns)
     if missing:
@@ -201,12 +212,13 @@ def parse_file(path: Path) -> list[Section]:
     pending_stress = False
     pending_stresses: list[int] = []
     pending_rhymes: list[str] = []
+    pending_ipa: list[str] = []
     open_word = False  # previous syllable ended with "-", so the word continues
 
     def flush() -> None:
         """Emit the accumulated syllables as one word on the current line."""
         nonlocal pending_text, pending_classes, pending_stress, open_word
-        nonlocal pending_stresses, pending_rhymes
+        nonlocal pending_stresses, pending_rhymes, pending_ipa
         if pending_text and current and current.lines:
             # Each syllable carries its own continuation hyphens ("wel-",
             # "-come"); strip them per syllable before joining, or the seam
@@ -222,10 +234,12 @@ def parse_file(path: Path) -> list[Section]:
                                  index=len(line), classes=set(pending_classes),
                                  performed_stress=pending_stress,
                                  stresses=list(pending_stresses),
-                                 rhyme_tokens=list(pending_rhymes)))
+                                 rhyme_tokens=list(pending_rhymes),
+                                 ipa=list(pending_ipa)))
         pending_text, pending_classes, pending_stress = [], set(), False
         pending_stresses = []
         pending_rhymes = []
+        pending_ipa = []
         open_word = False
 
     for raw in path.read_text(encoding="utf-8").splitlines():
@@ -277,6 +291,8 @@ def parse_file(path: Path) -> list[Section]:
         if stress == "1":
             pending_stress = True
         pending_rhymes.append(rhyme)
+        if "**ipa" in columns:
+            pending_ipa.append(cells[columns["**ipa"]].strip())
         m = _RHYME_RE.match(rhyme)
         if m:
             pending_classes.add(m.group("letter").upper())
