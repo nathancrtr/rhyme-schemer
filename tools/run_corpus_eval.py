@@ -47,9 +47,17 @@ def _say(gold: Gold, pair) -> str:
     return f"{words(a)}{a} ~ {words(b)}{b}"
 
 
-def _prf(tp: int, fp: int, fn: int) -> tuple[float, float, float]:
+def _prf(tp: int, fp: int, found: int, fn: int) -> tuple[float, float, float]:
+    """Precision over predicted pairs, recall over gold pairs.
+
+    These count different things (see ``evaluate.Evaluation``): two
+    predictions that land on one gold pair are two correct claims but one
+    rhyme found. Recall therefore uses ``found``, the number of gold pairs
+    something matched -- not ``tp``, which counts predictions and would
+    credit the scanner once per redundant description of the same rhyme.
+    """
     precision = tp / (tp + fp) if tp + fp else 0.0
-    recall = tp / (tp + fn) if tp + fn else 0.0
+    recall = found / (found + fn) if found + fn else 0.0
     f1 = (2 * precision * recall / (precision + recall)
           if precision + recall else 0.0)
     return precision, recall, f1
@@ -104,6 +112,7 @@ def main() -> None:
                 pools[(level, ruler)]["tp"] += len(ev.true_positives)
                 pools[(level, ruler)]["fp"] += len(ev.false_positives)
                 pools[(level, ruler)]["fn"] += len(ev.false_negatives)
+                pools[(level, ruler)]["found"] += ev.gold_matched
                 if level == "class" and ruler == "anchor":
                     for pair in ev.false_positives[:3]:
                         false_positives.append(f"{path.stem}: {pair.label}")
@@ -117,13 +126,13 @@ def main() -> None:
           f"{gold_pairs_total} gold pairs   ({elapsed:.1f}s)")
     print(f"g2p guesses: {guessed}   still OOV: {oov}")
     print("="*66)
-    print(f"{'level':<8}{'ruler':<9}{'TP':>7}{'FP':>7}{'FN':>7}"
+    print(f"{'level':<8}{'ruler':<9}{'TP':>7}{'FP':>7}{'found':>7}{'FN':>7}"
           f"{'P':>8}{'R':>8}{'F1':>8}")
     print("-"*66)
     for (level, ruler), c in pools.items():
-        p, r, f1 = _prf(c["tp"], c["fp"], c["fn"])
-        print(f"{level:<8}{ruler:<9}{c['tp']:>7}{c['fp']:>7}{c['fn']:>7}"
-              f"{p:>8.3f}{r:>8.3f}{f1:>8.3f}")
+        p, r, f1 = _prf(c["tp"], c["fp"], c["found"], c["fn"])
+        print(f"{level:<8}{ruler:<9}{c['tp']:>7}{c['fp']:>7}{c['found']:>7}"
+              f"{c['fn']:>7}{p:>8.3f}{r:>8.3f}{f1:>8.3f}")
 
     print(f"\n--- sample FALSE POSITIVES (class/anchor) ---")
     for line in false_positives[:args.errors]:

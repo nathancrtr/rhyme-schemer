@@ -21,6 +21,11 @@ Two counts matter separately, because ``scan.py`` prices them differently:
 Also reported: how often ``scan.FUNCTION_WORDS`` are performed *stressed*,
 which is the assumption behind pricing them, and how often ``NEVER_ANCHOR``
 words are -- because if those carry real beats, that hard veto is wrong.
+
+One limit on how to read the output: only CMUdict's *first* variant is
+compared. Many function words list a reduced form first and a stressed form
+second ("and", "in"), so their promotion counts measure the dictionary's
+variant order as much as the performance.
 """
 
 from __future__ import annotations
@@ -29,11 +34,9 @@ import argparse
 from collections import Counter
 from pathlib import Path
 
-import pronouncing
-
 from rhyme_schemer.phonetics import Stress
 from rhyme_schemer.scan import FUNCTION_WORDS, NEVER_ANCHOR
-from rhyme_schemer.syllabify import syllabify
+from rhyme_schemer.syllabify import cmudict_variants, syllabify
 
 from mcflow_to_gold import parse_file
 
@@ -45,10 +48,10 @@ def citation_stresses(word: str) -> list[int] | None:
     spine -- the corpus records "did the beat land here", not a three-way
     prominence judgment.
     """
-    variants = pronouncing.phones_for_word(word.lower())
+    variants = cmudict_variants(word)
     if not variants:
         return None
-    syllables = syllabify(variants[0].split())
+    syllables = syllabify(variants[0])
     if not syllables:
         return None
     return [1 if s.stress == Stress.PRIMARY else 0 for s in syllables]
