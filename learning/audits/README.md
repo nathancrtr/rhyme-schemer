@@ -96,14 +96,21 @@ vowel log-odds, all on the same 66 pairs of 12 vowels:
   Hillenbrand's permission), pinned to one commit and checked by SHA-256.
   Only derived per-vowel means are committed, never the raw measurements or
   the recordings.
-- **Talker dialect.** Hillenbrand's talkers were mostly raised in southern
-  Michigan (Hillenbrand 2003), which is Northern Cities Shift territory.
+- **Talker dialect.** 87% of Hillenbrand's talkers were raised in southern
+  Michigan and nearly all the rest elsewhere in the inland northeast
+  (Hillenbrand 2003, p. 121): Northern Cities Shift territory.
   Whatever dialect the reference data has gets built into the metric, and
   hip-hop's main dialect is African American English, not Inland North.
   This is the CMUdict dialect caveat in acoustic form.
-- **No AY, AW or OY.** The 1995 study recorded 12 /hVd/ monophthongs (EY
-  and OW included) and no other diphthongs, so the Bark arm covers 66 of
-  H&B's 105 vowel pairs.
+- **No AY, AW or OY.** The 1995 study recorded 12 /hVd/ vowels (EY and OW
+  among them) and no other diphthongs, so the Bark arm covers 66 of H&B's
+  105 vowel pairs. A search for a source to fill the gap (2026-11-22)
+  found no published onset/offset table. Jacewicz, Fox & Salmons (2011),
+  *JSLHR* 54(2):448–470, doi:10.1044/1092-4388(2010/10-0161), is the
+  nearest fit (hide/howed/hoyd, southeastern-Wisconsin men, 20–80% of
+  the vowel) but gives values only in a figure, under unclear terms;
+  Hillenbrand (2003) draws the three diphthongs impressionistically, with
+  no numbers. Building them from monophthong endpoints was declined.
 - The F3 conditions drop tokens with an unmeasurable F3, and ER loses the
   most (38 of 45 men's tokens survive). F3 is hardest to track exactly
   where it matters most, so the F3 rows rest on less ER data than the

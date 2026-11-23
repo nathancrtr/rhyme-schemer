@@ -10,9 +10,9 @@ doi:10.1121/1.411872, via the MIT-licensed mirror at
 https://github.com/santiagobarreda/hillenbrand_et_al_1995
 (commit 7fee5b548ad3), hosted with Hillenbrand's permission.
 
-Talker dialect: mostly raised in southern Michigan (Hillenbrand 2003),
-i.e. Northern Cities Shift territory. No AY, AW or OY: the 1995 study
-recorded 12 /hVd/ vowels only.
+Talker dialect: 87% raised in southern Michigan (Hillenbrand 2003,
+p. 121), i.e. Northern Cities Shift territory. No AY, AW or OY: the
+1995 study recorded 12 /hVd/ vowels only.
 
 ``CONDITIONS[name][vowel]`` is a tuple of time points (one for steady
 state, two for 20% and 80%); each time point is a tuple of formants in
