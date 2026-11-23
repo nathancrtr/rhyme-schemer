@@ -222,6 +222,162 @@ itself — would move scanner scoring further from bare `rhyme_score`; whether
 that's worth it is a question for the closing exercise to answer on real
 data.
 
+## The first measurement: MCFlow (2026-11-22)
+
+Everything in the ledger below was written before the scanner had been
+scored against any ear but ours. It has now been scored against MCFlow
+(Condit-Schultz 2016), a corpus of 124 rap songs transcribed syllable by
+syllable, with a hand-marked rhyme class on every syllable its annotator
+heard as rhyming. Read the ledger with these numbers in view.
+
+**How it is scored.** `tools/mcflow_to_gold.py` turns each verse's rhyme
+marks into gold rhyme classes, and a class of *n* words into the *n*(*n*−1)/2
+word pairs it implies. The scanner's output is turned into pairs the same
+way, twice: its **edges** are the pairs it asserts directly, and its
+**classes** imply every pair inside a connected component. Precision is the
+share of the scanner's pairs that the gold contains. Recall is the share of
+the gold's pairs that the scanner found. F1 is their harmonic mean. Counts
+are pooled over all 392 verses (54,724 words, 16,739 gold pairs). A pair
+counts as found when the scanner's anchor word falls inside the gold extent;
+the stricter ruler, identical extents, is in the tools' output.
+
+**The baseline**, every knob at its default (`tools/run_corpus_eval.py`):
+
+| What is scored | Precision | Recall | F1 |
+|---|---|---|---|
+| Edges | 0.136 | 0.374 | 0.199 |
+| Classes | 0.050 | 0.665 | 0.093 |
+
+The scanner asserts 50,867 edges where the gold has 16,739 pairs, and about
+six of every seven are wrong by this annotator's ear. It forms 9,037 classes
+where the gold has 3,038, and 285 of them have twenty or more members where
+the gold has 10 (`tools/class_size_audit.py`).
+
+**What these numbers leave out.**
+
+- MCFlow has one annotator, working by ear. Nobody has measured how
+  completely the rhyme marks cover assonance, which this project counts as
+  rhyme. Any assonance the annotator passed over is scored here as a false
+  positive.
+- The gold is word-level. MCFlow marks syllables; the converter folds them
+  into words, so nothing here tests whether the scanner chose the right
+  anchor syllable.
+- A "line" is one of MCFlow's phrase breaks, set by the same annotator.
+  Lyrics pasted from the web are lineated differently, and the two-line
+  window means something different on them.
+- A gold class with many members implies many pairs that sit more than two
+  lines apart. No edge can reach those, so edge recall has a ceiling well
+  below 1 and the class row is the fairer recall figure.
+- Every knob was set before this corpus was seen, so the baseline is a
+  clean test. Nothing tuned on these 124 songs can be reported from them
+  again without holding some songs out.
+
+### Is it the dictionary, the stress, or the model?
+
+MCFlow also records how each syllable was pronounced (`**ipa`) and whether
+it carried a beat (`**stress`). `tools/mcflow_performed_eval.py` uses those
+to run the unchanged kernel four ways: dictionary or performed **segments**
+(the vowels and consonants), crossed with inferred or performed **stress**.
+In the last row the scanner is told exactly what was said and where the
+beats fell. Whatever error remains there cannot be the dictionary's fault
+or the stress model's.
+
+Defaults (threshold 0.75, seed threshold 0.8):
+
+| Kernel given | Edge P | Edge R | Edge F1 | Class P | Class R | Class F1 |
+|---|---|---|---|---|---|---|
+| dictionary segments, inferred stress (the baseline) | 0.136 | 0.374 | 0.199 | 0.050 | 0.665 | 0.093 |
+| dictionary segments, performed stress | 0.134 | 0.394 | 0.199 | 0.051 | 0.692 | 0.095 |
+| performed segments, inferred stress | 0.159 | 0.397 | 0.228 | 0.070 | 0.685 | 0.126 |
+| performed segments, performed stress | 0.162 | 0.420 | 0.234 | 0.074 | 0.722 | 0.135 |
+
+The same four with the seed gate at 1.0, so that two anchors may open a
+rhyme only if their vowels are identical:
+
+| Kernel given | Edge P | Edge R | Edge F1 | Class P | Class R | Class F1 |
+|---|---|---|---|---|---|---|
+| dictionary segments, inferred stress | 0.219 | 0.363 | 0.273 | 0.173 | 0.599 | 0.269 |
+| dictionary segments, performed stress | 0.232 | 0.378 | 0.288 | 0.170 | 0.623 | 0.267 |
+| performed segments, inferred stress | 0.257 | 0.389 | 0.310 | 0.236 | 0.630 | 0.343 |
+| performed segments, performed stress | 0.294 | 0.409 | 0.342 | 0.290 | 0.644 | 0.400 |
+
+For comparison, a rule with no kernel in it. Two words rhyme if their
+stressed vowels are identical and they sit within two lines of each other:
+
+| Rule | Edge P | Edge R | Edge F1 | Class P | Class R | Class F1 |
+|---|---|---|---|---|---|---|
+| same vowel, dictionary, any position | 0.248 | 0.361 | 0.294 | 0.239 | 0.594 | 0.341 |
+| same vowel, dictionary, line-final words only | 0.746 | 0.154 | 0.256 | 0.702 | 0.225 | 0.341 |
+| same vowel, performed, any position | 0.246 | 0.475 | 0.324 | 0.227 | 0.810 | 0.355 |
+| same vowel, performed, line-final words only | 0.761 | 0.225 | 0.347 | 0.696 | 0.355 | 0.470 |
+
+And the precision of the kernel's edges, split by how many of an edge's two
+sides end their line (defaults; edge counts in parentheses):
+
+| Kernel given | Both sides line-final | One side | Neither |
+|---|---|---|---|
+| dictionary segments, inferred stress | 0.705 (5,057) | 0.120 (16,416) | 0.047 (29,394) |
+| performed segments, performed stress | 0.717 (5,700) | 0.135 (16,402) | 0.057 (26,088) |
+
+**What the tables support.**
+
+1. *The dictionary is a small part of the error at default settings.*
+   Telling the scanner exactly what was said and where the beats fell moves
+   edge F1 from 0.199 to 0.234. Precision stays near 0.16.
+2. *Inferring stress costs almost nothing.* With dictionary segments,
+   replacing inferred stress with the performed beats leaves edge F1 at
+   0.199. The stress audit (`tools/mcflow_stress_audit.py`) is consistent
+   with that: 29.4% of words are performed with a different stress pattern
+   than the dictionary's first variant, but that is 21.0% of syllables
+   demoted against 3.9% promoted, and promotion is the case the scanner
+   enumerates and prices.
+3. *Requiring identical anchor vowels helps more than both oracles
+   together.* Moving the seed gate from 0.8 to 1.0 takes the baseline's
+   class F1 from 0.093 to 0.269. Performed segments and stress at the
+   default gate reach only 0.135. Graded vowel similarity at the anchor is
+   what items 2, 3 and 11 below propose to recalibrate. On this gold,
+   removing it outright does better than the scanner does with it.
+4. *Pronunciation matters once the gate is strict.* At seed 1.0 the
+   performed cells reach class F1 0.400 against the dictionary's 0.269.
+   The reading that fits both this and point 3 is that most rhymes between
+   vowels the dictionary keeps apart are identical vowels as performed.
+   The tables do not prove it.
+5. *The kernel does not clearly beat the rule.* Its best cell (0.400)
+   edges past the same-vowel rule at any position (0.355) and falls short
+   of that rule on line-final words (0.470). Alignment, coda weighting,
+   span enumeration and selection add little that is visible on this gold.
+6. *Line position separates right from wrong in every cell.* An edge whose
+   two sides both end their lines is right about 70% of the time. An edge
+   with neither side line-final is right about 5% of the time, and there
+   are almost six times as many of those. The scanner has no term for
+   position. Items 5 and 6 below, and the paragraph that follows the list,
+   name the same blind spot.
+
+**Two cautions on the performed rows.** The same person transcribed the
+pronunciations and marked the rhymes, from the same recordings, so a
+transcriber who heard a rhyme may have written the two vowels alike. Treat
+the performed rows as the most that better pronunciations could buy. And
+the thresholds were chosen for dictionary input; the performed rows are not
+retuned.
+
+**Not yet measured by a committed tool:** how often the scanner fires on
+text with no rhyme in it (prose, or verses rebuilt from lines of different
+songs), and any score on songs held out from tuning. A review in November
+2026 ran both from scratch scripts and found the scanner marking most words
+of plain prose; that result should be reproduced here before it is cited.
+
+**To reproduce.** Clone MCFlow somewhere outside this repository (it is
+commercial lyric text; see the content rule in `CLAUDE.md`), then:
+
+```bash
+python tools/mcflow_to_gold.py <clone>/Humdrum <scratch>/gold
+python tools/run_corpus_eval.py <scratch>/gold
+python tools/class_size_audit.py <scratch>/gold
+python tools/mcflow_stress_audit.py <clone>/Humdrum
+python tools/mcflow_performed_eval.py <clone>/Humdrum
+python tools/mcflow_performed_eval.py <clone>/Humdrum --seed-threshold 1.0
+```
+
 ## Open tuning ledger (for the closing exercise and Unit 14)
 
 *(The July 2026 external review — top-level `REVIEW.md` — put names and

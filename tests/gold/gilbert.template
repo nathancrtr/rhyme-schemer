@@ -1,0 +1,21 @@
+# Gold rhyme annotation. Fill in group:/not: lines below.
+# group: two or more word@L.W refs that rhyme as one family
+#        (spans allowed: word@L.W1-W2 covers words W1..W2)
+# not:   veto one pair implied by a group (A B C endorses A~C;
+#        if your ear rejects exactly that pair, veto it here)
+# Same-word repetition is not rhyme (rime riche): don't annotate
+# door~door; do annotate door~lore.
+#
+# Indexed words:
+#   I@0.0  am@0.1  the@0.2  very@0.3  model@0.4  of@0.5  a@0.6  modern@0.7  Major@0.8  General@0.9
+#   I've@1.0  information@1.1  vegetable@1.2  animal@1.3  and@1.4  mineral@1.5
+#   I@2.0  know@2.1  the@2.2  kings@2.3  of@2.4  England@2.5  and@2.6  I@2.7  quote@2.8  the@2.9  fights@2.10  historical@2.11
+#   From@3.0  Marathon@3.1  to@3.2  Waterloo@3.3  in@3.4  order@3.5  categorical@3.6
+
+verse:
+  I am the very model of a modern Major-General,
+  I've information vegetable, animal, and mineral,
+  I know the kings of England, and I quote the fights historical
+  From Marathon to Waterloo, in order categorical
+
+# group: ...

@@ -1,0 +1,28 @@
+# Gold rhyme annotation — Poe, "The Raven" (1845), stanza 1.
+# Annotator: claude (draft; written from the verse text, not scanner output)
+
+verse:
+  Once upon a midnight dreary, while I pondered, weak and weary,
+  Over many a quaint and curious volume of forgotten lore,
+  While I nodded, nearly napping, suddenly there came a tapping,
+  As of some one gently rapping, rapping at my chamber door.
+  'Tis some visitor, I muttered, tapping at my chamber door,
+  Only this and nothing more.
+
+# the -eary family; "nearly" is Poe's own echo of it
+group: dreary@0.4 weary@0.10 nearly@2.3
+
+# the -apping family. Two same-word repetitions are vetoed below:
+# repetition is rime riche, not rhyme (rapping,rapping / tapping...tapping)
+group: napping@2.4 tapping@2.9 rapping@3.5 rapping@3.6 tapping@4.5
+not: rapping@3.5 rapping@3.6
+not: tapping@2.9 tapping@4.5
+
+# the refrain family; door~door repetition vetoed
+group: lore@1.9 door@3.10 door@4.9 more@5.4
+not: door@3.10 door@4.9
+
+# UNCERTAIN: "while I pondered" / "While I nodded" — the parallel frame
+# makes pondered~nodded land for me; "forgotten" echoes them more faintly.
+# Cut whatever your ear rejects.
+group: pondered@0.7 nodded@2.2 forgotten@1.8

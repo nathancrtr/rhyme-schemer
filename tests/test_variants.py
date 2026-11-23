@@ -8,7 +8,7 @@ list, and that the singular convenience stays consistent with it.
 
 import unittest
 
-from rhyme_schemer import pronunciation_for, pronunciations_for
+from rhyme_schemer import pronunciation_for, pronunciations_for, scan_verse
 
 
 class TestVariantLookup(unittest.TestCase):
@@ -33,6 +33,22 @@ class TestVariantLookup(unittest.TestCase):
 
     def test_singular_oov_is_none(self):
         self.assertIsNone(pronunciation_for("asdfqwer"))
+
+    def test_inline_dictionary_comments_are_not_phonemes(self):
+        # CMUdict annotates a few variants inline: the second entry for
+        # "fine" is "F IH1 N AH0 # org, irish". Everything from the "#" on
+        # is a note about the entry, and none of it may reach a syllable.
+        variants = pronunciations_for("fine")
+        self.assertEqual(len(variants), 2)
+        for pron in variants:
+            for syllable in pron.syllables:
+                for phone in syllable.onset + syllable.coda:
+                    self.assertTrue(phone.isalpha(), phone)
+
+    def test_a_commented_entry_does_not_crash_the_scanner(self):
+        # The comment tokens used to land in a coda and raise KeyError in
+        # consonant_distance as soon as that variant was scored.
+        scan_verse("the wine is fine\nI walk the line")
 
 
 if __name__ == "__main__":
