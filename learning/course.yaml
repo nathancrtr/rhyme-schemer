@@ -81,9 +81,15 @@ resources:
     Deeper companions: *Using Automated Rhyme Detection to Characterize
     Rhyming Style in Rap Music* (Empirical Musicology Review 5(4):121–145,
     2010) and Hirjee's full thesis *Rhyme, Rhythm, and Rhubarb* expand the
-    method and the evaluation. The thesis's annotated lyrics were the field's
-    benchmark — an evaluation resource for Unit 14, and using them makes
-    results directly comparable to the named prior art.
+    method and the evaluation. What the 2009 paper already does *(checked
+    against the paper, November 2026)*: it augments CMUdict with slang and
+    with the "-in'" and "-a" endings, falls back to letter-to-sound rules,
+    reduces the stress of common one-syllable words, lets a line-final
+    syllable anchor a rhyme regardless of its stress, and extends a rhyme
+    while a length-normalized score stays above a threshold. Several things
+    this course builds in Units 11 and 13 are already in this paper. Its
+    manual evaluation set is five songs, which is too small to serve as
+    Unit 14 gold.
   access_note: >-
     Field note *(added July 2026)*: their work was never displaced for this
     task, but it also wasn't extended — today it is cited mostly as the source
@@ -236,11 +242,10 @@ resources:
     structured object to infer, not a graph to component-ize) is the
     principled alternative to connected components. Read alongside Unit 10.
   covers: >-
-    Group note: none of these three post-2010 lines invalidates the
-    feature-based symbolic approach — they are mostly line-final-only, and
-    Hirjee & Brown remain the only true task-peer for internal rap rhyme —
-    but a research artifact must position itself against the field as it is.
-    These three are the field.
+    Group note: none of these post-2010 lines invalidates the feature-based
+    symbolic approach — the first three are mostly line-final-only, and for
+    internal rap rhyme the task-peers are Hirjee & Brown and RapViz — but a
+    research artifact must position itself against the field as it is.
 - key: plechac
   tier: 2
   group: "The detection literature after 2010"
@@ -266,19 +271,40 @@ resources:
   formats: [PAPER]
   cost: "free"
   free: true
-  verified_at: "2026-07"
+  verified_at: "2026-11"
   links:
   - ["ACL Anthology", "https://aclanthology.org/W18-4509/"]
   why_this_one: >-
     ~97% pair-classification accuracy from raw *character* sequences, no
-    phonetic features at all, evaluated partly on **hip-hop lyrics annotated
-    for rhyme and assonance**. Doubly relevant: the neural baseline a
-    symbolic pipeline should beat or match, and an existing annotation effort
-    for Unit 14.
+    phonetic features at all (for English: held-out rhyme pairs against an
+    equal number of non-rhyming pairs). Relevant as the neural approach to
+    pair classification.
   covers: >-
-    Their rhyme gold standard includes a hip-hop set annotated for rhyme
-    *and* assonance — directly matching the project's north star; one of
-    Unit 14's three external corpora.
+    Its hip-hop test set is 116 **German** lyrics annotated for **end rhyme
+    only**, with assonance marked in the same line-end schema; a model
+    trained on historical German poetry reaches 0.88 on it. It is not gold
+    this project can use, though earlier versions of this entry said it was
+    *(corrected November 2026)*.
+- key: rapviz
+  tier: 2
+  group: "The detection literature after 2010"
+  title: "RapViz: Rhyme Detection and Visualization of Rap Music"
+  cite: "Müller, Panzer & Beck · IVAPP · 2025"
+  formats: [PAPER]
+  cost: "free"
+  free: true
+  verified_at: "2026-11"
+  links:
+  - ["SciTePress (PDF)", "https://www.scitepress.org/Papers/2025/131907/131907.pdf"]
+  why_this_one: >-
+    The closest current system to this one. It detects assonance rhymes in
+    rap from the same `pronouncing` dictionary, scores vowel similarity with
+    a perceptual confusion matrix (Phatak & Allen 2007), clusters with
+    DBSCAN, and synchronizes the display to the audio.
+  covers: >-
+    Its parameters are chosen by silhouette score, a measure of cluster
+    tightness; the paper reports no detection accuracy against annotated
+    lyrics.
 - key: aline
   tier: 2
   title: "Kondrak's ALINE — the phonetic-alignment prior art"
@@ -394,12 +420,15 @@ resources:
   verified_at: "2026-07"
   links:
   - ["Paper + corpus (Empirical Musicology Review)", "https://emusicology.org/article/id/4737/"]
+  - ["Transcriptions (GitHub)", "https://github.com/Computational-Cognitive-Musicology-Lab/MCFlow"]
   why_this_one: >-
     124 rap songs, 374 verses, ~6k measures, freely available, with rhythmic,
     prosodic, phonetic **and rhyme** annotations *including metric
     placement*. One dataset addresses both the Unit 14 evaluation gap and the
     prosody frontier (ledger items 5–6); its observed stress placements could
-    even validate the scanner's inferred anchors directly.
+    even validate the scanner's inferred anchors directly. The GitHub
+    repository carries no license file, and the rhyme marks are one
+    annotator's.
   covers: "Unit 14 ground truth + beat-grid data."
   access_note: >-
     Content-safety caveat: the repo's fixture rule (no multi-line commercial

@@ -131,24 +131,48 @@ matches its knowledge level rather than reaching across:
    (CVD-validated per mode), largest classes first, overflow folds to a
    neutral wash — never cycle hues.
 
+9. **`evaluate.py`** — the Unit 14 harness. `parse_gold` reads a
+   hand-editable annotation format (`tests/gold/`), and `score_pairs` /
+   `evaluate_verse` count precision, recall and F1 over **word pairs**:
+   gold groups and scanner output are both exploded into the pairs they
+   imply. Two levels are scored against the same gold (`edge_pairs`, the
+   selected matches; `class_pairs`, everything a component implies) under
+   two extent rulers (`anchor`, `exact`). Precision counts predicted pairs
+   and recall counts gold pairs, which are different denominators on
+   purpose (`Evaluation.gold_matched`). Not re-exported from `__init__.py`.
+
+**`tools/`** holds corpus scripts that are not part of the package: the
+MCFlow converter (`mcflow_to_gold.py`), the corpus driver
+(`run_corpus_eval.py`), two audits, and `mcflow_performed_eval.py`, which
+reruns the kernel on MCFlow's performed pronunciations by building
+`Candidate`s itself and handing them to the unchanged `find_matches` /
+`select_matches`. They need a local MCFlow clone kept **outside** the
+repository; never commit corpus lyric text, gold files derived from it, or
+a report that quotes it.
+
 **Test fixtures must be content-safe**: never embed multi-line commercial
 lyrics (content-filter + copyright); use the original engineered verse and
 public-domain poetry (Poe, Gilbert & Sullivan) in `tests/test_render.py`.
 Single iconic mild lines ("His palms are sweaty…") are fine.
 
-**Next milestone** (see top-level `README.md`): G2P is in place (Unit 13).
-Next is **evaluation** (Unit 14) — the one tuning sweep every deferred knob
-is waiting on (thresholds, weights, vowel space, chaining's quality gate,
-`DEFAULT_LTS_COST`; see the tuning ledger). Ground truth is **corpora-first**
-(MCFlow, Haider & Kuhn's hip-hop rhyme/assonance gold, Hirjee & Brown's
-annotated lyrics), with in-house annotation only for gaps — double-annotated,
-agreement reported; metrics are pairwise link P/R/F *plus* class-level
-clustering scores (B-cubed/ARI); "refit the vowel space from rhyme-pair
-data" and one edge-weight-aware clustering alternative are sweep conditions.
-Never commit corpus lyric text — store song IDs + offsets. The framing comes
-from the external research review in top-level `REVIEW.md`, which also
-grounds the README's "Where this sits in the field" section; consult it
-before repositioning the project or citing prior art.
+**Where the project stands** (see `README.md`, Status): the scanner has been
+measured against MCFlow, and the numbers are in the walkthrough section "The
+first measurement", in front of the tuning ledger. At default settings its
+edges score precision 0.136 and recall 0.374. The measurement puts the
+largest errors outside the knobs the ledger was saving for one tuning sweep
+(the scanner has no chance model and no term for line position), so whether
+to run that sweep or rebuild the scoring model is **undecided**. Ask before
+starting either. The standing rule is unchanged: no default is tuned
+piecemeal; new observations go in the ledger. MCFlow is the only usable
+gold found so far (Haider & Kuhn's hip-hop set is German and end-rhyme
+only; Hirjee & Brown's is five songs), and the class-level clustering
+scores (B-cubed, adjusted Rand) are not implemented.
+
+**Prior art and `REVIEW.md`.** `REVIEW.md` is an external review from July
+2026, preserved as written and never corrected. Do not treat it as an
+authority. The README's "Where this sits in the field" section lists the
+claims in it that are known to be wrong. Check any prior-art claim against
+the paper itself before repeating it.
 
 The public API is re-exported from `rhyme_schemer/__init__.py`; update `__all__`
 when you add user-facing surface.
