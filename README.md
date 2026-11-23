@@ -68,11 +68,28 @@ pronunciation dictionary at all
 collocation-driven detection bootstrapped from end-of-line co-occurrence
 ([Plecháč 2018](https://github.com/versotym/rhymetagger)); and supervised
 neural detection over raw character sequences
-([Haider & Kuhn 2018](https://aclanthology.org/W18-4509/), evaluated partly
-on hip-hop lyrics annotated for rhyme and assonance). Those systems are
-mostly line-final-only; for internal, multisyllabic, performed rhyme, a
-feature-based symbolic pipeline remains the interpretable, tunable choice —
-and Hirjee & Brown the only true task-peer.
+([Haider & Kuhn 2018](https://aclanthology.org/W18-4509/), whose hip-hop
+test set is 116 German lyrics annotated for end rhyme). Those systems are
+mostly line-final-only. For internal, multisyllabic, performed rhyme in
+English rap there are two task-peers. One is Hirjee & Brown. The other is
+[RapViz](https://www.scitepress.org/Papers/2025/131907/131907.pdf)
+(Müller, Panzer & Beck, IVAPP 2025), which detects and visualizes rap rhyme
+from the same `pronouncing` dictionary. It scores vowels with a perceptual
+confusion matrix where this project uses articulatory features, groups by
+density clustering where this project uses connected components, and
+reports no detection accuracy against annotated lyrics.
+
+Hirjee & Brown's 2009 system also anticipates more of this pipeline than
+earlier versions of this README credited. It augments CMUdict with slang
+and with dialect endings ("-in'", "-a"), and backs the dictionary with
+letter-to-sound rules. It reduces the stress of common one-syllable words
+and lets a line-final syllable anchor a rhyme whatever its stress. It
+extends a rhyme only while the length-normalized score stays above a
+threshold. What this project adds to that list is narrower: performed
+stress as a set of enumerated, priced readings, and a similarity space
+placed by hand from articulatory features where theirs is learned from
+lyrics. The first measurement (see Status) found that the priced stress
+readings change the score very little.
 
 Nor is a symbolic scanner a retro exercise in the LLM era. Benchmarks like
 [PhonologyBench (2024)](https://arxiv.org/html/2404.02456v2) show that LLMs,
@@ -111,10 +128,29 @@ for AAE specifically), "-a" is AAE non-rhoticity
 ([Thomas 2007](https://compass.onlinelibrary.wiley.com/doi/abs/10.1111/j.1749-818X.2007.00029.x))
 — and the performed form is the one that scores.
 
-*(This positioning follows an external research review of the project —
+*(This positioning began from an external research review of the project —
 citation currency, blind spots, novelty — preserved in
-[`REVIEW.md`](REVIEW.md). The curriculum and reading list under `learning/`
-fold in its findings.)*
+[`REVIEW.md`](REVIEW.md).)*
+
+`REVIEW.md` is kept as it was written in July 2026 and has not been
+corrected. Five of its claims are known to be wrong, each checked against
+the paper it cites:
+
+- It presents Haider & Kuhn's hip-hop set as gold for rhyme and assonance
+  that this project could use. The set is 116 German lyrics, annotated for
+  end rhyme only.
+- It proposes Katz (2015) and Kawahara (2007) as checks on the vowel space.
+  Both studies are about consonants. (The tuning ledger already records
+  this one.)
+- It says Hirjee & Brown "take dictionary stress as given". They reduce the
+  stress of common one-syllable words and let line-final syllables anchor
+  regardless of stress.
+- It calls Hirjee & Brown's annotated lyrics the field's benchmark. Their
+  2009 paper evaluates on five songs.
+- It calls three of the scanner's ideas fresh. Hirjee & Brown already
+  handle dialect spellings and already extend rhymes by a normalized score,
+  as described above. What is left of the three is the enumeration of
+  priced stress readings.
 
 ## Status
 
@@ -209,19 +245,50 @@ Vowel-space audits run (`learning/audits/`, no package changes):
   dialect artifact, and gives AY and OY their first measurements.
   Findings are tuning-ledger items 11–13.
 
-Next up: **evaluation** (Unit 14). Ground truth comes corpora-first —
-[MCFlow](https://emusicology.org/article/id/4737/) (rap transcriptions with
-rhyme annotations), [Haider & Kuhn's](https://aclanthology.org/W18-4509/)
-hip-hop rhyme/assonance gold standard, and Hirjee & Brown's own annotated
-lyrics for direct comparability — with in-house annotation only to fill gaps,
-double-annotated with a reported agreement figure. Metrics at two grains:
-pairwise link precision/recall/F1 *and* class-level clustering scores
-(B-cubed, adjusted Rand), because the mega-class pathologies only show up in
-the latter. Then one tuning sweep across every deferred knob — thresholds,
-weights, chaining gate — where "refit the vowel space from rhyme-pair data"
-(Hirjee & Brown's central move), a Bark formant space once its diphthongs
-are sourced, and an edge-weight-aware clustering
-alternative to connected components are sweep *conditions*, not just dials.
+Evaluation started (Unit 14):
+
+- `rhyme_schemer/evaluate.py` — the harness. Gold annotations live in a
+  hand-editable format. Gold groups and scanner output are both exploded
+  into word pairs, and precision, recall and F1 are counted over pairs at
+  two levels: the scanner's **edges**, and the pairs its **classes** imply.
+- `tools/` — corpus tools for
+  [MCFlow](https://emusicology.org/article/id/4737/), 124 rap songs with a
+  hand-marked rhyme class on every syllable its annotator heard as rhyming.
+  They convert it to gold, score the scanner on it, audit class sizes and
+  performed stress, and rerun the kernel on MCFlow's own transcription of
+  what was said. Corpus text stays outside the repository.
+- **First measurement** (2026-11-22; 392 verses, 16,739 gold pairs, every
+  knob at its default). Edges score precision 0.136 and recall 0.374. The
+  pairs implied by classes score 0.050 and 0.665. Given the performed
+  pronunciations and stress in place of the dictionary's, the same kernel
+  moves edge F1 from 0.199 to 0.234. Requiring identical anchor vowels
+  helps more than that. A rule with no kernel in it (identical stressed
+  vowels within two lines) scores better than the scanner's default and
+  about the same as its best configuration. An edge between two line-final
+  words is right about 70% of the time; an edge with neither side
+  line-final, about 5%. Full tables, and what the gold leaves out, are in
+  the [walkthrough](learning/interactive/lessons/unit-11-scanner-walkthrough.md)
+  under "The first measurement".
+
+What comes next is open. The plan written before the measurement was one
+tuning sweep over every deferred knob (thresholds, weights, the chaining
+gate), with three vowel spaces (the hand-placed one, one refit from
+rhyme-pair data, and a Bark formant space once its diphthongs are sourced)
+and an edge-weight-aware clustering method as sweep conditions. The
+measurement puts the largest errors outside those knobs. The scanner has no
+model of how often two unrelated words share a vowel by chance, and no term
+for where in the line a word sits. Whether to run the sweep or to rebuild
+the scoring model around those two things has not been decided. Two pieces
+of groundwork are needed either way: a control that measures how often the
+scanner fires on text with no rhyme in it, and a split of the corpus by
+artist so that nothing is tuned and tested on the same songs.
+
+The earlier plan named two more evaluation corpora, and neither holds up.
+Haider & Kuhn's hip-hop set is German and annotated for end rhyme only.
+Hirjee & Brown's manual evaluation set is five songs. MCFlow is the one
+annotated English rap corpus found so far, and it has a single annotator.
+The class-level clustering scores the plan called for (B-cubed, adjusted
+Rand) are not implemented yet; the harness reports pairs only.
 
 ## Development
 
