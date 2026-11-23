@@ -1,0 +1,36 @@
+# Gold rhyme annotation — original engineered verse.
+# Annotator: claude (draft; written from the verse text, not scanner output)
+# Uncertain calls are marked; adjudicate against your own ear.
+
+verse:
+  My palms are steady, my arms are ready
+  I wake up, shake the whole state up
+  I face the day and make my way
+  I'm nervous, but my verses stay steady
+  My Coogi sweater keeps me warm and clever
+  The plan spins round like fresh confetti
+  Whatever the weather, I hold it together
+  Already ready, sharp as a machete
+
+# the multisyllabic compound: "palms are" ~ "arms are"
+group: palms@0.1-2 arms@0.5-6
+
+# the -etty family ("Already" ends -eady; my ear says it belongs)
+group: steady@0.3 ready@0.7 steady@3.6 confetti@5.6 Already@7.0 ready@7.1 machete@7.5
+
+# the -ever/-eather family — deliberately SEPARATE from -etty:
+# sweater~steady don't rhyme for me (final ER vs IY)
+group: sweater@4.2 clever@4.7 Whatever@6.0 weather@6.2 together@6.6
+
+# the EY assonance family. UNCERTAIN at the edges: wake~make~shake (K coda)
+# and day~way~stay (open) are solid; cross-coda pairs like face~wake or
+# state~day ride on the project's "vowels are the rhyme" north star —
+# veto any your ear rejects.
+group: wake@1.1 shake@1.3 state@1.6 face@2.1 day@2.3 make@2.5 way@2.7 stay@3.5
+
+# "-ake up" spans: wake up ~ state up
+group: wake@1.1-2 state@1.6-7
+
+group: nervous@3.1 verses@3.4
+
+# Coogi rhymes with nothing in this verse (it's the OOV demo word).
