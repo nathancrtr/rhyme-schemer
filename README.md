@@ -192,6 +192,19 @@ Grapheme-to-phoneme fallback built:
   (dashed underline + provenance tooltip) so a guess never reads as
   dictionary fact.
 
+Vowel-space audits run (`learning/audits/`, no package changes):
+
+- Rank comparisons of our hand-placed vowel and consonant spaces against
+  Hirjee & Brown's rap-corpus log-odds (vowels ρ = +0.51, consonants
+  +0.41), and a Bark-scaled formant space built from Hillenbrand et al.'s
+  (1995) vowel measurements. On the 12 vowels that data covers, Bark
+  orders pairs closer to rap practice than the hand space (ρ = +0.69 vs
+  +0.56), though not by a margin the data can establish, and it brings
+  blind spots of its own, including the talkers' Michigan dialect. It
+  isn't buildable as a full vowel space yet: no published table gives
+  onset and offset formants for AY, AW and OY. Findings are tuning-ledger
+  items 11–13.
+
 Next up: **evaluation** (Unit 14). Ground truth comes corpora-first —
 [MCFlow](https://emusicology.org/article/id/4737/) (rap transcriptions with
 rhyme annotations), [Haider & Kuhn's](https://aclanthology.org/W18-4509/)
@@ -202,7 +215,8 @@ pairwise link precision/recall/F1 *and* class-level clustering scores
 (B-cubed, adjusted Rand), because the mega-class pathologies only show up in
 the latter. Then one tuning sweep across every deferred knob — thresholds,
 weights, chaining gate — where "refit the vowel space from rhyme-pair data"
-(Hirjee & Brown's central move) and an edge-weight-aware clustering
+(Hirjee & Brown's central move), a Bark formant space once its diphthongs
+are sourced, and an edge-weight-aware clustering
 alternative to connected components are sweep *conditions*, not just dials.
 
 ## Development

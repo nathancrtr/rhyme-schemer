@@ -393,7 +393,8 @@ here already; the review's contribution is that they have names.)*
     Any fix must be surgical, not blanket: EH~IH is corpus-*endorsed*
     (+0.2) and we price it high (0.836) — blanket front-vowel tightening
     would kill a protected pair — and AA~AO (+1.6, the cot–caught pair)
-    could stand to be *more* generous.
+    could stand to be *more* generous. *(Item 13: Bark-scaled formant
+    space doesn't remove this bias either; EY~IH ranks 3rd of 66 there.)*
     (b) **Rhoticity overpriced**: the corpus rates AA~ER (−0.6, rank 13),
     AO~ER, ER~UH, and ER~OW far more rhymable than we do — four of our
     ten largest disagreements, all in the stingy direction. Reading: much
@@ -409,7 +410,10 @@ here already; the review's contribution is that they have names.)*
     surface phonology from *spelling* testimony ("playa"); universal
     non-rhotic variants would claim it from genre priors alone, so they
     should carry a small sweepable cost, as testimony-free stress
-    promotion does.
+    promotion does. *(Item 13: in formant space, adding F3, the main
+    acoustic cue for r-coloring, pushes ER away from every vowel and
+    lowers agreement with the corpus, which fits this variant-first
+    reading.)*
 
 12. **Consonant-space audit findings** (2026-08-07, same audit; ρ = +0.41
     against H&B's coda-consonant log-odds). (a) **Stop-place mismatches
@@ -431,6 +435,64 @@ here already; the review's contribution is that they have names.)*
     either. (d) **Kawahara 2007's qualitative ordering: we pass** — his
     often-rhyme pairs (M~N, T~S, R~N: 0.75–0.85 for us) all outrank his
     rarely-rhyme pairs (M~SH, N~P: 0.46–0.50).
+
+13. **Bark-scaled formant space is a competing vowel space, not a fix**
+    (audit finding, 2026-11-22; `learning/audits/audit_bark.py`). Items 2
+    and 11 named Bark formant space as the standard perceptual
+    alternative to our quadrilateral; this is that check. Means from
+    Hillenbrand et al. (1995) cover 12 vowels (no AY, AW or OY), so every
+    number is over those 12 vowels' 66 pairs, Spearman ρ against H&B's
+    log-odds. Hand space: +0.561. Bark F1/F2, steady state, men: +0.681.
+    Bark F1/F2 at 20% and 80% of the vowel, men: **+0.693** (the best).
+    Adding F3: +0.625. Lobanov-normalized, men and women: +0.553 (F1/F2)
+    and +0.360 (F1/F2/F3).
+    (a) **Bark beats the hand space, but the gap isn't established.**
+    Bootstrapping over the 66 pairs puts the ρ difference at a median of
+    +0.128, 95% CI [−0.017, +0.307]. Pairs aren't independent (each vowel
+    sits in 11 of them), so even that interval is optimistic.
+    (b) **Bark doesn't fix the front-glide bias (item 11a).** EY~IH ranks
+    1st of 66 in the hand space, 3rd in Bark (1st at steady state), and
+    38th in the corpus. The pair really is acoustically close, so
+    rappers' avoidance of it needs another explanation. One candidate:
+    Kewley-Port & Atal (1989) found that phonetic identity shaped
+    listeners' vowel-difference judgments once the vowels being compared
+    belonged to different categories (a consonant frame alone made no
+    difference). Another is a property of the corpus. The data can't
+    tell these apart.
+    (c) **F3 hurting fits item 11b's variant-first decision.** F3 is the
+    main acoustic correlate of r-coloring. Adding it pushes ER away from
+    the other vowels (AH~ER rank 10 → 32, ER~UH 2 → 24; with Lobanov
+    normalization on top, AH~ER reaches 55) and lowers ρ. That fits the
+    reading that the corpus's ER rhymes were performed non-rhotic, while
+    acoustically rhotic ER really is far from everything. Without F3,
+    though, Bark ranks ER~UH 2nd of 66 (corpus 18th): wrong in the other
+    direction, not obviously better. Caveat: F3 is unmeasurable in 7 of
+    the 45 men's ER tokens, so the F3 rows rest on less ER data.
+    (d) **The reference data carries a dialect.** In Bark, AE~EH is the
+    closest pair of all (corpus rank 22). 87% of Hillenbrand's talkers
+    were raised in southern Michigan (Hillenbrand 2003, p. 121), Northern
+    Cities Shift territory, where raised /æ/ is a hallmark. This is the
+    CMUdict dialect caveat in acoustic form: whatever dialect the
+    reference data comes from gets built into the metric, and the
+    genre's main dialect is AAE, not Inland North. The honest fix is
+    AAE formant data, which nobody has sourced yet.
+    (e) **Lobanov normalization hurt; cause unknown.** One untested
+    guess: z-scoring every formant to unit variance overrides the
+    relative weighting the Bark scale sets up. Worth knowing alongside
+    it: Adank et al. (2004) found procedures like Lobanov's among the
+    best at preserving phonemic *categories*, which is a different job
+    from ordering cross-category similarity. Open.
+    For the sweep: the Bark space is a Unit 14 condition, never the
+    default, and the men-only choice behind its best row is a decision
+    still to be made, not a finding. It can't run yet. The kernel scores
+    all 15 vowels, and Hillenbrand has no AY, AW or OY. A source search
+    (2026-11-22) found no published onset/offset table for them. The
+    nearest candidate, Jacewicz, Fox & Salmons (2011, *JSLHR* 54(2),
+    /hVd/ words, southeastern-Wisconsin men, 20–80% of the vowel), gives
+    values only in a figure, and its license is unclear; Holbrook &
+    Fairbanks (1962) is paywalled and unchecked. Building diphthongs from
+    monophthong endpoints was considered and declined, so this waits on
+    data.
 
 Items 5 and 6 share a diagnosis: **performance context (line position, beat
 grid) carries information a segment-only scanner cannot see** — the

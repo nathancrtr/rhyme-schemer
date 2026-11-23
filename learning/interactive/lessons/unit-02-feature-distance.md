@@ -64,8 +64,28 @@ with consequences.
   every diagram encodes a choice.
 - **Articulatory adjacency is not perceptual confusability — or rhyme
   practice.** The quadrilateral is a tongue-position diagram, not a
-  psychoacoustic space (that would be Bark-scaled formant space), and not a
-  record of what rappers actually rhyme. This project *checked*: the
+  psychoacoustic space, and not a record of what rappers actually rhyme.
+  Here is what a psychoacoustic space looks like. Measure the men in
+  Hillenbrand et al.'s 1995 recordings saying "heed" (/i/) and "hid" (/ɪ/).
+  Their first formants differ by about 87 Hz, their second by about
+  289 Hz: in raw frequency the F2 gap is over three times the F1 gap. Put
+  the same numbers on the Bark scale and the gaps come out about equal
+  (0.83 and 0.89 Bark). A **formant** is a resonance of the vocal tract,
+  and the lowest two track the chart's axes (F1 rises as the tongue
+  lowers, F2 as it moves forward). **Bark** is a frequency scale built
+  from the ear's critical bands: roughly linear below about 500 Hz,
+  roughly logarithmic above. One Bark is one critical band wide, so equal
+  steps in Bark are equal steps in the ear's frequency resolution, wherever
+  they fall in the vowel range. Distance between vowels' formants in Bark
+  is the standard model of how far apart they *sound*. The project has
+  run that check too (`learning/audits/audit_bark.py`, ledger item 13):
+  Bark space orders vowel pairs closer to rap practice than the
+  quadrilateral, but not by a margin the data can establish, and it has
+  its own blind spots. Notice also what the Bark scale does to *this*
+  space's silent choice: the Euclidean metric here weighs a step of height
+  exactly as much as a step of backness, by assumption. In Bark space the
+  ear's frequency scale sets that ratio instead. The project *also* checked against
+  rhyme practice directly: the
   hand-placed space was rank-compared against Hirjee & Brown's rhyme-derived
   log-odds matrix (`learning/audits/`), and the audit found two systematic
   biases — the diphthong offglides you just clicked park EY and AY on top of
